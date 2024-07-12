@@ -1,0 +1,121 @@
+/* CustomNavbar.css */
+:root {
+    --navbar-dark-color: #ccc;
+    --navbar-dark-hover-color: white;
+    --navbar-dark-active-color: white;
+    --btn-bg-color: #2d2d2d;
+    --btn-hover-bg-color: #007bff;
+  }
+  
+  .navbar-dark .navbar-nav .nav-link {
+    color: white;
+    transition: color 0.3s ease;
+  }
+  
+  .navbar-dark .navbar-nav .nav-link:hover,
+  .navbar-dark .navbar-nav .nav-link:focus {
+    color: var(--navbar-dark-hover-color);
+    border-bottom: 2px solid transparent;
+  }
+  /* Navbar.css */
+
+/* ... existing styles ... */
+
+.navbar-dark .navbar-nav {
+    display: flex;
+    align-items: center;
+    margin-right: 199px; /* This might need adjusting or can be removed if not needed */
+  }
+  
+  .navbar-dark .navbar-nav .nav-link {
+    color: white;
+    font-size: 1rem; /* Adjust the font size as needed */
+    padding: 0.5rem 1rem; /* Vertical and horizontal padding */
+    margin: 0 0.5rem; /* Space between links */
+    transition: color 0.3s ease, background-color 0.3s ease;
+    border-radius: 0.25rem; /* Optional: for rounded corners */
+  }
+  
+  .navbar-dark .navbar-nav .nav-link:hover,
+  .navbar-dark .navbar-nav .nav-link:focus {
+    color: var(--navbar-dark-hover-color);
+    background-color: rgba(255, 255, 255, 0.1); /* Slight background on hover for better visibility */
+    text-decoration: none; /* Removing the underline */
+  }
+  
+  /* ... existing button styles ... */
+  
+  /* If the navbar has a variant where the dark theme isn't applied, 
+  you might need to replicate the styles without the .navbar-dark prefix */
+  
+  .navbar-dark .navbar-nav .nav-link:focus {
+    border-bottom-color: var(--navbar-dark-active-color);
+  }
+  
+  .btn-secondary {
+    background-color: var(--btn-bg-color);
+    border: none;
+    transition: background-color 0.3s ease;
+  }
+  
+  .btn-secondary:hover, .btn-secondary:focus {
+    background-color: var(--btn-hover-bg-color);
+  }
+  .launch-app-button {
+    --color: #ffa433;
+    padding: 0.8em 1.7em;
+    background-color: transparent;
+    border-radius: .3em;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: .5s;
+    font-weight: 400;
+    font-size: 17px;
+    border: 1px solid;
+    text-transform: uppercase;
+    color: var(--color);
+    z-index: 1;
+    font-family: monospace;
+   }
+   
+   .launch-app-button::before, .launch-app-button::after {
+    content: '';
+    display: block;
+    width: 50px;
+    height: 50px;
+    transform: translate(-50%, -50%);
+    position: absolute;
+    border-radius: 50%;
+    z-index: -1;
+    background-color: var(--color);
+    transition: 1s ease;
+    font-family:monospace;
+   }
+   
+   .launch-app-button::before {
+    top: -1em;
+    left: -1em;
+   }
+   
+   .launch-app-button::after {
+    left: calc(100% + 1em);
+    top: calc(100% + 1em);
+   }
+   
+   .launch-app-button:hover::before, .launch-app-button:hover::after {
+    height: 410px;
+    width: 410px;
+    
+   }
+   
+   .launch-app-button:hover {
+    color: rgb(10, 25, 30);
+    font-weight: bold;
+
+   }
+   
+   .launch-app-button:active {
+    filter: brightness(.8);
+   }
+   

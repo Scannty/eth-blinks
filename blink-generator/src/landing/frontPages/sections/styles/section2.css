@@ -1,0 +1,96 @@
+/* Base styles */
+.lexend-h2 {
+    font-family: "Lexend", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 500;
+    font-style: normal;
+    font-size: clamp(2.5rem, 4.2vw, 5rem);
+    text-align: left;
+    margin-left: 7%;
+  }
+  
+  .section2-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    color: black;
+    margin-bottom: 10%;
+  }
+  
+  .section2-content {
+    width: 60%;
+  }
+  
+  .section2-content p {
+    font-family: 'Lexend', sans-serif;
+    font-size: 1.2rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    text-align: left;
+    margin-left: 7%;
+    margin-top: 1em;
+  }
+  
+  .section2-image {
+    width: 40%;
+    text-align: right;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .section2-image img {
+    max-width: 100%;
+    height: auto;
+  }
+  .section2-parentContainer{
+    align-items:center
+}
+  /* Responsive styles */
+  @media (max-width: 768px) {
+    .section2-container {
+      flex-direction: column;
+      text-align: center;
+      margin-top: 0%;
+   }
+  
+    .section2-content,
+    .section2-image {
+      width: 100%;
+      margin-left: 0;
+      margin-right: 0;
+    }
+  
+    .lexend-h2 {
+      margin-left: 0; /* Reset margins for smaller screens */
+      font-size: clamp(2rem, 8vw, 3.5rem); /* Smaller clamp range for smaller screens */
+    }
+  
+    .section2-content p {
+      margin: 0 5%; /* Adjust the margin for smaller screens */
+    }
+    .section2-image { 
+    display: none;
+    }
+    .section2-parentContainer{
+        align-items:self-start
+    }
+  }
+  @keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fadeIn {
+  animation: fadeIn 3s ease forwards;
+}
+
+.sectionParagraph{
+    font-size: 2em;
+}

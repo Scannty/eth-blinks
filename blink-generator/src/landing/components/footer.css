@@ -1,0 +1,42 @@
+/* footer.css */
+.footer-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 7%;
+    background-color: #252525; /* Adjust the background color as needed */
+    color: white;
+}
+
+.footer-logo img {
+    max-width: 150px; /* Adjust the logo size as needed */
+}
+
+.footer-links {
+    display: flex;
+    gap: 20px;
+}
+
+.footer-links a {
+    color: white;
+    text-decoration: none;
+    font-family: "Lexend", sans-serif;
+    transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+    color: var(--accent-color); /* Use the defined accent color for hover state */
+}
+
+@media (max-width: 768px) {
+    .footer-container {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .footer-links {
+        flex-direction: column;
+        gap: 10px;
+    }
+}

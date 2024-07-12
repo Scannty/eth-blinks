@@ -1,0 +1,29 @@
+.section4-image{
+    
+    width: 40%;
+    text-align: right;
+    display: flex;
+    justify-content: center;
+  
+}
+
+  
+.section4-image img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  @media (max-width: 768px) {
+
+    .section4-image {
+      width: 100%;
+      margin-left: 0;
+      margin-right: 0;
+    }
+  
+   
+    .section4-image { 
+    display: none;
+    }
+
+  }
