@@ -2,29 +2,102 @@ import React, { useState } from 'react';
 import { HexColorPicker } from 'react-colorful';
 
 const EditElement = () => {
-  const [color, setColor] = useState('#ffffff');
+  const [bgColor, setBgColor] = useState('#ffffff');
+  const [textColor, setTextColor] = useState('#333333');
   const [text, setText] = useState('Your text here');
   const [hexInput, setHexInput] = useState('#ffffff');
+  const [colorTarget, setColorTarget] = useState('background'); // 'background' or 'text'
 
   const handleHexInputChange = (e) => {
     const newColor = e.target.value;
     setHexInput(newColor);
     if (/^#[0-9A-F]{6}$/i.test(newColor)) {
-      setColor(newColor);
+      if (colorTarget === 'background') {
+        setBgColor(newColor);
+      } else {
+        setTextColor(newColor);
+      }
     }
+  };
+
+  const handleColorChange = (newColor) => {
+    setHexInput(newColor);
+    if (colorTarget === 'background') {
+      setBgColor(newColor);
+    } else {
+      setTextColor(newColor);
+    }
+  };
+
+  const toggleColorTarget = () => {
+    setColorTarget((prevTarget) => (prevTarget === 'background' ? 'text' : 'background'));
+  };
+
+  const generateHtmlCode = () => {
+    return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Custom Component</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+    }
+    .editBox {
+      width: 300px;
+      height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      background-color: ${bgColor};
+    }
+    .text {
+      font-family: Arial, sans-serif;
+      font-size: 1.5em;
+      color: ${textColor};
+    }
+  </style>
+</head>
+<body>
+  <div class="editBox">
+    <h2 class="text">${text}</h2>
+  </div>
+</body>
+</html>
+    `;
+  };
+
+  const downloadHtmlCode = () => {
+    const element = document.createElement("a");
+    const file = new Blob([generateHtmlCode()], { type: 'text/html' });
+    element.href = URL.createObjectURL(file);
+    element.download = "CustomComponent.html";
+    document.body.appendChild(element); // Required for this to work in FireFox
+    element.click();
   };
 
   return (
     <div style={styles.container}>
       <div style={styles.editContainer}>
-        <div style={{ ...styles.editBox, backgroundColor: color }}>
-          <h2 style={styles.text}>{text}</h2>
+        <div style={{ ...styles.editBox, backgroundColor: bgColor }}>
+          <h2 style={{ ...styles.text, color: textColor }}>{text}</h2>
         </div>
       </div>
       <div style={styles.controls}>
         <div style={styles.control}>
-          <label style={styles.label}>Change Color:</label>
-          <HexColorPicker color={color} onChange={setColor} />
+          <label style={styles.label}>
+            Change {colorTarget === 'background' ? 'Background' : 'Text'} Color
+          </label>
+          <HexColorPicker color={colorTarget === 'background' ? bgColor : textColor} onChange={handleColorChange} style={styles.colorPicker} />
           <input
             type="text"
             value={hexInput}
@@ -32,7 +105,11 @@ const EditElement = () => {
             style={styles.hexInput}
             placeholder="#000000"
           />
+          <button onClick={toggleColorTarget} style={styles.toggleButton}>
+            {colorTarget === 'background' ? 'Switch to Text Color' : 'Switch to Background Color'}
+          </button>
         </div>
+       
         <div style={styles.control}>
           <label style={styles.label}>Edit Text:</label>
           <input
@@ -42,6 +119,11 @@ const EditElement = () => {
             style={styles.input}
           />
         </div>
+        <div style={styles.control}>
+          <button onClick={downloadHtmlCode} style={styles.downloadButton}>
+            Download HTML
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -50,9 +132,11 @@ const EditElement = () => {
 const styles = {
   container: {
     display: 'flex',
-    height: '100vh',
     backgroundColor: '#f0f0f0',
     padding: '20px',
+    width: '50vw',
+    maxHeight: '85vh',
+    borderRadius: '20px',
   },
   editContainer: {
     flex: 1,
@@ -62,8 +146,8 @@ const styles = {
     marginRight: '20px',
   },
   editBox: {
-    width: '300px',
-    height: '200px',
+    width: '100%',
+    height: '100%',
     borderRadius: '10px',
     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
     display: 'flex',
@@ -73,17 +157,15 @@ const styles = {
   text: {
     fontFamily: 'Arial, sans-serif',
     fontSize: '1.5em',
-    color: '#333',
   },
   controls: {
     flex: 1,
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   control: {
-    width: '100%',
-    maxWidth: '300px',
+    flex: 1,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -110,6 +192,28 @@ const styles = {
     border: '1px solid #ccc',
     marginTop: '10px',
     textAlign: 'center',
+  },
+  colorPicker: {
+    marginBottom: '20px',
+  },
+  toggleButton: {
+    padding: '10px 20px',
+    fontSize: '1em',
+    borderRadius: '5px',
+    border: '1px solid #ccc',
+    backgroundColor: '#fff',
+    cursor: 'pointer',
+    marginTop: '10px',
+    width: '100%',
+  },
+  downloadButton: {
+    padding: '10px 20px',
+    fontSize: '1em',
+    borderRadius: '5px',
+    border: '1px solid #ccc',
+    backgroundColor: '#4CAF50',
+    color: 'white',
+    cursor: 'pointer',
   },
 };
 
