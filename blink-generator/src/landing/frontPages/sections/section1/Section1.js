@@ -26,9 +26,9 @@ const Section1 = ({ handleButtonClick }) => {
         <h1 className='lexend-h1'>With Ephy</h1>
       </div>
       <div className={`waitlist-section ${inView ? 'fadeIn' : ''}`}>
-  <a>
+  <p className='description'>
     Make affiliate links, promote swaps, mint NFT's and much more. Deploy on X, Reddit, Facebook, etc.  Community driven and open sourced.
-  </a>
+  </p>
   <button
     variant="light"
     className="launch-app-button"

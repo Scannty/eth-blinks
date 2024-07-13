@@ -99,12 +99,11 @@ function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject, handleNextCli
 
   return (
     <div style={{height: '100vh', padding: '10px', zoom: '0.8' }}>
-<h4 className="beautiful-heading" style={{marginTop: '1%'}}>Edit UI Of Your Blink (If You Wish)</h4>
 {selectedTemplate && (
         <div style={styles.editorContainer}>
           <div
             className="templateContainer"
-            style={{ ...styles.templateContainer, marginTop: '40px' }}
+            style={{ ...styles.templateContainer, marginTop: '0px' }}
             dangerouslySetInnerHTML={{ __html: templates[selectedTemplate].html }}
             onClick={(e) => handleElementClick(e.target)}
           />

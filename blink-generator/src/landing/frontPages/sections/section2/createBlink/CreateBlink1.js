@@ -16,13 +16,13 @@ function CreateBlink1({ currentBlinkObject, setCurrentBlinkObject, handleNextCli
     <div style={{height: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" , zoom:"0.8"}} >
             <h4>Choose A Template For Your Blink</h4>
 
-      <div style={{ display: "flex", flexDirection: "row", justifyContent: 'space-between', alignItems: 'center', width: "90vw", marginTop: '40px' }}>
+      <div style={{ display: "flex", flexDirection: "row", justifyContent: 'space-between', alignItems: 'center', marginTop: '40px' }}>
         {Object.keys(templates).map((template, index) => (
           <div
             key={index}
             style={{
               backgroundColor: selectedTemplate === template ? "#f5f5f5" : "white",
-              padding: '50px',
+              padding: '20px',
               margin: 10,
               borderRadius: 30,
               border: selectedTemplate === template ? "3px solid skyblue" : "3px solid transparent",
@@ -39,8 +39,8 @@ function CreateBlink1({ currentBlinkObject, setCurrentBlinkObject, handleNextCli
         ))}
       </div>
       <button
-        className="launch-app-button"
-        style={{ color: 'white', marginTop: 10, fontSize: "1.2em", padding: "10px 20px", borderRadius: "5px", cursor: "pointer", backgroundColor: currentBlinkObjectState ? "black" : "#4b8cd0" }}
+       
+        style={{ color: 'white', marginTop: 10, fontSize: "1.2em", padding: "10px", borderRadius: "5px", cursor: "pointer", backgroundColor: currentBlinkObjectState ? "#4b8cd0" : "black", width:"250px", height:"100px" }}
         onClick={handleNextClick}
         disabled={!currentBlinkObjectState}
       >

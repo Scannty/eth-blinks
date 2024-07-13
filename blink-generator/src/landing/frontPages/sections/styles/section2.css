@@ -1,4 +1,11 @@
 /* Base styles */
+
+.description{
+  font-family: "Open Sans", sans-serif;
+  font-weight: 500;
+
+}
+
 .lexend-h2 {
     font-family: "Lexend", sans-serif;
     font-optical-sizing: auto;
