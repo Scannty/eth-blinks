@@ -1,56 +1,68 @@
-import React, { useState, useEffect } from 'react';
-import { HexColorPicker } from 'react-colorful';
+import React, { useState, useEffect } from 'react'
+import { HexColorPicker } from 'react-colorful'
 
-const EditElement = ({ bgColor: initialBgColor, textColor: initialTextColor, text: initialText, onBgColorChange, onTextColorChange, onTextChange, onDownload }) => {
-  const [bgColor, setBgColor] = useState(initialBgColor);
-  const [textColor, setTextColor] = useState(initialTextColor);
-  const [text, setText] = useState(initialText);
-  const [hexInput, setHexInput] = useState(initialBgColor);
-  const [colorTarget, setColorTarget] = useState('background'); // 'background' or 'text'
+const EditElement = ({
+  bgColor: initialBgColor,
+  textColor: initialTextColor,
+  text: initialText,
+  onBgColorChange,
+  onTextColorChange,
+  onTextChange,
+  createBlink,
+}) => {
+  const [bgColor, setBgColor] = useState(initialBgColor)
+  const [textColor, setTextColor] = useState(initialTextColor)
+  const [text, setText] = useState(initialText)
+  const [hexInput, setHexInput] = useState(initialBgColor)
+  const [colorTarget, setColorTarget] = useState('background') // 'background' or 'text'
 
   useEffect(() => {
-    setBgColor(initialBgColor);
-    setTextColor(initialTextColor);
-    setText(initialText);
-  }, [initialBgColor, initialTextColor, initialText]);
+    setBgColor(initialBgColor)
+    setTextColor(initialTextColor)
+    setText(initialText)
+  }, [initialBgColor, initialTextColor, initialText])
 
   const handleHexInputChange = (e) => {
-    const newColor = e.target.value;
-    setHexInput(newColor);
+    const newColor = e.target.value
+    setHexInput(newColor)
     if (/^#[0-9A-F]{6}$/i.test(newColor)) {
       if (colorTarget === 'background') {
-        setBgColor(newColor);
-        onBgColorChange(newColor);
+        setBgColor(newColor)
+        onBgColorChange(newColor)
       } else {
-        setTextColor(newColor);
-        onTextColorChange(newColor);
+        setTextColor(newColor)
+        onTextColorChange(newColor)
       }
     }
-  };
+  }
 
   const handleColorChange = (newColor) => {
-    setHexInput(newColor);
+    setHexInput(newColor)
     if (colorTarget === 'background') {
-      setBgColor(newColor);
-      onBgColorChange(newColor);
+      setBgColor(newColor)
+      onBgColorChange(newColor)
     } else {
-      setTextColor(newColor);
-      onTextColorChange(newColor);
+      setTextColor(newColor)
+      onTextColorChange(newColor)
     }
-  };
+  }
 
   const toggleColorTarget = () => {
-    setColorTarget((prevTarget) => (prevTarget === 'background' ? 'text' : 'background'));
-  };
+    setColorTarget((prevTarget) => (prevTarget === 'background' ? 'text' : 'background'))
+  }
 
   const handleTextChange = (e) => {
-    setText(e.target.value);
-    onTextChange(e.target.value);
-  };
+    setText(e.target.value)
+    onTextChange(e.target.value)
+  }
 
   return (
     <div style={styles.container}>
-        
+      <div style={styles.control}>
+        <button onClick={createBlink} style={styles.downloadButton}>
+          Create Blink
+        </button>
+      </div>
       <div style={styles.controls}>
         <div style={styles.control}>
           <label style={styles.label}>Change {colorTarget === 'background' ? 'Background' : 'Text'} Color</label>
@@ -69,11 +81,10 @@ const EditElement = ({ bgColor: initialBgColor, textColor: initialTextColor, tex
           <label style={styles.label}>Edit Text:</label>
           <input type="text" value={text} onChange={handleTextChange} style={styles.input} />
         </div>
-       
       </div>
     </div>
-  );
-};
+  )
+}
 
 const styles = {
   container: {
@@ -163,6 +174,6 @@ const styles = {
     color: 'white',
     cursor: 'pointer',
   },
-};
+}
 
-export default EditElement;
+export default EditElement
