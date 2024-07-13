@@ -26,9 +26,24 @@
   .waitlist-section {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: left;
     flex: 3; /* Adjust the flex ratio as needed */
+    flex-direction: column;
+    font-family: "Lexend", sans-serif;
+    font-size: 1.3em;
+    text-align: left; /* Ensures text is aligned to the left */
+    width: 100%; /* Ensures the section takes full width */
+    margin-right: 80px;
   }
+  
+  .waitlist-section a {
+    text-align: left; /* Align text inside the anchor tag to the left */
+    width: 100%; /* Ensures the anchor tag takes full width */
+    font-size: 1.2em;
+    margin: 20px;
+
+  }
+  
   
   /* Styles for .textInputWrapper */
   .textInputWrapper {
@@ -131,6 +146,7 @@
   }
   .section1div{
     flex-direction: row;
+    background: linear-gradient(135deg, rgba(240, 128, 128, 0.2), rgba(255, 255, 255, 0.8));
   }
   .section1TitleDiv{
     flex:5
@@ -138,6 +154,8 @@
   /* Add to existing styles */
   .section1-container {
     flex-direction: column;
+    background: linear-gradient(135deg, rgba(240, 128, 128, 0.2), rgba(255, 255, 255, 0.8));
+
   }
   @keyframes fadeInUp {
     to {
@@ -159,12 +177,7 @@
         margin: 0 5%; /* Adding margin for smaller screens */
     }
 
-    .waitlist-section {
-        flex-direction: column;
-        width: 100%;
-        justify-content:flex-start
-    }
-
+ 
     .textInputWrapper {
         width: 80%; /* Making the input wrapper take up more space */
     }

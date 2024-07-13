@@ -1,12 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import CreateBlink1 from './sections/section2/createBlink/CreateBlink1';
-import CreateBlink2 from './sections/section2/createBlink/CreateBlink2'
-
-// Generates a random color in hex format
-const generateRandomColor = () => '#' + Math.floor(Math.random() * 16777215).toString(16);
-
-// Pre-generate random colors for each section
-const sectionColors = Array.from({ length: 2 }, generateRandomColor);
+import CreateBlink2 from './sections/section2/createBlink/CreateBlink2';
+import CreateBlink3 from './sections/section2/createBlink/CreateBlink3';
 
 // Navigation Dots Component
 const NavigationDots = ({ sections, currentSection }) => (
@@ -25,7 +20,7 @@ const NavigationDots = ({ sections, currentSection }) => (
           width: currentSection === index ? '12px' : '8px',
           height: currentSection === index ? '12px' : '8px',
           borderRadius: '50%',
-          backgroundColor: currentSection === index ? 'orange' : 'black',
+          backgroundColor: currentSection === index ? 'black' : 'black',
           margin: '0 7px',
           transition: 'all 0.3s ease-out',
           boxShadow: '0 2px 4px rgba(0, 0, 0, 0.5)',
@@ -49,14 +44,14 @@ const ScrollHorizontal = () => {
     setTimeout(() => setIsScrolling(false), 1000);
 
     if (e.deltaY > 0) {
-      setCurrentSection(prevSection => Math.min(prevSection + 1, sectionColors.length - 1));
+      setCurrentSection(prevSection => Math.min(prevSection + 1, sections.length - 1));
     } else if (e.deltaY < 0) {
       setCurrentSection(prevSection => Math.max(prevSection - 1, 0));
     }
   };
 
   const handleNextClick = () => {
-    setCurrentSection(prevSection => Math.min(prevSection + 1, sectionColors.length - 1));
+    setCurrentSection(prevSection => Math.min(prevSection + 1, sections.length - 1));
   };
 
   useEffect(() => {
@@ -64,7 +59,7 @@ const ScrollHorizontal = () => {
       if (isScrolling) return;
 
       if (e.key === 'ArrowRight') {
-        setCurrentSection(prevSection => Math.min(prevSection + 1, sectionColors.length - 1));
+        setCurrentSection(prevSection => Math.min(prevSection + 1, sections.length - 1));
       } else if (e.key === 'ArrowLeft') {
         setCurrentSection(prevSection => Math.max(prevSection - 1, 0));
       }
@@ -76,24 +71,25 @@ const ScrollHorizontal = () => {
 
   const sections = [
     <CreateBlink1 currentBlinkObject={currentBlinkObject} setCurrentBlinkObject={setCurrentBlinkObject} handleNextClick={handleNextClick} />,
-    <CreateBlink2 currentBlinkObject={currentBlinkObject} setCurrentBlinkObject={setCurrentBlinkObject} />
+    <CreateBlink2 currentBlinkObject={currentBlinkObject} setCurrentBlinkObject={setCurrentBlinkObject} handleNextClick={handleNextClick} />,
+    <CreateBlink3 currentBlinkObject={currentBlinkObject} setCurrentBlinkObject={setCurrentBlinkObject} handleNextClick={handleNextClick} />
   ];
 
   return (
-    <div onWheel={handleScroll} style={{ width: '100vw', overflow: 'hidden', position: 'relative', backgroundColor: "#ffa433" }}>
-      <div style={{ display: 'flex', width: `${sectionColors.length * 100}vw`, transition: 'transform 0.75s ease-out', transform: `translateX(-${currentSection * 100}vw)` }}>
-        {sectionColors.map((color, index) => (
+    <div onWheel={handleScroll} style={{ width: '100vw', overflow: 'hidden', position: 'relative',  }}>
+      <div style={{ display: 'flex', width: `${sections.length * 100}vw`, transition: 'transform 0.75s ease-out', transform: `translateX(-${currentSection * 100}vw)` }}>
+        {sections.map((section, index) => (
           <div
             key={index}
             style={{
               ...getSectionStyle(""),
             }}
           >
-            {React.cloneElement(sections[index], { currentBlinkObject, setCurrentBlinkObject, handleScroll })}
+            {React.cloneElement(section, { currentBlinkObject, setCurrentBlinkObject, handleScroll })}
           </div>
         ))}
       </div>
-      <NavigationDots sections={sectionColors} currentSection={currentSection} />
+      <NavigationDots sections={sections} currentSection={currentSection} />
     </div>
   );
 };

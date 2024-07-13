@@ -2,6 +2,8 @@ import '../styles/section1.css';
 import { useInView } from 'react-intersection-observer';
 import { useState } from 'react';
 
+import logo from '../../../../assets/img/shines.png'
+
 const Section1 = ({ handleButtonClick }) => {
   const [email, setEmail] = useState('');
 
@@ -15,30 +17,50 @@ const Section1 = ({ handleButtonClick }) => {
   });
 
   return (
-    <div style={{ backgroundColor: "white", height: '100%', width: '100%', display: 'flex', zoom:"0.8" }} className='section1div'>
-      <br />
-      <br />
-      <br />
-      <div style={{ color: 'black', marginTop: '5%' }} className={`section1TitleDiv ${inView ? 'fadeIn' : ''}`} ref={ref}>
+    <div style={{ height: '100%', width: '100%', display: 'flex', zoom: "0.8", background: 'linear-gradient(135deg, rgba(135, 206, 235, 0.2), rgba(255, 255, 255, 0.8))' }} className='section1div'>
+      <img src={logo} alt="Logo" style={styles.logo}  className={`section1TitleDiv ${inView ? 'fadeIn' : ''}`}/>
+      <div style={{ color: 'black', marginTop: '10%' }} className={`section1TitleDiv ${inView ? 'fadeIn' : ''}`} ref={ref}>
         <h1 className='lexend-h1'>Bring Your Web3</h1>
         <h1 className='lexend-h1'>Projects To</h1>
-        <h1 className='lexend-h1'>A Larger Audience</h1>
-        <div style={{ width: '80%', height: '5px', backgroundColor: 'black' }}></div>
-        <br />
-        <h1 className='lexend-h1'>Welcome To Miata</h1>
+        <h1 className='lexend-h1'>A Larger Audience </h1>
+        <h1 className='lexend-h1'>With Ephy</h1>
       </div>
       <div className={`waitlist-section ${inView ? 'fadeIn' : ''}`}>
-        <button
-          variant="light"
-          className="launch-app-button"
-          style={{ fontSize: "1.2em" }}
-          onClick={handleButtonClick}
-        >
-          Create Your First Ethereum Blink
-        </button>
-      </div>
+  <a>
+    Make affiliate links, promote swaps, mint NFT's and much more. Deploy on X, Reddit, Facebook, etc.  Community driven and open sourced.
+  </a>
+  <button
+    variant="light"
+    className="launch-app-button"
+    style={{ fontSize: "0.9em", width:'100%', marginTop:'20px' }}
+    onClick={handleButtonClick}
+  >
+    Create Your First Eth Blink
+  </button>
+
+  <button
+    variant="light"
+    className="launch-app-button"
+    style={{ fontSize: "0.8em", width:'100%', marginTop:'20px', color:'black', backgroundColor:'white', }}
+    onClick={handleButtonClick}
+  >
+    Check Out The Repo
+  </button>
+</div>
+
     </div>
   );
 }
+
+const styles = {
+  logo: {
+    position: 'fixed',
+    top: '20px',
+    left: '20px',
+    width: '80px', // Adjust the size as needed
+    height: 'auto',
+    zIndex: 1000,
+  },
+};
 
 export default Section1;

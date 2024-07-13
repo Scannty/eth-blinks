@@ -2,9 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Section1 from './sections/section1/Section1';
 import Navbar from '../components/NavbarCustom';
 import Section2 from './sections/section2/Section2';
-
-const generateRandomColor = () => '#' + Math.floor(Math.random() * 16777215).toString(16);
-const sectionColors = Array.from({ length: 2 }, generateRandomColor);
+import '../../assets/img/shines.png'
 const sections = [<Section1 />, <Section2 />];
 
 const NavigationDots = ({ sections, currentSection }) => (
@@ -22,7 +20,7 @@ const NavigationDots = ({ sections, currentSection }) => (
           width: currentSection === index ? '12px' : '8px',
           height: currentSection === index ? '12px' : '8px',
           borderRadius: '50%',
-          backgroundColor: currentSection === index ? 'orange' : 'black',
+          backgroundColor: currentSection === index ? 'white' : 'black',
           margin: '7px 0',
           transition: 'all 0.3s ease-out',
           boxShadow: '0 2px 4px rgba(0, 0, 0, 0.5)',
@@ -44,7 +42,7 @@ const FullPageScrollVertical = () => {
     setTimeout(() => setIsScrolling(false), 1000);
 
     if (e.deltaY > 0) {
-      setCurrentSection(prevSection => Math.min(prevSection + 1, sectionColors.length - 1));
+      setCurrentSection(prevSection => Math.min(prevSection + 1, sections.length - 1));
     } else if (e.deltaY < 0) {
       setCurrentSection(prevSection => Math.max(prevSection - 1, 0));
     }
@@ -55,7 +53,7 @@ const FullPageScrollVertical = () => {
       if (isScrolling) return;
 
       if (e.key === 'ArrowDown') {
-        setCurrentSection(prevSection => Math.min(prevSection + 1, sectionColors.length - 1));
+        setCurrentSection(prevSection => Math.min(prevSection + 1, sections.length - 1));
       } else if (e.key === 'ArrowUp') {
         setCurrentSection(prevSection => Math.max(prevSection - 1, 0));
       }
@@ -66,37 +64,36 @@ const FullPageScrollVertical = () => {
   }, [isScrolling]);
 
   const handleButtonClick = () => {
-    setCurrentSection(prevSection => Math.min(prevSection + 1, sectionColors.length - 1));
+    setCurrentSection(prevSection => Math.min(prevSection + 1, sections.length - 1));
   };
 
   return (
     <div onWheel={handleScroll} style={{ height: '100vh', overflow: 'hidden', position: 'relative' }}>
-      <Navbar />
-      <NavigationDots sections={sectionColors} currentSection={currentSection} />
-      {sectionColors.map((color, index) => (
+      <NavigationDots sections={sections} currentSection={currentSection} />
+      {sections.map((section, index) => (
         <div
           key={index}
           style={{
-            ...getSectionStyle(color),
+            ...getSectionStyle(),
             transform: `translateY(-${currentSection * 100}vh)`,
             transition: 'transform 0.75s ease-out',
           }}
         >
-          {React.cloneElement(sections[index], { handleButtonClick })}
+
+          {React.cloneElement(section, { handleButtonClick })}
         </div>
       ))}
     </div>
   );
 };
 
-const getSectionStyle = (backgroundColor) => ({
+const getSectionStyle = () => ({
   height: '100vh',
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
   textAlign: 'center',
   width: '100%',
-  backgroundColor,
 });
 
 export default FullPageScrollVertical;

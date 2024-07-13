@@ -1,56 +1,56 @@
-import React, { useState, useEffect } from 'react'
-import EditElement from '../../../../components/EditElement'
-import templates from '../../../../../assets/blinkTemplates.json'
+import React, { useState, useEffect } from 'react';
+import EditElement from '../../../../components/EditElement';
+import templates from '../../../../../assets/blinkTemplates.json';
 
-function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject }) {
+function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject, handleNextClick }) {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [editingElement, setEditingElement] = useState(null);
   const [bgColor, setBgColor] = useState('#ffffff');
   const [textColor, setTextColor] = useState('#333333');
   const [text, setText] = useState('Your text here');
-  const [editDone, setEditDone] = useState(true);
+  const [editMode, setEditMode] = useState(false);
 
   useEffect(() => {
     if (currentBlinkObject.templateName) {
-      setSelectedTemplate(currentBlinkObject.templateName)
+      setSelectedTemplate(currentBlinkObject.templateName);
     }
-  }, [currentBlinkObject])
+  }, [currentBlinkObject]);
 
   const handleTemplateSelect = (templateName) => {
-    setSelectedTemplate(templateName)
-    setEditingElement(null) // Reset editing element when a new template is selected
-  }
+    setSelectedTemplate(templateName);
+    setEditingElement(null); // Reset editing element when a new template is selected
+  };
 
   const handleElementClick = (element) => {
-    setEditingElement(element)
-    setBgColor(element.style.backgroundColor || '#ffffff')
-    setTextColor(element.style.color || '#333333')
-    setText(element.textContent || 'Your text here')
-  }
+    setEditingElement(element);
+    setBgColor(element.style.backgroundColor || '#ffffff');
+    setTextColor(element.style.color || '#333333');
+    setText(element.textContent || 'Your text here');
+  };
 
   const handleBgColorChange = (newColor) => {
-    setBgColor(newColor)
+    setBgColor(newColor);
     if (editingElement) {
-      editingElement.style.backgroundColor = newColor
+      editingElement.style.backgroundColor = newColor;
     }
-  }
+  };
 
   const handleTextColorChange = (newColor) => {
-    setTextColor(newColor)
+    setTextColor(newColor);
     if (editingElement) {
-      editingElement.style.color = newColor
+      editingElement.style.color = newColor;
     }
-  }
+  };
 
   const handleTextChange = (newText) => {
-    setText(newText)
+    setText(newText);
     if (editingElement) {
-      editingElement.textContent = newText
+      editingElement.textContent = newText;
     }
-  }
+  };
 
   const createBlink = async () => {
-    const editedHtml = document.querySelector('.templateContainer').innerHTML
+    const editedHtml = document.querySelector('.templateContainer').innerHTML;
     const htmlContent = `
 <!DOCTYPE html>
 <html lang="en">
@@ -84,30 +84,23 @@ function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject }) {
   </div>
 </body>
 </html>
-    `
-    console.log('here')
-    const iFrame = { iframe: { html: htmlContent, js: templates[selectedTemplate].js } }
+    `;
+    const iFrame = { iframe: { html: htmlContent, js: templates[selectedTemplate].js } };
     const res = await fetch('http://localhost:8000/storeToIpfs', {
       method: 'POST',
       body: JSON.stringify(iFrame),
       headers: {
         'Content-Type': 'application/json',
       },
-    })
-    console.log(res)
-    console.log(res.text())
-
-    // const blob = new Blob([htmlContent], { type: 'text/html' })
-    // const element = document.createElement('a')
-    // element.href = URL.createObjectURL(blob)
-    // element.download = 'CustomComponent.html'
-    // document.body.appendChild(element) // Required for this to work in FireFox
-    // element.click()
-  }
+    });
+    console.log(res);
+    console.log(await res.text());
+  };
 
   return (
-    <div style={{ backgroundColor: '#ffa433', height: '100vh', padding: '20px', zoom: '0.8' }}>
-      {selectedTemplate && (
+    <div style={{height: '100vh', padding: '10px', zoom: '0.8' }}>
+<h4 className="beautiful-heading" style={{marginTop: '1%'}}>Edit UI Of Your Blink (If You Wish)</h4>
+{selectedTemplate && (
         <div style={styles.editorContainer}>
           <div
             className="templateContainer"
@@ -115,7 +108,7 @@ function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject }) {
             dangerouslySetInnerHTML={{ __html: templates[selectedTemplate].html }}
             onClick={(e) => handleElementClick(e.target)}
           />
-          {editingElement && (
+          {editMode && editingElement && (
             <EditElement
               bgColor={bgColor}
               textColor={textColor}
@@ -128,24 +121,59 @@ function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject }) {
           )}
         </div>
       )}
-              <button  className="launch-app-button"  
-              onClick={(e) => handleElementClick(e.target)}
-              style={{ color: 'white', marginTop: 10, fontSize: "1.2em", padding: "10px 20px", borderRadius: "5px", cursor: "pointer", backgroundColor: "black" }}>{!editDone?"Save":"Edit this template"}</button>
-
+      <div style={{ marginTop: '10px', display: 'flex', gap: '10px' }}>
+        {!editMode && (
+          <>
+            <button
+              className="launch-app-button"
+              onClick={() => setEditMode(true)}
+              style={styles.editButton}
+            >
+              Edit
+            </button>
+            <button
+              className="launch-app-button"
+              style={styles.nextButton}
+              onClick={handleNextClick}
+            >
+              Next
+            </button>
+          </>
+        )}
+        {editMode && (
+          <>
+            <button
+              className="launch-app-button"
+              onClick={() => setEditMode(false)}
+              style={styles.saveButton}
+            >
+              Save
+            </button>
+            <button
+              className="launch-app-button"
+              onClick={() => setEditMode(false)}
+              style={styles.cancelButton}
+            >
+              Cancel
+            </button>
+          </>
+        )}
+      </div>
     </div>
-  )
+  );
 }
 
 const styles = {
   editorContainer: {
     display: 'flex',
     flexDirection: 'row',
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
     borderRadius: '10px',
     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
     padding: '10px',
     marginTop: '50px',
     marginBottom: '20px',
+    backdropFilter: 'blur(10px)',
   },
   templateContainer: {
     flex: 2,
@@ -153,15 +181,46 @@ const styles = {
     padding: '20px',
     marginRight: '20px',
   },
-  downloadButton: {
-    padding: '10px 20px',
-    fontSize: '1em',
-    borderRadius: '5px',
-    border: '1px solid #ccc',
-    backgroundColor: '#4CAF50',
+  editButton: {
     color: 'white',
+    fontSize: '1.2em',
+    padding: '10px 20px',
+    borderRadius: '5px',
     cursor: 'pointer',
+    backgroundColor: 'skyblue',
+    width: '50%',
+    transition: 'background-color 0.3s ease',
   },
-}
+  nextButton: {
+    color: 'white',
+    fontSize: '1.2em',
+    padding: '10px 20px',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    backgroundColor: '',
+    width: '50%',
+    transition: 'background-color 0.3s ease',
+  },
+  saveButton: {
+    color: 'white',
+    fontSize: '1.2em',
+    padding: '10px 20px',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    backgroundColor: '#4b8cd0',
+    width: '50%',
+    transition: 'background-color 0.3s ease',
+  },
+  cancelButton: {
+    color: 'white',
+    fontSize: '1.2em',
+    padding: '10px 20px',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    backgroundColor: 'black',
+    width: '50%',
+    transition: 'background-color 0.3s ease',
+  },
+};
 
-export default CreateBlink2
+export default CreateBlink2;
