@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import Section1 from './sections/section1/Section1';
-import Navbar from '../components/NavbarCustom';
-import Section2 from './sections/section2/Section2';
 import CreateBlink1 from './sections/section2/createBlink/CreateBlink1';
-import CreateBlink2 from './sections/section2/createBlink/CreateBlink2';
+import CreateBlink2 from './sections/section2/createBlink/CreateBlink2'
 
 // Generates a random color in hex format
 const generateRandomColor = () => '#' + Math.floor(Math.random() * 16777215).toString(16);
@@ -58,6 +55,10 @@ const ScrollHorizontal = () => {
     }
   };
 
+  const handleNextClick = () => {
+    setCurrentSection(prevSection => Math.min(prevSection + 1, sectionColors.length - 1));
+  };
+
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (isScrolling) return;
@@ -73,15 +74,13 @@ const ScrollHorizontal = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isScrolling]);
 
-  // Array of sections with the currentBlinkObject passed as a prop
   const sections = [
-    <CreateBlink1 currentBlinkObject={currentBlinkObject} />,
-    <CreateBlink2 currentBlinkObject={currentBlinkObject} />
+    <CreateBlink1 currentBlinkObject={currentBlinkObject} setCurrentBlinkObject={setCurrentBlinkObject} handleNextClick={handleNextClick} />,
+    <CreateBlink2 currentBlinkObject={currentBlinkObject} setCurrentBlinkObject={setCurrentBlinkObject} />
   ];
 
   return (
     <div onWheel={handleScroll} style={{ width: '100vw', overflow: 'hidden', position: 'relative', backgroundColor: "#ffa433" }}>
-      <NavigationDots sections={sectionColors} currentSection={currentSection} />
       <div style={{ display: 'flex', width: `${sectionColors.length * 100}vw`, transition: 'transform 0.75s ease-out', transform: `translateX(-${currentSection * 100}vw)` }}>
         {sectionColors.map((color, index) => (
           <div
@@ -90,10 +89,11 @@ const ScrollHorizontal = () => {
               ...getSectionStyle(""),
             }}
           >
-            {React.cloneElement(sections[index], { currentBlinkObject, setCurrentBlinkObject, handleScroll})}
+            {React.cloneElement(sections[index], { currentBlinkObject, setCurrentBlinkObject, handleScroll })}
           </div>
         ))}
       </div>
+      <NavigationDots sections={sectionColors} currentSection={currentSection} />
     </div>
   );
 };

@@ -6,7 +6,7 @@ const NavbarCustom = () => {
   const logoUrl = 'https://i.ibb.co/5BxBMjQ/aggrgator.png'; // Replace with your logo image URL
 
   return (
-    <Navbar variant="dark" expand="lg" sticky="top" style={{backgroundColor:'#ffa433', borderBottom: '1px  white'}}>
+    <Navbar variant="dark" expand="lg"  style={{backgroundColor:'#ffa433', borderBottom: '1px  white'}}>
     
       <Navbar.Toggle aria-controls="basic-navbar-nav" style={{marginRight:'10px'}} />
       <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end" style={{marginRight:'20px'}}>

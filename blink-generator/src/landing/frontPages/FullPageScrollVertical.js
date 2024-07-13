@@ -1,17 +1,12 @@
-
 import React, { useState, useEffect } from 'react';
 import Section1 from './sections/section1/Section1';
 import Navbar from '../components/NavbarCustom';
 import Section2 from './sections/section2/Section2';
 
-
-// Generates a random color in hex format
 const generateRandomColor = () => '#' + Math.floor(Math.random() * 16777215).toString(16);
-
-// Pre-generate random colors for each section
 const sectionColors = Array.from({ length: 2 }, generateRandomColor);
-const sections = [<Section1/>, <Section2/>]
-// Navigation Dots Component
+const sections = [<Section1 />, <Section2 />];
+
 const NavigationDots = ({ sections, currentSection }) => (
   <div style={{
     position: 'fixed',
@@ -24,14 +19,14 @@ const NavigationDots = ({ sections, currentSection }) => (
       <div
         key={index}
         style={{
-          width: currentSection === index ? '12px' : '8px', // Slightly smaller for a more refined look
-          height: currentSection === index ? '12px' : '8px', // Slightly smaller for a more refined look
+          width: currentSection === index ? '12px' : '8px',
+          height: currentSection === index ? '12px' : '8px',
           borderRadius: '50%',
-          backgroundColor: currentSection === index ? 'orange' : 'black', // Darker colors for a serious look
-          margin: '7px 0', // Adjust margin to give more space around larger dots
-          transition: 'all 0.3s ease-out', // Smooth transition for all properties
-          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.5)', // Subtle shadow for depth
-          opacity: currentSection === index ? 1 : 0.7, // Less opacity for non-active dots
+          backgroundColor: currentSection === index ? 'orange' : 'black',
+          margin: '7px 0',
+          transition: 'all 0.3s ease-out',
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.5)',
+          opacity: currentSection === index ? 1 : 0.7,
         }}
       />
     ))}
@@ -43,7 +38,6 @@ const FullPageScrollVertical = () => {
   const [isScrolling, setIsScrolling] = useState(false);
 
   const handleScroll = (e) => {
-    e.preventDefault();
     if (isScrolling) return;
 
     setIsScrolling(true);
@@ -71,9 +65,13 @@ const FullPageScrollVertical = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isScrolling]);
 
+  const handleButtonClick = () => {
+    setCurrentSection(prevSection => Math.min(prevSection + 1, sectionColors.length - 1));
+  };
+
   return (
     <div onWheel={handleScroll} style={{ height: '100vh', overflow: 'hidden', position: 'relative' }}>
-      <Navbar/>
+      <Navbar />
       <NavigationDots sections={sectionColors} currentSection={currentSection} />
       {sectionColors.map((color, index) => (
         <div
@@ -84,14 +82,13 @@ const FullPageScrollVertical = () => {
             transition: 'transform 0.75s ease-out',
           }}
         >
-          {sections[index]}
+          {React.cloneElement(sections[index], { handleButtonClick })}
         </div>
       ))}
     </div>
   );
 };
 
-// Dynamic background color style
 const getSectionStyle = (backgroundColor) => ({
   height: '100vh',
   display: 'flex',
