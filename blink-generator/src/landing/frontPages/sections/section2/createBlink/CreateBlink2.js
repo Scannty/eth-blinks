@@ -8,6 +8,7 @@ function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject }) {
   const [bgColor, setBgColor] = useState('#ffffff');
   const [textColor, setTextColor] = useState('#333333');
   const [text, setText] = useState('Your text here');
+  const [editDone, setEditDone] = useState(true);
 
   useEffect(() => {
     if (currentBlinkObject.templateName) {
@@ -21,6 +22,11 @@ function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject }) {
   };
 
   const handleElementClick = (element) => {
+    if(editingElement)
+    {
+        setEditingElement(null)
+    }
+    setEditDone(!editDone)
     setEditingElement(element);
     setBgColor(element.style.backgroundColor || '#ffffff');
     setTextColor(element.style.color || '#333333');
@@ -116,6 +122,10 @@ function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject }) {
           )}
         </div>
       )}
+              <button  className="launch-app-button"  
+              onClick={(e) => handleElementClick(e.target)}
+              style={{ color: 'white', marginTop: 10, fontSize: "1.2em", padding: "10px 20px", borderRadius: "5px", cursor: "pointer", backgroundColor: "black" }}>{!editDone?"Save":"Edit this template"}</button>
+
     </div>
   );
 }
@@ -132,7 +142,7 @@ const styles = {
     marginBottom: '20px'
   },
   templateContainer: {
-    flex: 1,
+    flex: 2,
     borderRadius: '10px',
     padding: '20px',
     marginRight: '20px',

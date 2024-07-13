@@ -50,11 +50,7 @@ const EditElement = ({ bgColor: initialBgColor, textColor: initialTextColor, tex
 
   return (
     <div style={styles.container}>
-         <div style={styles.control}>
-          <button onClick={onDownload} style={styles.downloadButton}>
-            Download HTML
-          </button>
-        </div>
+        
       <div style={styles.controls}>
         <div style={styles.control}>
           <label style={styles.label}>Change {colorTarget === 'background' ? 'Background' : 'Text'} Color</label>
@@ -85,7 +81,7 @@ const styles = {
     flexDirection: 'row',
     backgroundColor: '#ffffff',
     padding: '20px',
-    width: '50vw',
+    width: '40vw',
     maxHeight: '80vh',
     borderRadius: '20px',
   },

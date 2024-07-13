@@ -38,7 +38,7 @@ function CreateBlink1({ currentBlinkObject, setCurrentBlinkObject, handleNextCli
       </div>
       <button
         className="launch-app-button"
-        style={{ color: 'black', marginTop: 10, fontSize: "1.2em", padding: "10px 20px", borderRadius: "5px", cursor: "pointer", backgroundColor: currentBlinkObjectState ? "#4CAF50" : "" }}
+        style={{ color: 'white', marginTop: 10, fontSize: "1.2em", padding: "10px 20px", borderRadius: "5px", cursor: "pointer", backgroundColor: currentBlinkObjectState ? "black" : "orange" }}
         onClick={handleNextClick}
         disabled={!currentBlinkObjectState}
       >
