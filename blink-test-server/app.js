@@ -10,7 +10,7 @@ app.use(
   })
 )
 
-app.get("/swap", (req, res) => {
+app.get('/swap', (req, res) => {
   //return res.json({iframe: {html: "", js: ""}});
   res.json({
     iframe: {
@@ -494,11 +494,11 @@ app.get("/swap", (req, res) => {
         document.getElementById("input").addEventListener('keyup', debounce(updateAmount, 200));
       `,
     },
-  });
-});
+  })
+})
 
 app.get('/blink', (req, res) => {
-  return res.json({iframe: {html: "", js: ""}});
+  return res.json({ iframe: { html: '', js: '' } })
   res.json({
     iframe: {
       html: `
@@ -569,7 +569,7 @@ document.getElementById("dugme").addEventListener('click', showAlert);
 })
 
 app.get('/blink-erc20', (req, res) => {
-  return res.json({iframe: {html: "", js: ""}});
+  return res.json({ iframe: { html: '', js: '' } })
   res.json({
     iframe: {
       html: `
@@ -1050,7 +1050,7 @@ app.get('/donation', (req, res) => {
     border: none;
     padding: 10px 18px;
     border-radius: 12px;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: bold;
     cursor: pointer;
     width: 100%;
@@ -1104,20 +1104,19 @@ app.get('/donation', (req, res) => {
     <img src="https://t4.ftcdn.net/jpg/05/76/12/63/360_F_576126362_ll2tqdvXs27cDRRovBTmFCkPM9iX68iL.jpg" alt="Background Image" />
     <div class="content">
       <div class="input">
-        <img src="https://cryptologos.cc/logos/usd-coin-usdc-logo.png" alt="USDC" />
+        <img src="https://etherscan.io/token/images/apecoin_32.png" alt="APE" />
         <input id="donationAmount" type="number" placeholder="Enter donation amount" />
       </div>
-      <button id="donateButton">Donate USDC</button>
+      <button id="donateButton">Donate APE</button>
       <div class="predefined-buttons">
-        <button class="predefined-button" value="10"">Donate $10</button>
-        <button class="predefined-button" value="50">Donate $50</button>
-        <button class="predefined-button" value="100">Donate $100</button>
+        <button class="predefined-button" value="10"">Donate 10 APE</button>
+        <button class="predefined-button" value="50">Donate 50 APE</button>
+        <button class="predefined-button" value="100">Donate 100 APE</button>
       </div>
     </div>
   </div>
       `,
       js: `
-       console.log('USDC Donation Blink')
     const predefinedButtons = document.querySelectorAll('.predefined-button')
     const donationAmountInput = document.getElementById('donationAmount')
     const mainButton = document.getElementById('donateButton')
@@ -1137,8 +1136,8 @@ app.get('/donation', (req, res) => {
 
     async function sendDonation(amount) {
       const recipient = '0x53FA684bDd93da5324BDc8B607F8E35eC79ccF5A'
-      const tokenAddress = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' // replace with token address
-      const decimals = 6 // replace with token decimals
+      const tokenAddress = '0x4d224452801ACEd8B2F0aebE155379bb5D594381' // replace with token address
+      const decimals = 18 // replace with token decimals
       if (typeof window.ethereum !== 'undefined') {
         try {
           console.log('Sending transaction')
