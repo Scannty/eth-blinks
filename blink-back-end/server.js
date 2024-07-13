@@ -1,12 +1,12 @@
 // Routes
-import express from 'express'
-import controllers from './controllers.js'
+const express = require('express')
+const controllers = require('./controllers.js')
 const app = express()
 const port = 3000
 
 app.get('/', controllers.helloWorldCtrl)
-app.post('/generateTransferBlink', controllers.generateTransferBlinkCtrl)
-// app.post('/generateAdBlink', controllers.generateTransferBlinkCtrl)
+app.post('/generateEthTransferBlink', controllers.generateEthTransferBlinkCtrl)
+app.post('/generateERC20TransferBlink', controllers.generateErc20TransferBlinkCtrl)
 // app.post('/generateBridgeBlink', controllers.generateTransferBlinkCtrl)
 // app.post('/generateSwapBlink', controllers.generateTransferBlinkCtrl)
 
