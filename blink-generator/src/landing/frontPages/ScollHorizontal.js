@@ -17,8 +17,8 @@ const NavigationDots = ({ sections, currentSection }) => (
       <div
         key={index}
         style={{
-          width: currentSection === index ? '12px' : '8px',
-          height: currentSection === index ? '12px' : '8px',
+          width: currentSection === index ? '8px' : '8px',
+          height: currentSection === index ? '8px' : '8px',
           borderRadius: '50%',
           backgroundColor: currentSection === index ? 'black' : 'black',
           margin: '0 7px',

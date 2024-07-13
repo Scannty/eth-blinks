@@ -371,7 +371,7 @@ app.get("/bridge", (req, res) => {
     iframe: {
       html: `
         <style>
-          .card {
+          .bridge-card {
             background-color: white;
             border-radius: 15px;
             padding: 10px;
@@ -380,7 +380,7 @@ app.get("/bridge", (req, res) => {
             align-self: center;
             max-width: 600px;
           }
-          .card img {
+          .bridge-card img {
             width: 100%;
             height: auto;
             max-height: 250px;
@@ -388,7 +388,7 @@ app.get("/bridge", (req, res) => {
             border-radius: 12px;
             margin-bottom: 10px;
           }
-          .content {
+          .bridge-content {
             background-color: #f7f9fa;
             border-radius: 12px;
             padding: 10px;
@@ -396,22 +396,22 @@ app.get("/bridge", (req, res) => {
             flex-direction: column;
             gap: 10px;
           }
-          .row {
+          .bridge-row {
             display: flex;
             gap: 10px;
             align-items: center;
           }
-          .select-container {
+          .bridge-select-container {
             display: flex;
             flex-direction: column;
             flex: 1;
           }
-          .select-label {
+          .bridge-select-label {
             font-size: 12px;
             color: #555;
             margin-bottom: 3px;
           }
-          .input, .select {
+          .bridge-input, .bridge-select {
             display: flex;
             align-items: center;
             background-color: white;
@@ -420,7 +420,7 @@ app.get("/bridge", (req, res) => {
             padding: 5px;
             flex: 1;
           }
-          .input img, .select img {
+          .bridge-input img, .bridge-select img {
             width: 24px;
             height: 24px;
             margin-right: 8px;
@@ -488,16 +488,16 @@ app.get("/bridge", (req, res) => {
             margin-right: 8px;
           }
         </style>
-        <div class="card">
+        <div class="bridge-card">
           <img
             src="https://zengo.com/wp-content/uploads/USDC-to-Chainlink.png"
             alt="Bridge USDC"
           />
-          <div class="content">
-            <div class="row">
-              <div class="select-container">
-                <div class="select-label">From Network</div>
-                <div class="select">
+          <div class="bridge-content">
+            <div class="bridge-row">
+              <div class="bridge-select-container">
+                <div class="bridge-select-label">From Network</div>
+                <div class="bridge-select">
                   <img
                     src="https://cryptologos.cc/logos/ethereum-eth-logo.png"
                     alt="From Network"
@@ -509,9 +509,9 @@ app.get("/bridge", (req, res) => {
                   </select>
                 </div>
               </div>
-              <div class="select-container">
-                <div class="select-label">To Network</div>
-                <div class="select">
+              <div class="bridge-select-container">
+                <div class="bridge-select-label">To Network</div>
+                <div class="bridge-select">
                   <img
                     src="https://cryptologos.cc/logos/ethereum-eth-logo.png"
                     alt="To Network"
@@ -524,7 +524,7 @@ app.get("/bridge", (req, res) => {
                 </div>
               </div>
             </div>
-            <div class="input">
+            <div class="bridge-input">
               <img
                 src="https://cryptologos.cc/logos/usd-coin-usdc-logo.png"
                 alt="USDC"
@@ -581,7 +581,7 @@ app.get("/faucet", (req, res) => {
     iframe: {
       html: `
         <style>
-          .card {
+          .faucet-card {
             background-color: white;
             border-radius: 15px;
             padding: 10px;
@@ -590,7 +590,7 @@ app.get("/faucet", (req, res) => {
             align-self: center;
             max-width: 600px;
           }
-          .card img {
+          .faucet-card img {
             width: 100%;
             height: auto;
             max-height: 250px;
@@ -598,7 +598,7 @@ app.get("/faucet", (req, res) => {
             border-radius: 12px;
             margin-bottom: 10px;
           }
-          .content {
+          .faucet-content {
             background-color: #f7f9fa;
             border-radius: 12px;
             padding: 10px;
@@ -606,7 +606,7 @@ app.get("/faucet", (req, res) => {
             flex-direction: column;
             gap: 10px;
           }
-          .input {
+          .faucet-input {
             display: flex;
             align-items: center;
             background-color: white;
@@ -615,7 +615,7 @@ app.get("/faucet", (req, res) => {
             padding: 5px;
             flex: 1;
           }
-          .input img {
+          .faucet-input img {
             width: 24px;
             height: 24px;
             margin-right: 8px;
@@ -668,13 +668,13 @@ app.get("/faucet", (req, res) => {
             margin-right: 8px;
           }
         </style>
-        <div class="card">
+        <div class="faucet-card">
           <img
             src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Ethereum_logo_2014.svg/1200px-Ethereum_logo_2014.svg.png"
             alt="Ethereum Logo"
           />
-          <div class="content">
-            <div class="input">
+          <div class="faucet-content">
+            <div class="faucet-input">
               <img
                 src="https://cryptologos.cc/logos/ethereum-eth-logo.png"
                 alt="ETH"
@@ -722,6 +722,7 @@ app.get("/faucet", (req, res) => {
     },
   });
 });
+
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "test.html"));

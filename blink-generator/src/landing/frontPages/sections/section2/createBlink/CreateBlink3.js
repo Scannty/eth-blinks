@@ -4,6 +4,7 @@ import templates from '../../../../../assets/blinkTemplates.json';
 function CreateBlink3({ currentBlinkObject, setCurrentBlinkObject, handleNextClick }) {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [linkCopied, setLinkCopied] = useState(false);
+  const [socialLinkCopied, setSocialLinkCopied] = useState(false);
 
   useEffect(() => {
     if (currentBlinkObject.templateName) {
@@ -13,52 +14,8 @@ function CreateBlink3({ currentBlinkObject, setCurrentBlinkObject, handleNextCli
 
   const copyLink = async () => {
     try {
-      const editedHtml = document.querySelector('.templateContainer').innerHTML;
-      const htmlContent = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Custom Component</title>
-  <style>
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      background-color: #f0f0f0;
-    }
-    .templateContainer {
-      width: 300px;
-      height: 200px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-  </style>
-</head>
-<body>
-  <div class="templateContainer">
-    ${editedHtml}
-  </div>
-</body>
-</html>
-      `;
-      const iFrame = { iframe: { html: htmlContent, js: templates[selectedTemplate].js } };
-      const res = await fetch('http://localhost:8000/storeToIpfs', {
-        method: 'POST',
-        body: JSON.stringify(iFrame),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      const data = await res.json();
-      const url = `http://localhost:8000/ipfs/${data.ipfsHash}`;
-      navigator.clipboard.writeText(url);
+      const url = 'testtt'; // The IPFS link you want to copy
+      await navigator.clipboard.writeText(url);
       setLinkCopied(true);
       setTimeout(() => setLinkCopied(false), 2000);
     } catch (error) {
@@ -66,11 +23,37 @@ function CreateBlink3({ currentBlinkObject, setCurrentBlinkObject, handleNextCli
     }
   };
 
-  return (
-    <div style={{ height: '100vh', padding: '5px', zoom: '0.7' }}>
-        <h4>Your Blink Is Ready</h4>
-        <a style={{fontSize:'1.1em'}}>It has been deployed and can be accessed via IPFS using the link below</a>
+  const copySocialLink = async () => {
+    try {
+      const url = 'ipfs://test1'; // The social link you want to copy
+      await navigator.clipboard.writeText(url);
+      setSocialLinkCopied(true);
+      setTimeout(() => setSocialLinkCopied(false), 2000);
+    } catch (error) {
+      console.error('Error copying social link:', error);
+    }
+  };
 
+  return (
+    <div style={{ height: '100vh', padding: '5px', zoom: '0.68' }}>
+      <h4>Your Blink Is Ready</h4>
+      <a style={{ fontSize: '1.1em' }}>It has been deployed and can be accessed via IPFS using the link below</a>
+      <div style={{ marginTop: '12px', display: 'flex', gap: '10px' }}>
+        <button
+          className="launch-app-button"
+          onClick={copyLink}
+          style={styles.copyButton}
+        >
+          {linkCopied ? 'IPFS Link Copied To Clipboard' : 'Copy Link'}
+        </button>
+        <button
+          className="launch-app-button"
+          style={styles.doneButton}
+          onClick={copySocialLink}
+        >
+          {socialLinkCopied ? 'Social Link Copied To Clipboard' : 'Post To Socials'}
+        </button>
+      </div>
       {selectedTemplate && (
         <div style={styles.editorContainer}>
           <div
@@ -80,22 +63,7 @@ function CreateBlink3({ currentBlinkObject, setCurrentBlinkObject, handleNextCli
           />
         </div>
       )}
-      <div style={{ marginTop: '10px', display: 'flex', gap: '10px' }}>
-        <button
-          className="launch-app-button"
-          onClick={copyLink}
-          style={styles.copyButton}
-        >
-          {linkCopied ? 'Link Copied!' : 'Copy Link'}
-        </button>
-        <button
-          className="launch-app-button"
-          style={styles.doneButton}
-          onClick={handleNextClick}
-        >
-          Done
-        </button>
-      </div>
+     
     </div>
   );
 }
@@ -141,3 +109,4 @@ const styles = {
 };
 
 export default CreateBlink3;
+

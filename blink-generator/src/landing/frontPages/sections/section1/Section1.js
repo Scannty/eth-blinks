@@ -23,7 +23,7 @@ const Section1 = ({ handleButtonClick }) => {
         <h1 className='lexend-h1'>Bring Your Web3</h1>
         <h1 className='lexend-h1'>Projects To</h1>
         <h1 className='lexend-h1'>A Larger Audience </h1>
-        <h1 className='lexend-h1'>With Ephy</h1>
+        <h1 className='lexend-h1'>With Ephi</h1>
       </div>
       <div className={`waitlist-section ${inView ? 'fadeIn' : ''}`}>
   <p className='description'>

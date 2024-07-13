@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import EditElement from '../../../../components/EditElement';
 import templates from '../../../../../assets/blinkTemplates.json';
+import Loader1 from '../../../../components/Loader1';
 
 function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject, handleNextClick }) {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
@@ -9,6 +10,9 @@ function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject, handleNextCli
   const [textColor, setTextColor] = useState('#333333');
   const [text, setText] = useState('Your text here');
   const [editMode, setEditMode] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [imageUrl, setImageUrl] = useState('');
 
   useEffect(() => {
     if (currentBlinkObject.templateName) {
@@ -26,6 +30,13 @@ function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject, handleNextCli
     setBgColor(element.style.backgroundColor || '#ffffff');
     setTextColor(element.style.color || '#333333');
     setText(element.textContent || 'Your text here');
+
+    if (element.tagName === 'IMG') {
+      setShowTooltip(true);
+      setImageUrl(element.src);
+    } else {
+      setShowTooltip(false);
+    }
   };
 
   const handleBgColorChange = (newColor) => {
@@ -47,6 +58,21 @@ function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject, handleNextCli
     if (editingElement) {
       editingElement.textContent = newText;
     }
+  };
+
+  const handleImageUrlChange = (e) => {
+    setImageUrl(e.target.value);
+  };
+
+  const updateImageUrl = () => {
+    if (editingElement) {
+      editingElement.src = imageUrl;
+    }
+    setShowTooltip(false);
+  };
+
+  const cancelImageUpdate = () => {
+    setShowTooltip(false);
   };
 
   const createBlink = async () => {
@@ -97,70 +123,104 @@ function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject, handleNextCli
     console.log(await res.text());
   };
 
-  return (
-    <div style={{height: '100vh', padding: '10px', zoom: '0.67' }}>
-                  <h4>Edit Your Blink</h4>
-                  <a style={{fontSize:'1.1em'}}>Click On Element You Want To Edit And Change It's Color Or Text</a>
+  const handleDeployClick = async () => {
+    setIsLoading(true);
+    await new Promise((resolve) => setTimeout(resolve, 5000)); // Simulate 5 seconds delay
+    setIsLoading(false);
+    createBlink();
+  };
 
-{selectedTemplate && (
-        <div style={styles.editorContainer}>
-          <div
-            className="templateContainer"
-            style={{ ...styles.templateContainer, marginTop: '0px' }}
-            dangerouslySetInnerHTML={{ __html: templates[selectedTemplate].html }}
-            onClick={(e) => handleElementClick(e.target)}
-          />
-          {editMode  && (
-            <EditElement
-              bgColor={bgColor}
-              textColor={textColor}
-              text={text}
-              onBgColorChange={handleBgColorChange}
-              onTextColorChange={handleTextColorChange}
-              onTextChange={handleTextChange}
-              createBlink={createBlink}
-            />
-          )}
+  return (
+    <div style={{ height: '100vh', padding: '10px', zoom: '0.67' }}>
+      <h4>Edit Your Blink</h4>
+      <a style={{ fontSize: '1.1em' }}>Click On Element You Want To Edit And Change Its Color Or Text</a>
+      {isLoading ? (
+        <div style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop:"50%", flexDirection:"column-reverse" }}>
+          <Loader1 />
+          Depoloying Your Etherium Blink To IPFS
         </div>
+      ) : (
+        <>
+          {selectedTemplate && (
+            <div style={styles.editorContainer}>
+              <div
+                className="templateContainer"
+                style={{ ...styles.templateContainer, marginTop: '0px' }}
+                dangerouslySetInnerHTML={{ __html: templates[selectedTemplate].html }}
+                onClick={(e) => handleElementClick(e.target)}
+              />
+              {editMode && (
+                <EditElement
+                  bgColor={bgColor}
+                  textColor={textColor}
+                  text={text}
+                  onBgColorChange={handleBgColorChange}
+                  onTextColorChange={handleTextColorChange}
+                  onTextChange={handleTextChange}
+                  createBlink={createBlink}
+                />
+              )}
+              {showTooltip && (
+                <div style={styles.tooltip}>
+                  <input
+                    type="text"
+                    value={imageUrl}
+                    onChange={handleImageUrlChange}
+                    placeholder="Enter image URL"
+                    style={styles.input}
+                  />
+                  <div style={styles.buttonContainer}>
+                    <button onClick={updateImageUrl} style={styles.button}>
+                      Post
+                    </button>
+                    <button onClick={cancelImageUpdate} style={styles.cancelButton}>
+                      ×
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          <div style={{ marginTop: '10px', display: 'flex', gap: '10px' }}>
+            {!editMode && (
+              <>
+                <button
+                  className="launch-app-button"
+                  onClick={() => setEditMode(true)}
+                  style={styles.editButton}
+                >
+                  Edit
+                </button>
+                <button
+                  className="launch-app-button"
+                  style={styles.nextButton}
+                  onClick={handleDeployClick}
+                >
+                  Deploy
+                </button>
+              </>
+            )}
+            {editMode && (
+              <>
+                <button
+                  className="launch-app-button"
+                  onClick={() => setEditMode(false)}
+                  style={styles.saveButton}
+                >
+                  Save
+                </button>
+                <button
+                  className="launch-app-button"
+                  onClick={() => setEditMode(false)}
+                  style={styles.cancelButton}
+                >
+                  Cancel
+                </button>
+              </>
+            )}
+          </div>
+        </>
       )}
-      <div style={{ marginTop: '10px', display: 'flex', gap: '10px' }}>
-        {!editMode && (
-          <>
-            <button
-              className="launch-app-button"
-              onClick={() => setEditMode(true)}
-              style={styles.editButton}
-            >
-              Edit
-            </button>
-            <button
-              className="launch-app-button"
-              style={styles.nextButton}
-              onClick={handleNextClick}
-            >
-              Next
-            </button>
-          </>
-        )}
-        {editMode && (
-          <>
-            <button
-              className="launch-app-button"
-              onClick={() => setEditMode(false)}
-              style={styles.saveButton}
-            >
-              Save
-            </button>
-            <button
-              className="launch-app-button"
-              onClick={() => setEditMode(false)}
-              style={styles.cancelButton}
-            >
-              Cancel
-            </button>
-          </>
-        )}
-      </div>
     </div>
   );
 }
@@ -222,6 +282,48 @@ const styles = {
     backgroundColor: 'black',
     width: '50%',
     transition: 'background-color 0.3s ease',
+  },
+  tooltip: {
+    position: 'absolute',
+    top: '50%',
+    left: '23%',
+    transform: 'translate(-50%, -50%)',
+    backgroundColor: 'white',
+    padding: '10px',
+    borderRadius: '5px',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  input: {
+    padding: '5px',
+    marginBottom: '10px',
+    borderRadius: '3px',
+    border: '1px solid #ccc',
+    width: '200px',
+  },
+  buttonContainer: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  button: {
+    padding: '5px 10px',
+    borderRadius: '3px',
+    border: 'none',
+    backgroundColor: '#4CAF50',
+    color: 'white',
+    cursor: 'pointer',
+    marginRight: '5px',
+  },
+  cancelButton: {
+    padding: '5px 10px',
+    borderRadius: '3px',
+    border: 'none',
+    backgroundColor: '#FF0000',
+    color: 'white',
+    cursor: 'pointer',
   },
 };
 
