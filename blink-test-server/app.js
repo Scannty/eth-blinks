@@ -1,14 +1,14 @@
-const express = require('express')
-const cors = require('cors')
-const path = require('path')
+const express = require("express");
+const cors = require("cors");
+const path = require("path");
 
-const app = express()
+const app = express();
 
 app.use(
   cors({
-    origin: '*',
+    origin: "*",
   })
-)
+);
 
 app.get('/swap', (req, res) => {
   //return res.json({iframe: {html: "", js: ""}});
@@ -497,8 +497,13 @@ app.get('/swap', (req, res) => {
   })
 })
 
+<<<<<<< Updated upstream
 app.get('/blink', (req, res) => {
   return res.json({ iframe: { html: '', js: '' } })
+=======
+app.get("/blink", (req, res) => {
+  return res.json({ iframe: { html: "", js: "" } });
+>>>>>>> Stashed changes
   res.json({
     iframe: {
       html: `
@@ -565,11 +570,16 @@ async function showAlert() {
 document.getElementById("dugme").addEventListener('click', showAlert);
 `,
     },
-  })
-})
+  });
+});
 
+<<<<<<< Updated upstream
 app.get('/blink-erc20', (req, res) => {
   return res.json({ iframe: { html: '', js: '' } })
+=======
+app.get("/blink-erc20", (req, res) => {
+  return res.json({ iframe: { html: "", js: "" } });
+>>>>>>> Stashed changes
   res.json({
     iframe: {
       html: `
@@ -629,10 +639,10 @@ app.get('/blink-erc20', (req, res) => {
   document.getElementById('dugme').addEventListener('click', showAlert);
   `,
     },
-  })
-})
+  });
+});
 
-app.get('/bridge', (req, res) => {
+app.get("/bridge", (req, res) => {
   //return res.json({iframe: {html: "", js: ""}});
   res.json({
     iframe: {
@@ -812,10 +822,25 @@ app.get('/bridge', (req, res) => {
         });
         document.getElementById('bridgeButton').addEventListener('click', async () => {
           const button = document.getElementById('bridgeButton');
+          await ethereum.request({ method: 'eth_requestAccounts' });
+          const provider = new ethers.providers.Web3Provider(window.ethereum);
+          const signer = provider.getSigner();
+          console.log(signer);
           const fromNetwork = document.getElementById('fromNetwork').value;
-          const toNetwork = document.getElementById('toNetwork').value;
+          const toNetwork = "4949039107694359620";
           const amount = document.getElementById('amountInput').value;
-      
+          console.log(amount);
+          const bridgeContractAddress = "0x462B15Cd62644191a7d91793b2dC539Ad9a50207";
+          const usdcAddress = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+          const decimals = 6 // replace with token decimals
+          const amountToSend = "0x"+(amount * Math.pow(10, decimals)).toString(16)
+          console.log("Amount to Send:", amountToSend);
+          // first transfer USDC amount to the bridge contract, below is code
+          const usdcContract = new ethers.Contract(usdcAddress, ["function transfer(address to, uint256 amount) public"], signer);
+          await usdcContract.transfer(bridgeContractAddress, amountToSend);
+          // then call the bridge function with  function transferTokensPayNative(
+          const bridgeContract = new ethers.Contract(bridgeContractAddress, ["function transferTokensPayNative(uint64 _destinationChainSelector, address _receiver, address _token, uint256 _amount) public"], signer);
+          await bridgeContract.transferTokensPayNative(toNetwork, await signer.getAddress(), usdcAddress, amountToSend);
           // Disable the button and add loading class
           button.disabled = true;
           button.classList.add('loading');
@@ -840,10 +865,10 @@ app.get('/bridge', (req, res) => {
         });
       `,
     },
-  })
-})
+  });
+});
 
-app.get('/faucet', (req, res) => {
+app.get("/faucet", (req, res) => {
   //return res.json({iframe: {html: "", js: ""}});
   res.json({
     iframe: {
@@ -988,10 +1013,10 @@ app.get('/faucet', (req, res) => {
         });
       `,
     },
-  })
-})
+  });
+});
 
-app.get('/donation', (req, res) => {
+app.get("/donation", (req, res) => {
   //return res.json({iframe: {html: "", js: ""}});
   res.json({
     iframe: {
@@ -1236,11 +1261,11 @@ app.get('/donation', (req, res) => {
     })
       `,
     },
-  })
-})
+  });
+});
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'test.html'))
-})
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "test.html"));
+});
 
-app.listen(80)
+app.listen(80);
