@@ -6,11 +6,11 @@ import {Test, console} from "forge-std/Test.sol";
 
 contract TokenTransferorTest is Test {
     TokenTransferor tokenTransferor;
-    address constant USDC_WHALE = 0x0B0A5886664376F59C351ba3f598C8A8B4D0A6f3;
+    address constant USDC_WHALE = 0xA726021d836F92E97a45a914bE4f074790975C2B;
     address constant USDC = 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913;
 
     function setUp() external {
-        string memory rpcEndpoint = vm.envString("BASE_URL");
+        string memory rpcEndpoint = vm.envString("BASE_FORK_URL");
         address ccipRouterAddress = 0x881e3A65B4d4a04dD529061dd0071cf975F58bCD;
         address linkTokenAddress = 0x88Fb150BDc53A65fe94Dea0c9BA0a6dAf8C6e196;
         vm.createSelectFork(rpcEndpoint); // Testing on Avalanche Fuji testnet
