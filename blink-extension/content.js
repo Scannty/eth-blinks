@@ -100,7 +100,7 @@ async function replaceBlkTags() {
       setTimeout(() => {
         const newJS = updateIdsInJsCode(result.jsCode, randomNumber);
         injectScript(newJS);
-      }, 200);
+      }, 500);
     }
   });
 }

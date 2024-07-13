@@ -10,230 +10,495 @@ app.use(
   })
 )
 
-app.get('/swap', (req, res) => {
+app.get("/swap", (req, res) => {
+  //return res.json({iframe: {html: "", js: ""}});
   res.json({
     iframe: {
       html: `
-            <style>
-            .naslovcek {
-                margin-top: -30px;
+        <style>
+          #dugme {
+            text-align: center;
+          }
+        
+          .swap-naslovcek {
+              margin-top: -45px;
+              text-align: center;
+          }
+          .swap-card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 10px;
+            width: 94%;
+            margin: auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            align-self: center;
+            max-width: 600px;
+            max-height: 510px;
+            min-height: 420px;
+            margin-top: -50px;
+          }
+          #referrerWarning {
+            text-align: center;
+            margin-top: -40px;
+            background-color: lightpink;
+            margin-right: 20%;
+            margin-left: 20%;
+            border-radius: 4px;
+          }
+          .swap-content {
+          
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f7f9fa;
+            border-radius: 12px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+          }
+          .swap-row {
+            width: 100%;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+          }
+          .swap-select-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+          }
+          .select-label {
+            font-size: 12px;
+            color: #555;
+            margin-bottom: 3px;
+          }
+          .input{
+            width: 100%;
+          }
+          .input, .select {
+            display: flex;
+            align-items: center;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 12px;
+            padding: 5px;
+            flex: 1;
+          }
+          .input img, .select img {
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+          }
+          input, select {
+            border: none;
+            background-color: transparent;
+            font-size: 14px;
+            width: 100%;
+            padding: 5px;
+          }
+          select {
+            appearance: none;
+            -moz-appearance: none;
+            -webkit-appearance: none;
+            background: transparent;
+            cursor: pointer;
+          }
+          input::-webkit-outer-spin-button,
+          input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+          }
+          input[type="number"] {
+            -moz-appearance: textfield;
+          }
+          @keyframes gradient-animation {
+            0% { background-position: 100% 0; }
+            100% { background-position: -100% 0; }
+          }
+          button {
+            background-color: #1da1f2;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s ease;
+          }
+          button:disabled {
+            cursor: not-allowed;
+          }
+          button.loading {
+            background-image: linear-gradient(
+              90deg,
+              #0099ff 0%, /* Brighter blue */
+              #ff66cc 50%, /* Vibrant pink for contrast */
+              #0099ff 100% /* Brighter blue */
+            );
+            background-size: 200% 100%;
+            animation: gradient-animation 1s linear infinite; /* Increase speed to 1s */
+          }
+            button.success {
+            background-color: #4CAF50;
+          }
+          .swap-checkmark {
+            color: white;
+            font-size: 24px;
+            margin-right: 8px;
+          }
+            .my-banner{
+              width: 70%;
+              display: flex;
+              flex-direction: row;
+              justify-content: space-around;
+              align-items: center;
+              margin: auto;
+              margin-top: -10px;
+              margin-bottom: -10px;
             }
-            #dugme{
-                margin-bottom: 10px;
-                background-color: #FF0000;
+            #expectedOutputAmount{
+              text-align: center;
             }
-            </style>
-            <h1 class="naslovcek">Swap DAI to USDC keor</h1><p>Swap tokens using Uniswap V2</p><p id="referrerWarning">Referer gets a cut. </p><input placeholder="Enter amount..." type="text" id="input"><p id="expectedOutputAmount"></p><button id="dugme">Swap</button>`,
+
+        </style>
+        <div class="swap-card">
+          <p class="swap-naslovcek" id="naslovchek">Loading...</p>
+          <p id="referrerWarning">Note: Referer gets a cut. </p>
+          <div class="my-banner">
+            <img
+              width="120px"
+              height="120px"
+              src="https://cryptologos.cc/logos/usd-coin-usdc-logo.png"
+              alt="Coin logo"
+            />
+            <img
+              width="120px"
+              height="120px"
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Uniswap_Logo.svg/2051px-Uniswap_Logo.svg.png"
+              alt="Uniswap logo"
+            />
+          </div>
+          <div class="swap-content">
+            <div class="swap-row">
+              <div class="swap-select-container">
+                <div class="select-label">From Token</div>
+                <div class="select">
+                  <img
+                    src="https://cryptologos.cc/logos/ethereum-eth-logo.png"
+                    alt="From Token"
+                  />
+                  <select id="fromTokenS">
+                    <option id="tokenDAI" value="DAI">DAI</option>
+                    <option id="tokenWETH" value="WETH">WETH</option>
+                    <option id="tokenUSDC" value="USDC">USDC</option>
+                    <option id="tokenWBTC" value="WBTC">WBTC</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="input">
+              <img
+                src="https://cryptologos.cc/logos/usd-coin-usdc-logo.png"
+                alt="USDC"
+              />
+              <input id="input" type="number" placeholder="Input token amount" />
+            </div>
+            <p id="expectedOutputAmount"></p>
+            <button id="dugme">Buy USDC</button>
+          </div>
+        </div>
+      `,
       js: `
-            const fromToken = "0x6B175474E89094C44Da98b954EedeAC495271d0F"
-            const fromDecimals = 18
-            const toToken = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
-            const toDecimals = 6
-            const referrer = null
-            if(!referrer){
-                document.getElementById('referrerWarning').style.display = 'none';
-            }
-            async function doSwap() {
-      const amount = document.getElementById("input").value;
-      const expectedOutputAmountP = document.getElementById("expectedOutputAmount");
-      if (!amount) {
-        expectedOutputAmountP.innerText = "Please enter an amount.";
-        return;
-      }
-
-      // UniswapV2 Router contract address
-      const uniswapV2RouterAddress = "0x83eafF3C19083B03A8E0708F7637D0c4638E9FC9";
-
-      // ABI for UniswapV2 Router swapExactTokensForTokens function
-      const swapExactTokensForTokensAbi = [
-  {
-    "type": "constructor",
-    "inputs": [
-      {
-        "name": "router",
-        "type": "address",
-        "internalType": "contract IUniswapV2Router"
-      }
-    ],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "swapWithReferral",
-    "inputs": [
-      {
-        "name": "referrer",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "amountIn",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "amountOutMin",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "path",
-        "type": "address[]",
-        "internalType": "address[]"
-      },
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "deadline",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "amounts",
-        "type": "uint256[]",
-        "internalType": "uint256[]"
-      }
-    ],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "event",
-    "name": "ReferralShare",
-    "inputs": [
-      {
-        "name": "amount",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "referrer",
-        "type": "address",
-        "indexed": false,
-        "internalType": "address"
-      },
-      {
-        "name": "referee",
-        "type": "address",
-        "indexed": false,
-        "internalType": "address"
-      },
-      {
-        "name": "timestamp",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
-  }
-];
-
-      try {
-        await ethereum.request({ method: 'eth_requestAccounts' });
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const signer = provider.getSigner();
-        const fromAddress = await signer.getAddress();
-        const uniswapV2Router = new ethers.Contract(uniswapV2RouterAddress, swapExactTokensForTokensAbi, signer);
-        const amountInWei = ethers.utils.parseUnits(amount, fromDecimals);
-        const path = [fromToken, toToken];
-        const deadline = Math.floor(Date.now() / 1000) + 1200;
-        const amountOutMin = 0;
-        const fromTokenContract = new ethers.Contract(fromToken, [
-          "function approve(address spender, uint256 amount) public returns (bool)"
-        ], signer);
-        const approvalTx = await fromTokenContract.approve(uniswapV2RouterAddress, amountInWei);
-        await approvalTx.wait();
-
-        const swapTx = await uniswapV2Router.swapWithReferral(
-          referrer || "0x0000000000000000000000000000000000000000",
-          amountInWei,
-          amountOutMin,
-          path,
-          "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199",
-          deadline
-        );
-        const receipt = await swapTx.wait();
-
-        expectedOutputAmountP.innerText = \`Transaction Sent! Hash: \${receipt.transactionHash}\`;
-      } catch (error) {
-        console.error(error);
-        expectedOutputAmountP.innerText = \`Error: \${error.message}\`;
-      }
-    }
-
-function debounce(func, delay) {
-    let timeoutId;
-    return function(...args) {
-        if (timeoutId) {
-            clearTimeout(timeoutId);
+        if(typeof destinationToken === 'undefined')
+          var destinationToken;
+        destinationToken = { // HARDCODE BY GENERATOR
+            name: "USDC",
+            address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+            decimals: 6,
+            image: "https://cdn3d.iconscout.com/3d/premium/thumb/usdc-10229270-8263869.png?f=webp"
         }
-        timeoutId = setTimeout(() => {
-            func.apply(this, args);
-        }, delay);
-    };
-}
 
-async function updateAmount(event) {
-    const amount = this.value;
-    const expectedOutputAmountP = document.getElementById("expectedOutputAmount");
-    if (!amount) {
-        expectedOutputAmountP.innerText = "";
-        return;
-    }
+        if(destinationToken.address=='0x6B175474E89094C44Da98b954EedeAC495271d0F')
+          document.getElementById("tokenDAI")?.parentNode.removeChild(document.getElementById("tokenDAI"));
+        if(destinationToken.address=='0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2')
+            document.getElementById("tokenWETH")?.parentNode.removeChild(document.getElementById("tokenWETH"));
+        if(destinationToken.address=='0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48')
+            document.getElementById("tokenUSDC")?.parentNode.removeChild(document.getElementById("tokenUSDC"));
+        if(destinationToken.address=='0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599')
+            document.getElementById("tokenWBTC")?.parentNode.removeChild(document.getElementById("tokenWBTC"));
 
-    // UniswapV2 Router contract address
-    const uniswapV2RouterAddress = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D";
+        if(typeof sourceTokens === 'undefined')
+          var sourceTokens;
 
-    // ABI for UniswapV2 Router (only the functions you need)
-    const uniswapV2RouterAbi = [
-        "function getAmountsOut(uint amountIn, address[] memory path) public view returns (uint[] memory amounts)"
-    ];
+        sourceTokens = {
+          "DAI": {
+            address: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+            decimals: 18
+          },
+          "WETH": {
+            address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+            decimals: 18
+          },
+          "USDC": {
+            address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+            decimals: 6
+          },
+          "WBTC": {
+            address: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+            decimals: 8
+          },
+        }
+        if(typeof referrer === 'undefined')
+          var referrer;
+        referrer = null
+        if(!referrer){
+            document.getElementById("referrerWarning").style.display = 'none';
+        }
 
-    // Tokens
-    const fromToken = "0x6B175474E89094C44Da98b954EedeAC495271d0F"; // DAI
-    const toToken = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"; // USDC
-    const fromDecimals = 18;
-    const toDecimals = 6;
+        document.getElementById("naslovchek").innerHTML = "Buy "+ destinationToken.name + " on UniswapV2";
+        console.log('USDC Bridge');
+        document.getElementById("fromTokenS").addEventListener('click', function(event) {
+          event.stopPropagation();
+        });
 
-    try {
-        // Connect to Ethereum using ethers.js and MetaMask provider
-        await ethereum.request({ method: 'eth_requestAccounts' });
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const signer = provider.getSigner();
-        const uniswapV2Router = new ethers.Contract(uniswapV2RouterAddress, uniswapV2RouterAbi, signer);
+        async function doSwap() {
+          const dugme = document.getElementById("dugme")
+          const amount = document.getElementById("input").value;
+          const expectedOutputAmountP = document.getElementById("expectedOutputAmount");
+          if (!amount) {
+            expectedOutputAmountP.innerText = "Please enter an amount.";
+            return;
+          }
 
-        // Convert amount to wei
-        const amountInWei = ethers.utils.parseUnits(amount, fromDecimals);
+          // UniswapV2 Router contract address
+          const uniswapV2RouterAddress = "0x83eafF3C19083B03A8E0708F7637D0c4638E9FC9";
 
-        // Define the path for the swap
-        const path = [fromToken, toToken];
+          // ABI for UniswapV2 Router swapExactTokensForTokens function
+          const swapExactTokensForTokensAbi = [
+            {
+              "type": "constructor",
+              "inputs": [
+                {
+                  "name": "router",
+                  "type": "address",
+                  "internalType": "contract IUniswapV2Router"
+                }
+              ],
+              "stateMutability": "nonpayable"
+            },
+            {
+              "type": "function",
+              "name": "swapWithReferral",
+              "inputs": [
+                {
+                  "name": "referrer",
+                  "type": "address",
+                  "internalType": "address"
+                },
+                {
+                  "name": "amountIn",
+                  "type": "uint256",
+                  "internalType": "uint256"
+                },
+                {
+                  "name": "amountOutMin",
+                  "type": "uint256",
+                  "internalType": "uint256"
+                },
+                {
+                  "name": "path",
+                  "type": "address[]",
+                  "internalType": "address[]"
+                },
+                {
+                  "name": "",
+                  "type": "address",
+                  "internalType": "address"
+                },
+                {
+                  "name": "deadline",
+                  "type": "uint256",
+                  "internalType": "uint256"
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "amounts",
+                  "type": "uint256[]",
+                  "internalType": "uint256[]"
+                }
+              ],
+              "stateMutability": "nonpayable"
+            },
+            {
+              "type": "event",
+              "name": "ReferralShare",
+              "inputs": [
+                {
+                  "name": "amount",
+                  "type": "uint256",
+                  "indexed": false,
+                  "internalType": "uint256"
+                },
+                {
+                  "name": "referrer",
+                  "type": "address",
+                  "indexed": false,
+                  "internalType": "address"
+                },
+                {
+                  "name": "referee",
+                  "type": "address",
+                  "indexed": false,
+                  "internalType": "address"
+                },
+                {
+                  "name": "timestamp",
+                  "type": "uint256",
+                  "indexed": false,
+                  "internalType": "uint256"
+                }
+              ],
+              "anonymous": false
+            }
+          ];
 
-        // Get the expected output amount
-        const amountsOut = await uniswapV2Router.getAmountsOut(amountInWei, path);
-        const expectedOutputAmount = ethers.utils.formatUnits(amountsOut[1], toDecimals);
+          try {
+            const selectedTokenName = document.getElementById("fromTokenS").value;
+            const selectedToken = sourceTokens[selectedTokenName];
+            const fromToken = selectedToken.address;
+            const fromDecimals = selectedToken.decimals;
+            dugme.disabled = true;
+            dugme.classList.add('loading');
+            dugme.innerHTML = 'Executing swap...';
 
-        // Update the UI
-        expectedOutputAmountP.innerText = "Expected output amount " + expectedOutputAmount + " USDC";
-    } catch (error) {
-        console.error(error);
-        expectedOutputAmountP.innerText = "Error fetching expected output amount";
-    }
-}
+            await ethereum.request({ method: 'eth_requestAccounts' });
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const signer = provider.getSigner();
+            const fromAddress = await signer.getAddress();
+            const uniswapV2Router = new ethers.Contract(uniswapV2RouterAddress, swapExactTokensForTokensAbi, signer);
+            const amountInWei = ethers.utils.parseUnits(amount, fromDecimals);
+            console.log("OVOLIKO USDT")
+            console.log(amountInWei)
+            const path = [fromToken, destinationToken.address];
+            const deadline = Math.floor(Date.now() / 1000) + 1200;
+            const amountOutMin = 0;
+            const fromTokenContract = new ethers.Contract(fromToken, [
+              "function approve(address spender, uint256 amount) public returns (bool)"
+            ], signer);
+            const approvalTx = await fromTokenContract.approve(uniswapV2RouterAddress, amountInWei);
+            await approvalTx.wait();
 
-document.getElementById('dugme').addEventListener('click', doSwap);
-document.getElementById('input').addEventListener('keyup', debounce(updateAmount, 200));
-`,
+            const swapTx = await uniswapV2Router.swapWithReferral(
+              referrer || "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199",
+              amountInWei,
+              amountOutMin,
+              path,
+              "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199",
+              deadline
+            );
+            const receipt = await swapTx.wait();
+
+            
+            dugme.classList.remove('loading');
+            dugme.classList.add('success');
+            dugme.innerHTML = '<span class="swap-checkmark">✓</span> Swap Successful';
+
+            setTimeout(() => {
+              dugme.disabled = false;
+              dugme.classList.remove('success');
+              dugme.innerHTML = 'Buy USDC';
+            }, 3000);
+          } catch (error) {
+            console.error(error);
+            expectedOutputAmountP.innerText = \`Error: \${error.message}\`;
+            
+            dugme.disabled = false;
+            dugme.classList.remove('loading');
+            dugme.innerHTML = 'Buy USDC';
+          }
+
+        }
+
+        function debounce(func, delay) {
+
+        if(document.getElementById("input").value){
+            const expectedOutputAmountP = document.getElementById("expectedOutputAmount");
+            expectedOutputAmountP.innerText = "Getting a quote...";
+        }
+
+            let timeoutId;
+            return function(...args) {
+                if (timeoutId) {
+                    clearTimeout(timeoutId);
+                }
+                timeoutId = setTimeout(() => {
+                    func.apply(this, args);
+                }, delay);
+            };
+        }
+
+        async function updateAmount(event) {
+            const amount = this.value;
+            const expectedOutputAmountP = document.getElementById("expectedOutputAmount");
+            if (!amount) {
+                expectedOutputAmountP.innerText = "";
+                return;
+            }
+            expectedOutputAmountP.innerText = "Getting a quote...";
+
+            // UniswapV2 Router contract address
+            const uniswapV2RouterAddress = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D";
+
+            // ABI for UniswapV2 Router (only the functions you need)
+            const uniswapV2RouterAbi = [
+                "function getAmountsOut(uint amountIn, address[] memory path) public view returns (uint[] memory amounts)"
+            ];
+
+            // Tokens
+            const selectedTokenName = document.getElementById("fromTokenS").value;
+            const selectedToken = sourceTokens[selectedTokenName];
+            const fromToken = selectedToken.address;
+            const fromDecimals = selectedToken.decimals;
+
+            try {
+                // Connect to Ethereum using ethers.js and MetaMask provider
+                await ethereum.request({ method: 'eth_requestAccounts' });
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                const signer = provider.getSigner();
+                const uniswapV2Router = new ethers.Contract(uniswapV2RouterAddress, uniswapV2RouterAbi, signer);
+
+                // Convert amount to wei
+                const amountInWei = ethers.utils.parseUnits(amount, fromDecimals);
+
+                // Define the path for the swap
+                const path = [fromToken, destinationToken.address];
+
+                // Get the expected output amount
+                const amountsOut = await uniswapV2Router.getAmountsOut(amountInWei, path);
+                const expectedOutputAmount = ethers.utils.formatUnits(amountsOut[1], destinationToken.decimals);
+
+                // Update the UI
+                expectedOutputAmountP.innerText = "~" + expectedOutputAmount + " USDC";
+            } catch (error) {
+                console.error(error);
+                expectedOutputAmountP.innerText = "Error fetching expected output amount";
+            }
+        }
+
+        document.getElementById("dugme").addEventListener('click', doSwap);
+        document.getElementById("input").addEventListener('keyup', debounce(updateAmount, 200));
+      `,
     },
-  })
-})
+  });
+});
 
 app.get('/blink', (req, res) => {
+  return res.json({iframe: {html: "", js: ""}});
   res.json({
     iframe: {
       html: `
@@ -297,13 +562,14 @@ async function showAlert() {
     }
 }
 
-document.getElementById('dugme').addEventListener('click', showAlert);
+document.getElementById("dugme").addEventListener('click', showAlert);
 `,
     },
   })
 })
 
 app.get('/blink-erc20', (req, res) => {
+  return res.json({iframe: {html: "", js: ""}});
   res.json({
     iframe: {
       html: `
@@ -367,6 +633,7 @@ app.get('/blink-erc20', (req, res) => {
 })
 
 app.get('/bridge', (req, res) => {
+  //return res.json({iframe: {html: "", js: ""}});
   res.json({
     iframe: {
       html: `
@@ -577,6 +844,7 @@ app.get('/bridge', (req, res) => {
 })
 
 app.get('/faucet', (req, res) => {
+  //return res.json({iframe: {html: "", js: ""}});
   res.json({
     iframe: {
       html: `
@@ -724,6 +992,7 @@ app.get('/faucet', (req, res) => {
 })
 
 app.get('/donation', (req, res) => {
+  //return res.json({iframe: {html: "", js: ""}});
   res.json({
     iframe: {
       html: `
