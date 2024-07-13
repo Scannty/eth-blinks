@@ -98,7 +98,10 @@ function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject, handleNextCli
   };
 
   return (
-    <div style={{height: '100vh', padding: '10px', zoom: '0.8' }}>
+    <div style={{height: '100vh', padding: '10px', zoom: '0.67' }}>
+                  <h4>Edit Your Blink</h4>
+                  <a style={{fontSize:'1.1em'}}>Click On Element You Want To Edit And Change It's Color Or Text</a>
+
 {selectedTemplate && (
         <div style={styles.editorContainer}>
           <div
@@ -107,7 +110,7 @@ function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject, handleNextCli
             dangerouslySetInnerHTML={{ __html: templates[selectedTemplate].html }}
             onClick={(e) => handleElementClick(e.target)}
           />
-          {editMode && editingElement && (
+          {editMode  && (
             <EditElement
               bgColor={bgColor}
               textColor={textColor}

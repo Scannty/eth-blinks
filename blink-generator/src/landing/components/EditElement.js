@@ -58,11 +58,7 @@ const EditElement = ({
 
   return (
     <div style={styles.container}>
-      <div style={styles.control}>
-        <button onClick={createBlink} style={styles.downloadButton}>
-          Create Blink
-        </button>
-      </div>
+
       <div style={styles.controls}>
         <div style={styles.control}>
           <label style={styles.label}>Change {colorTarget === 'background' ? 'Background' : 'Text'} Color</label>
@@ -97,7 +93,7 @@ const styles = {
     borderRadius: '20px',
   },
   editContainer: {
-    flex: 1,
+    flex: 2,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -164,6 +160,7 @@ const styles = {
     cursor: 'pointer',
     marginTop: '10px',
     width: '100%',
+    color:'black'
   },
   downloadButton: {
     padding: '10px 20px',

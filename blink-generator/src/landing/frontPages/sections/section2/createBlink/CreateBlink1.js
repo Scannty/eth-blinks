@@ -13,8 +13,8 @@ function CreateBlink1({ currentBlinkObject, setCurrentBlinkObject, handleNextCli
   }
 
   return (
-    <div style={{height: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" , zoom:"0.8"}} >
-            <h4>Choose A Template For Your Blink</h4>
+    <div style={{height: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" , zoom:"0.7"}} >
+            <h4 style={{marginTop: "50px"}}>Choose A Template For Your Blink</h4>
 
       <div style={{ display: "flex", flexDirection: "row", justifyContent: 'space-between', alignItems: 'center', marginTop: '40px' }}>
         {Object.keys(templates).map((template, index) => (
@@ -40,7 +40,7 @@ function CreateBlink1({ currentBlinkObject, setCurrentBlinkObject, handleNextCli
       </div>
       <button
        
-        style={{ color: 'white', marginTop: 10, fontSize: "1.2em", padding: "10px", borderRadius: "5px", cursor: "pointer", backgroundColor: currentBlinkObjectState ? "#4b8cd0" : "black", width:"250px", height:"100px" }}
+        style={{ color: 'white', marginTop: 10, fontSize: "1.2em", padding: "10px", borderRadius: "5px", cursor: "pointer", backgroundColor: currentBlinkObjectState ? "#4b8cd0" : "black", width:"250px", height:"50px" }}
         onClick={handleNextClick}
         disabled={!currentBlinkObjectState}
       >
