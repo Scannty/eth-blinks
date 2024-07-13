@@ -365,6 +365,165 @@ app.get("/blink-erc20", (req, res) => {
     });
   });
 
+app.get("/bridge", (req, res) => {
+    res.json({
+      iframe: {
+        html: `
+          <style>
+            .card {
+              background-color: white;
+              border-radius: 15px;
+              padding: 10px;
+              width: 100%; /* Adjusted to fit tweet width */
+              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+              align-self: center;
+              max-width: 600px; /* Maximum width to maintain readability */
+            }
+            .card img {
+              width: 100%;
+              height: auto; /* Maintain aspect ratio */
+              max-height: 250px; /* Limit height to prevent excessive stretching */
+              object-fit: contain; /* Slightly zoomed out, fit entire image without cropping */
+              border-radius: 12px;
+              margin-bottom: 10px; /* Increase margin for better spacing */
+            }
+            .content {
+              background-color: #f7f9fa;
+              border-radius: 12px;
+              padding: 10px;
+              display: flex;
+              flex-direction: column;
+              gap: 10px;
+            }
+            .row {
+              display: flex;
+              gap: 10px;
+              align-items: center;
+            }
+            .select-container {
+              display: flex;
+              flex-direction: column;
+              flex: 1;
+            }
+            .select-label {
+              font-size: 12px;
+              color: #555;
+              margin-bottom: 3px;
+            }
+            .input, .select {
+              display: flex;
+              align-items: center;
+              background-color: white;
+              border: 1px solid #ccc;
+              border-radius: 12px;
+              padding: 5px;
+              flex: 1;
+            }
+            .input img, .select img {
+              width: 24px;
+              height: 24px;
+              margin-right: 8px;
+            }
+            input, select {
+              border: none;
+              background-color: transparent;
+              font-size: 14px;
+              width: 100%;
+              padding: 5px;
+            }
+            select {
+              appearance: none;
+              -moz-appearance: none;
+              -webkit-appearance: none;
+              background: transparent;
+              cursor: pointer;
+            }
+            input::-webkit-outer-spin-button,
+            input::-webkit-inner-spin-button {
+              -webkit-appearance: none;
+              margin: 0;
+            }
+            input[type="number"] {
+              -moz-appearance: textfield;
+            }
+            button {
+              background-color: #1da1f2;
+              color: white;
+              border: none;
+              padding: 12px 20px;
+              border-radius: 12px;
+              font-size: 16px;
+              font-weight: bold;
+              cursor: pointer;
+              width: 100%;
+            }
+          </style>
+          <div class="card">
+            <img
+              src="https://zengo.com/wp-content/uploads/USDC-to-Chainlink.png"
+              alt="Bridge USDC"
+            />
+            <div class="content">
+              <div class="row">
+                <div class="select-container">
+                  <div class="select-label">From Network</div>
+                  <div class="select">
+                    <img
+                      src="https://cryptologos.cc/logos/ethereum-eth-logo.png"
+                      alt="From Network"
+                    />
+                    <select id="fromNetwork">
+                      <option value="eth">Ethereum</option>
+                      <option value="avax">Avalanche</option>
+                      <option value="bsc">Binance Smart Chain</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="select-container">
+                  <div class="select-label">To Network</div>
+                  <div class="select">
+                    <img
+                      src="https://cryptologos.cc/logos/ethereum-eth-logo.png"
+                      alt="To Network"
+                    />
+                    <select id="toNetwork">
+                      <option value="eth">Ethereum</option>
+                      <option value="avax">Avalanche</option>
+                      <option value="bsc">Binance Smart Chain</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="input">
+                <img
+                  src="https://cryptologos.cc/logos/usd-coin-usdc-logo.png"
+                  alt="USDC"
+                />
+                <input id="amountInput" type="number" placeholder="Amount" />
+              </div>
+              <button id="bridgeButton">Bridge USDC</button>
+            </div>
+          </div>
+        `,
+        js: `
+          console.log('USDC Bridge');
+          document.getElementById('fromNetwork').addEventListener('click', function(event) {
+            event.stopPropagation();
+          });
+          document.getElementById('toNetwork').addEventListener('click', function(event) {
+            event.stopPropagation();
+          });
+          document.getElementById('bridgeButton').addEventListener('click', async () => {
+            const fromNetwork = document.getElementById('fromNetwork').value;
+            const toNetwork = document.getElementById('toNetwork').value;
+            const amount = document.getElementById('amountInput').value;
+            alert(\`Bridging \${amount} USDC from \${fromNetwork} to \${toNetwork}\`);
+          });
+        `,
+      },
+    });
+  });
+
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "test.html"));
 })
