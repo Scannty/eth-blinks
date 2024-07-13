@@ -375,18 +375,18 @@ app.get("/bridge", (req, res) => {
             background-color: white;
             border-radius: 15px;
             padding: 10px;
-            width: 100%; /* Adjusted to fit tweet width */
+            width: 100%;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             align-self: center;
-            max-width: 600px; /* Maximum width to maintain readability */
+            max-width: 600px;
           }
           .card img {
             width: 100%;
-            height: auto; /* Maintain aspect ratio */
-            max-height: 250px; /* Limit height to prevent excessive stretching */
-            object-fit: contain; /* Slightly zoomed out, fit entire image without cropping */
+            height: auto;
+            max-height: 250px;
+            object-fit: contain;
             border-radius: 12px;
-            margin-bottom: 10px; /* Increase margin for better spacing */
+            margin-bottom: 10px;
           }
           .content {
             background-color: #f7f9fa;
@@ -462,6 +462,9 @@ app.get("/bridge", (req, res) => {
             cursor: pointer;
             width: 100%;
             transition: background-color 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
           }
           button:disabled {
             cursor: not-allowed;
@@ -469,12 +472,20 @@ app.get("/bridge", (req, res) => {
           button.loading {
             background-image: linear-gradient(
               90deg,
-              #0099ff 0%, /* Brighter blue */
-              #ff66cc 50%, /* Vibrant pink for contrast */
-              #0099ff 100% /* Brighter blue */
+              #0099ff 0%,
+              #ff66cc 50%,
+              #0099ff 100%
             );
             background-size: 200% 100%;
-            animation: gradient-animation 1s linear infinite; /* Increase speed to 1s */
+            animation: gradient-animation 1s linear infinite;
+          }
+          button.success {
+            background-color: #4CAF50;
+          }
+          .checkmark {
+            color: white;
+            font-size: 24px;
+            margin-right: 8px;
           }
         </style>
         <div class="card">
@@ -546,12 +557,19 @@ app.get("/bridge", (req, res) => {
           // Simulate a delay for the bridging process
           await new Promise(resolve => setTimeout(resolve, 5000)); // 5 seconds delay
       
-          // Re-enable the button and remove loading class
-          button.disabled = false;
+          // Show success message
           button.classList.remove('loading');
-          button.innerHTML = 'Bridge USDC';
+          button.classList.add('success');
+          button.innerHTML = '<span class="checkmark">✓</span> Bridging Successful';
       
-          alert(\`Bridged \${amount} USDC from \${fromNetwork} to \${toNetwork}\`);
+          // Reset button after 3 seconds
+          setTimeout(() => {
+            button.disabled = false;
+            button.classList.remove('success');
+            button.innerHTML = 'Bridge USDC';
+          }, 3000);
+      
+          console.log(\`Bridged \${amount} USDC from \${fromNetwork} to \${toNetwork}\`);
         });
       `,
     },
