@@ -1,0 +1,29 @@
+{
+  "manifest_version": 2,
+  "name": "Replace blk Tags with HTML",
+  "version": "1.0",
+  "description": "Fetches HTML content from URLs within custom blk tags and replaces the tags with the fetched HTML.",
+  "permissions": [
+    "activeTab",
+    "http://*/*",
+    "https://*/*"
+  ],
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.x.com/*"
+      ],
+      "js": [
+        "content.js"
+      ]
+    }
+  ],
+  "icons": {
+    "16": "images/icon16.png",
+    "48": "images/icon48.png",
+    "128": "images/icon128.png"
+  }
+}
