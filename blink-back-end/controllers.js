@@ -24,6 +24,19 @@ const makeid = () => {
   return Math.floor(Math.random() * 100000000)
 }
 
+async function storeToIpfsCtrl(req, res, next) {
+  const iframe = req.body
+  try {
+    const ipfsFile = await pinata.pinJSONToIPFS(iframe)
+    console.log(ipfsFile.IpfsHash)
+    res.send(ipfsFile.IpfsHash)
+  } catch (error) {
+    console.log(error)
+    res.send('Error')
+  }
+  next()
+}
+
 async function generateEthTransferBlinkCtrl(req, res, next) {
   // 1) Generate HTML for Transfer Blink
   const id = makeid() // Da ne bi bagovalo sa dva ista tvita koji linkuju ka ovom blinku
@@ -165,4 +178,4 @@ document.getElementById('dugme').addEventListener('click', showAlert);
     console.log(error)
   }
 }
-module.exports = { helloWorldCtrl, generateEthTransferBlinkCtrl, generateErc20TransferBlinkCtrl }
+module.exports = { helloWorldCtrl, generateEthTransferBlinkCtrl, generateErc20TransferBlinkCtrl, storeToIpfsCtrl }
