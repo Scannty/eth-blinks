@@ -32,8 +32,8 @@ contract ReferralExampleTest is Test {
         // First we need to approve the contract to spend the DAI from the whale
         vm.startPrank(daiWhale);
         IERC20(path[0]).approve(address(referralExample), amountIn);
-        
-       referralExample.swapWithReferral(
+
+        referralExample.swapWithReferral(
             referrer,
             amountIn,
             amountOutMin,
