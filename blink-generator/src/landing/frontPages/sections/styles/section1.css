@@ -146,7 +146,6 @@
   }
   .section1div{
     flex-direction: row;
-    background: linear-gradient(135deg, rgba(240, 128, 128, 0.2), rgba(255, 255, 255, 0.8));
   }
   .section1TitleDiv{
     flex:5

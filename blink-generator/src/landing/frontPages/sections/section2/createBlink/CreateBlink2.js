@@ -131,9 +131,9 @@ function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject, handleNextCli
   };
 
   return (
-    <div style={{ height: '100vh', padding: '10px', zoom: '0.67' }}>
+    <div style={{  padding: '10px', zoom: '0.67' }}>
       <h4>Edit Your Blink</h4>
-      <a style={{ fontSize: '1.1em' }}>Click On Element You Want To Edit And Change Its Color Or Text</a>
+      <a style={{ fontSize: '1.1em' }}>Click On Element You Want To Edit And Change Its Color, Text or Image</a>
       {isLoading ? (
         <div style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop:"50%", flexDirection:"column-reverse" }}>
           <Loader1 />
@@ -212,7 +212,7 @@ function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject, handleNextCli
                 <button
                   className="launch-app-button"
                   onClick={() => setEditMode(false)}
-                  style={styles.cancelButton}
+                  style={{width:'50%', backgroundColor:'#e5e5e5', color:'black'}}
                 >
                   Cancel
                 </button>

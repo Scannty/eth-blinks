@@ -9,7 +9,7 @@
 .lexend-h2 {
     font-family: "Lexend", sans-serif;
     font-optical-sizing: auto;
-    font-weight: 500;
+    font-weight: 100;
     font-style: normal;
     font-size: clamp(2.5rem, 4.2vw, 5rem);
     text-align: left;
@@ -22,7 +22,6 @@
     align-items: center;
     padding: 20px;
     color: black;
-    margin-bottom: 10%;
   }
   
   .section2-content {
