@@ -35,7 +35,7 @@ function CreateBlink3({ currentBlinkObject, setCurrentBlinkObject, handleNextCli
   };
 
   return (
-    <div style={{ height: '100vh', padding: '5px', zoom: '0.68' }}>
+    <div style={{  padding: '5px', zoom: '0.68' }}>
       <h4>Your Blink Is Ready</h4>
       <a style={{ fontSize: '1.1em' }}>It has been deployed and can be accessed via IPFS using the link below</a>
       <div style={{ marginTop: '12px', display: 'flex', gap: '10px' }}>
