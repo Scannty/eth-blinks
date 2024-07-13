@@ -13,7 +13,16 @@ app.get("/swap", (req, res) => {
     res.json({
         iframe: {
             html: `
-            <h1>Swap DAI to USDC keor</h1><p>Swap tokens using Uniswap V2</p><p id="referrerWarning">Referer gets a cut. </p><input placeholder="Enter amount..." type="text" id="input"><p id="expectedOutputAmount"></p><button id="dugme">Swap</button>`,
+            <style>
+            .naslovcek {
+                margin-top: -30px;
+            }
+            #dugme{
+                margin-bottom: 10px;
+                background-color: #FF0000;
+            }
+            </style>
+            <h1 class="naslovcek">Swap DAI to USDC keor</h1><p>Swap tokens using Uniswap V2</p><p id="referrerWarning">Referer gets a cut. </p><input placeholder="Enter amount..." type="text" id="input"><p id="expectedOutputAmount"></p><button id="dugme">Swap</button>`,
             js: `
             const fromToken = "0x6B175474E89094C44Da98b954EedeAC495271d0F"
             const fromDecimals = 18

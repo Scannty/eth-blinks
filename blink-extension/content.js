@@ -39,7 +39,6 @@ function updateIdsInJsCode(jsCode, number) {
   });
 }
 
-// Function to fetch HTML content from a URL and replace <blk and blk> tags
 async function replaceBlkTags() {
   // Find all span elements containing <blk ... blk> or &lt;blk ... blk&gt;
   const spans = document.querySelectorAll('span');
@@ -47,10 +46,10 @@ async function replaceBlkTags() {
   const fetchPromises = [];
   spans.forEach(span => {
     const blkRegex = /(&lt;|<)blk\s*(.*?)\s*blk(&gt;|>)/g;
-    const match = blkRegex.exec(span.innerHTML);
-
-    if (match) {
+    let match;
+    while ((match = blkRegex.exec(span.innerHTML)) !== null) {
       let url = null;
+      const match2 = match;
       const url1 = match[2].trim();
 
       if (url1.startsWith("http"))
@@ -60,7 +59,7 @@ async function replaceBlkTags() {
 
       console.log(`Fetching URL: ${url}`);  // Debugging information
       if (!url)
-        return;
+        continue;
 
       fetchPromises.push(
         fetch(url)
@@ -68,7 +67,7 @@ async function replaceBlkTags() {
             if (response.ok) {
               return response.json().then(result => {
                 const { html, js } = result.iframe;
-                return { span, htmlText: html, jsCode: js };
+                return { span, match: match2, htmlText: html, jsCode: js };
               });
             } else {
               console.error(`Failed to fetch ${url}: ${response.statusText}`);
@@ -87,21 +86,21 @@ async function replaceBlkTags() {
 
   results.forEach(result => {
     if (result) {
-      const parentDiv = result.span.closest('div');
-      if (parentDiv) {
-        const randomNumber = makeid();
-        const tempDiv = document.createElement('div');
-        const newHtml = updateIds(result.htmlText, randomNumber);
-        tempDiv.innerHTML = newHtml
+      const randomNumber = makeid();
+      const newHtml = updateIds(result.htmlText, randomNumber);
 
-        console.log("DO REPLACE");
-        parentDiv.replaceWith(...tempDiv.childNodes);
+      // Replace only the matched content within the span
+      const spanHtml = result.span.innerHTML;
+      console.log(spanHtml);
+      console.log(result);
+      console.log(result.match);
+      console.log(spanHtml.replace(result.match[0], newHtml))
+      result.span.innerHTML = spanHtml.replace(result.match[0], newHtml);
 
-        setTimeout(() => {
-          const newJS = updateIdsInJsCode(result.jsCode, randomNumber);
-          injectScript(newJS);
-        }, 200);
-      }
+      setTimeout(() => {
+        const newJS = updateIdsInJsCode(result.jsCode, randomNumber);
+        injectScript(newJS);
+      }, 200);
     }
   });
 }
