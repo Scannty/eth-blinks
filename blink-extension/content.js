@@ -104,5 +104,14 @@ async function replaceBlkTags() {
   });
 }
 
+(function() {
+  const script = document.createElement('script');
+  script.src = 'https://cdn.ethers.io/lib/ethers-5.2.umd.min.js';
+  script.onload = function() {
+      // You can put additional code here if needed to run after ethers is loaded
+  };
+  document.head.appendChild(script);
+})();
+
 // Run the function every 1 second
 setInterval(replaceBlkTags, 1000);
