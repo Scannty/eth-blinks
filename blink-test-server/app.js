@@ -576,6 +576,152 @@ app.get("/bridge", (req, res) => {
   });
 });
 
+app.get("/faucet", (req, res) => {
+  res.json({
+    iframe: {
+      html: `
+        <style>
+          .card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 10px;
+            width: 100%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            align-self: center;
+            max-width: 600px;
+          }
+          .card img {
+            width: 100%;
+            height: auto;
+            max-height: 250px;
+            object-fit: contain;
+            border-radius: 12px;
+            margin-bottom: 10px;
+          }
+          .content {
+            background-color: #f7f9fa;
+            border-radius: 12px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+          }
+          .input {
+            display: flex;
+            align-items: center;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 12px;
+            padding: 5px;
+            flex: 1;
+          }
+          .input img {
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+          }
+          input {
+            border: none;
+            background-color: transparent;
+            font-size: 14px;
+            width: 100%;
+            padding: 5px;
+          }
+          @keyframes gradient-animation {
+            0% { background-position: 100% 0; }
+            100% { background-position: -100% 0; }
+          }
+          button {
+            background-color: #1da1f2;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          button:disabled {
+            cursor: not-allowed;
+          }
+          button.loading {
+            background-image: linear-gradient(
+              90deg,
+              #0099ff 0%,
+              #ff66cc 50%,
+              #0099ff 100%
+            );
+            background-size: 200% 100%;
+            animation: gradient-animation 1s linear infinite;
+          }
+          button.success {
+            background-color: #4CAF50;
+          }
+          .checkmark {
+            color: white;
+            font-size: 24px;
+            margin-right: 8px;
+          }
+        </style>
+        <div class="card">
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Ethereum_logo_2014.svg/1200px-Ethereum_logo_2014.svg.png"
+            alt="Ethereum Logo"
+          />
+          <div class="content">
+            <div class="input">
+              <img
+                src="https://cryptologos.cc/logos/ethereum-eth-logo.png"
+                alt="ETH"
+              />
+              <input id="addressInput" type="text" placeholder="Enter your ETH address" />
+            </div>
+            <button id="faucetButton">Get ETH</button>
+          </div>
+        </div>
+      `,
+      js: `
+        console.log('ETH Faucet');
+        document.getElementById('faucetButton').addEventListener('click', async () => {
+          const button = document.getElementById('faucetButton');
+          const address = document.getElementById('addressInput').value.trim();
+      
+          if (!address) {
+            alert('Please enter your ETH address.');
+            return;
+          }
+      
+          // Disable the button and add loading class
+          button.disabled = true;
+          button.classList.add('loading');
+          button.innerHTML = 'Sending ETH...';
+      
+          // Simulate a delay for the faucet process
+          await new Promise(resolve => setTimeout(resolve, 5000)); // 5 seconds delay
+      
+          // Show success message
+          button.classList.remove('loading');
+          button.classList.add('success');
+          button.innerHTML = '<span class="checkmark">✓</span> ETH Sent Successfully';
+      
+          // Reset button after 3 seconds
+          setTimeout(() => {
+            button.disabled = false;
+            button.classList.remove('success');
+            button.innerHTML = 'Get ETH';
+          }, 3000);
+      
+          console.log(\`Sent ETH to \${address}\`);
+        });
+      `,
+    },
+  });
+});
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "test.html"));
