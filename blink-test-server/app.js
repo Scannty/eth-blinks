@@ -13,8 +13,6 @@ app.get("/swap", (req, res) => {
     res.json({
         iframe: {
             html: `
-            <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
-
             <h1>Swap DAI to USDC</h1><p>Swap tokens using Uniswap V2</p><input placeholder="Enter amount..." type="text" id="input"><p id="expectedOutputAmount"></p><button id="dugme">Swap</button>`,
             js: `
             const fromToken = "0x6B175474E89094C44Da98b954EedeAC495271d0F"
