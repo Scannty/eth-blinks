@@ -32,7 +32,14 @@ const config: HardhatUserConfig = {
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
+    baseFork: {
+      url: process.env.BASE_FORK_URL,
+      chainId: 8453,
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
   },
+  
 };
 
 export default config;
