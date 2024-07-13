@@ -52,7 +52,7 @@ async function replaceBlkTags() {
     if (match) {
       let url = null;
       const url1 = match[2].trim();
-      
+
       if (url1.startsWith("http"))
         url = url1;
       else if (url1.startsWith("ipfs://"))
@@ -91,24 +91,26 @@ async function replaceBlkTags() {
       if (parentDiv) {
         const randomNumber = makeid();
         const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = updateIds(result.htmlText, randomNumber);
+        const newHtml = updateIds(result.htmlText, randomNumber);
+        tempDiv.innerHTML = newHtml
 
         console.log("DO REPLACE");
         parentDiv.replaceWith(...tempDiv.childNodes);
 
         setTimeout(() => {
-          injectScript(updateIdsInJsCode(result.jsCode, randomNumber));
+          const newJS = updateIdsInJsCode(result.jsCode, randomNumber);
+          injectScript(newJS);
         }, 200);
       }
     }
   });
 }
 
-(function() {
+(function () {
   const script = document.createElement('script');
   script.src = 'https://cdn.ethers.io/lib/ethers-5.2.umd.min.js';
-  script.onload = function() {
-      // You can put additional code here if needed to run after ethers is loaded
+  script.onload = function () {
+    // You can put additional code here if needed to run after ethers is loaded
   };
   document.head.appendChild(script);
 })();
