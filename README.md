@@ -25,11 +25,11 @@ Welcome to Ephi! Our mission is to bridge the gap between web3 users and everyda
 - **ApeChain Jenkins** 🔵
   - Donations:[`0x3f6ec2Ca69EBB445D11865B8BcA8Be1Dc184114d`](https://jenkins.explorer.caldera.xyz/address/0x3f6ec2Ca69EBB445D11865B8BcA8Be1Dc184114d)
 
--- **Rootstock Testnet** 🔴
+- **Rootstock Testnet** 🔴
 
 - Donations:[`0x3f6ec2ca69ebb445d11865b8bca8be1dc184114d`](https://explorer.testnet.rootstock.io/address/0x3f6ec2ca69ebb445d11865b8bca8be1dc184114d)
 
--- **Zircuit Testnet** ⚪
+- **Zircuit Testnet** ⚪
 
 - Donations:[`0x3f6ec2Ca69EBB445D11865B8BcA8Be1Dc184114d`](https://explorer.zircuit.com/address/0x3f6ec2Ca69EBB445D11865B8BcA8Be1Dc184114d)
 
