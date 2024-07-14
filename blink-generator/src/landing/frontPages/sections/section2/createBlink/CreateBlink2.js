@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import EditElement from '../../../../components/EditElement';
 import templates from '../../../../../assets/blinkTemplates.json';
 import Loader1 from '../../../../components/Loader1';
+import { saveAs } from 'file-saver';
 
 function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject, handleNextClick }) {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
@@ -13,6 +14,10 @@ function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject, handleNextCli
   const [isLoading, setIsLoading] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
+  const [referrer, setReferrer] = useState('');
+  const [destinationAddress, setDestinationAddress] = useState('');
+  const [destinationDecimals, setDestinationDecimals] = useState('');
+  const [recipient, setRecipient] = useState("0x000000000000000000000000000000000");
 
   useEffect(() => {
     if (currentBlinkObject.templateName) {
@@ -111,7 +116,20 @@ function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject, handleNextCli
 </body>
 </html>
     `;
-    const iFrame = { iframe: { html: htmlContent, js: templates[selectedTemplate].js } };
+
+    const modifiedJs = templates[selectedTemplate].js
+      .replace('var referrer;', `var referrer = '${referrer}';`)
+      .replace(
+        /destinationToken = \{(.|\n)*?\};/,
+        `destinationToken = { // HARDCODE BY GENERATOR
+          name: "USDC",
+          address: "${destinationAddress}",
+          decimals: ${destinationDecimals},
+          image: "https://cdn3d.iconscout.com/3d/premium/thumb/usdc-10229270-8263869.png?f=webp"
+        };`
+      );
+
+    const iFrame = { iframe: { html: htmlContent, js: modifiedJs } };
     const res = await fetch('http://localhost:8000/storeToIpfs', {
       method: 'POST',
       body: JSON.stringify(iFrame),
@@ -130,14 +148,68 @@ function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject, handleNextCli
     createBlink();
   };
 
+  const handleDownloadClick = () => {
+    const editedHtml = document.querySelector('.templateContainer').innerHTML;
+    const htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Custom Component</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+    }
+    .templateContainer {
+      width: 300px;
+      height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="templateContainer">
+    ${editedHtml}
+  </div>
+</body>
+</html>
+    `;
+
+    const modifiedJs = templates[selectedTemplate].js
+      .replace('var referrer;', `var referrer = '${referrer}';`)
+      .replace(
+        /destinationToken = \{(.|\n)*?\};/,
+        `destinationToken = { // HARDCODE BY GENERATOR
+          name: "USDC",
+          address: "${destinationAddress}",
+          decimals: ${destinationDecimals},
+          image: "https://cdn3d.iconscout.com/3d/premium/thumb/usdc-10229270-8263869.png?f=webp"
+        };`
+      );
+
+    const iFrame = { iframe: { html: htmlContent, js: modifiedJs } };
+    const blob = new Blob([JSON.stringify(iFrame, null, 2)], { type: 'application/json' });
+    saveAs(blob, 'blinkTemplate.json');
+  };
+
   return (
-    <div style={{  padding: '10px', zoom: '0.67' }}>
+    <div style={{ padding: '10px', zoom: '0.67' }}>
       <h4>Edit Your Blink</h4>
       <a style={{ fontSize: '1.1em' }}>Click On Element You Want To Edit And Change Its Color, Text or Image</a>
       {isLoading ? (
-        <div style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop:"50%", flexDirection:"column-reverse" }}>
+        <div style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '50%', flexDirection: 'column-reverse' }}>
           <Loader1 />
-          Depoloying Your Etherium Blink To IPFS
+          Deploying Your Ethereum Blink To IPFS
         </div>
       ) : (
         <>
@@ -184,43 +256,140 @@ function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject, handleNextCli
           <div style={{ marginTop: '10px', display: 'flex', gap: '10px' }}>
             {!editMode && (
               <>
-                <button
-                  className="launch-app-button"
-                  onClick={() => setEditMode(true)}
-                  style={styles.editButton}
-                >
+                <button className="launch-app-button" onClick={() => setEditMode(true)} style={styles.editButton}>
                   Edit
                 </button>
-                <button
-                  className="launch-app-button"
-                  style={styles.nextButton}
-                  onClick={handleDeployClick}
-                >
+                <button className="launch-app-button" style={styles.nextButton} onClick={handleDeployClick}>
                   Deploy
                 </button>
+               
               </>
             )}
             {editMode && (
               <>
-                <button
-                  className="launch-app-button"
-                  onClick={() => setEditMode(false)}
-                  style={styles.saveButton}
-                >
+                <button className="launch-app-button" onClick={() => setEditMode(false)} style={styles.saveButton}>
                   Save
                 </button>
-                <button
-                  className="launch-app-button"
-                  onClick={() => setEditMode(false)}
-                  style={{width:'50%', backgroundColor:'#e5e5e5', color:'black'}}
-                >
+                <button className="launch-app-button" onClick={() => setEditMode(false)} style={{ width: '50%', backgroundColor: '#e5e5e5', color: 'black' }}>
                   Cancel
                 </button>
               </>
             )}
           </div>
+          {selectedTemplate === 'swap' && (
+  <div style={{
+    marginTop: '20px',
+    padding: '20px',
+    borderRadius: '10px',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+  }}>
+    <h5 style={{
+      fontSize: '1.2em',
+      fontWeight: 'bold',
+      marginBottom: '10px',
+    }}>Edit Swap Fields</h5>
+    <label style={{
+      fontSize: '1em',
+      marginBottom: '5px',
+      marginRight:'25px'
+    }}>Referrer</label>
+    <input
+      type="text"
+      value={referrer}
+      onChange={(e) => setReferrer(e.target.value)}
+      style={{
+        padding: '5px',
+        marginBottom: '10px',
+        borderRadius: '3px',
+        border: '1px solid #ccc',
+        width: '200px',
+        marginRight:'25px'
+
+      }}
+    />
+    <label style={{
+      fontSize: '1em',
+      marginBottom: '5px',
+      marginRight:'25px'
+
+    }}>Destination Address</label>
+    <input
+      type="text"
+      value={destinationAddress}
+      onChange={(e) => setDestinationAddress(e.target.value)}
+      style={{
+        padding: '5px',
+        marginBottom: '10px',
+        borderRadius: '3px',
+        border: '1px solid #ccc',
+        width: '200px',
+        marginRight:'25px'
+
+      }}
+    />
+    <label style={{
+      fontSize: '1em',
+      marginBottom: '5px',
+      marginRight:'25px'
+
+    }}>Destination Decimals</label>
+    <input
+      type="number"
+      value={destinationDecimals}
+      onChange={(e) => setDestinationDecimals(e.target.value)}
+      style={{
+        padding: '5px',
+        marginBottom: '10px',
+        borderRadius: '3px',
+        border: '1px solid #ccc',
+        width: '200px',
+      }}
+    />
+  </div>
+)}
+
+{selectedTemplate === 'donation' && (
+  <div style={{
+    marginTop: '20px',
+    padding: '20px',
+    borderRadius: '10px',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+    backdropFilter: 'blur(10px)',
+    width: '100%',
+    maxWidth: '600px',
+    margin: 'auto',
+  }}>
+    <h5 style={{
+      fontSize: '1.2em',
+      fontWeight: 'bold',
+      marginBottom: '10px',
+      textAlign: 'center',
+    }}>Edit Donation Fields</h5>
+    <label style={{
+      fontSize: '1em',
+      marginBottom: '5px',
+    }}>Recipient</label>
+    <input
+      type="text"
+      value={recipient}
+      onChange={(e) => setRecipient(e.target.value)}
+      style={{
+        padding: '10px',
+        marginBottom: '15px',
+        borderRadius: '5px',
+        border: '1px solid #ccc',
+        width: '100%',
+      }}
+    />
+  </div>
+)}
+
+
         </>
       )}
+      
     </div>
   );
 }
@@ -260,6 +429,16 @@ const styles = {
     borderRadius: '5px',
     cursor: 'pointer',
     backgroundColor: '',
+    width: '50%',
+    transition: 'background-color 0.3s ease',
+  },
+  downloadButton: {
+    color: 'white',
+    fontSize: '1.2em',
+    padding: '10px 20px',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    backgroundColor: 'green',
     width: '50%',
     transition: 'background-color 0.3s ease',
   },
@@ -324,6 +503,13 @@ const styles = {
     backgroundColor: '#FF0000',
     color: 'white',
     cursor: 'pointer',
+  },
+  fieldsContainer: {
+    marginTop: '20px',
+    padding: '10px',
+    borderRadius: '5px',
+    backgroundColor: '#f0f0f0',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
   },
 };
 

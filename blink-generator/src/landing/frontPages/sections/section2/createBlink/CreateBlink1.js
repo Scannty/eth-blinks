@@ -30,10 +30,12 @@ function CreateBlink1({ currentBlinkObject, setCurrentBlinkObject, handleNextCli
               cursor: "pointer",
               display: 'flex',
               justifyContent: 'center',
-              alignItems: 'center'
+              alignItems: 'center',
+              flexDirection:'column'
             }}
             onClick={() => updateBlinkObjectTemplate(index + 1, template)}
           >
+            <a style={{marginBottom:"20px", fontSize:"1.2em", fontWeight:"bold"}}>{templates[template].name}</a>
             <div dangerouslySetInnerHTML={{ __html: templates[template].html }} />
           </div>
         ))}
