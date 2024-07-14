@@ -7,14 +7,31 @@ Welcome to Ephi! Our mission is to bridge the gap between web3 users and everyda
 📜 Contracts are deployed and verified on the following networks:
 
 - **Base Sepolia** 🟢
+
   - TokenTransferor: [`0x5E23A12Dd75Bb2432d40B4fc2f676603306a3ff8`](https://sepolia.basescan.org/address/0x5E23A12Dd75Bb2432d40B4fc2f676603306a3ff8)
 
 - **Arbitrum Sepolia** 🟠
-    - TokenTransferor:[`0x3f6ec2Ca69EBB445D11865B8BcA8Be1Dc184114d`](https://sepolia.arbiscan.io/address/0x3f6ec2Ca69EBB445D11865B8BcA8Be1Dc184114d)
+
+  - TokenTransferor:[`0x3f6ec2Ca69EBB445D11865B8BcA8Be1Dc184114d`](https://sepolia.arbiscan.io/address/0x3f6ec2Ca69EBB445D11865B8BcA8Be1Dc184114d)
 
 - **Linea Sepolia** 🟤
+
   - Donations: [`0x3f6ec2Ca69EBB445D11865B8BcA8Be1Dc184114d`](https://sepolia.lineascan.build/address/address/0x3f6ec2Ca69EBB445D11865B8BcA8Be1Dc184114d)
 
+- **NeonEVM** 🟣
+
+  - Donations: [`0x3f6ec2Ca69EBB445D11865B8BcA8Be1Dc184114d`](https://devnet.neonscan.org/address/0x3f6ec2Ca69EBB445D11865B8BcA8Be1Dc184114d)
+
+- **ApeChain Jenkins** 🔵
+  - Donations:[`0x3f6ec2Ca69EBB445D11865B8BcA8Be1Dc184114d`](https://jenkins.explorer.caldera.xyz/address/0x3f6ec2Ca69EBB445D11865B8BcA8Be1Dc184114d)
+
+-- **Rootstock Testnet** 🔴
+
+- Donations:[`0x3f6ec2ca69ebb445d11865b8bca8be1dc184114d`](https://explorer.testnet.rootstock.io/address/0x3f6ec2ca69ebb445d11865b8bca8be1dc184114d)
+
+-- **Zircuit Testnet** ⚪
+
+- Donations:[`0x3f6ec2Ca69EBB445D11865B8BcA8Be1Dc184114d`](https://explorer.zircuit.com/address/0x3f6ec2Ca69EBB445D11865B8BcA8Be1Dc184114d)
 
 ## How It Works 🔧
 

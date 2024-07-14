@@ -17,15 +17,15 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: {
-      lineaSepolia: process.env.ETHERSCAN_API_KEY || "",
+      scrollSepolia: "test",
     },
     customChains: [
       {
-        network: "lineaSepolia",
-        chainId: 59141,
+        network: 'scrollSepolia',
+        chainId: 534351,
         urls: {
-          apiURL: "https://api-sepolia.lineascan.build/api",
-          browserURL: "https://sepolia.lineascan.build/address",
+          apiURL: 'https://api-sepolia.scrollscan.com/api',
+          browserURL: 'https://sepolia.scrollscan.com/',
         },
       },
     ],
@@ -64,7 +64,46 @@ const config: HardhatUserConfig = {
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
+    neonDevnet: {
+      url: process.env.NEON_DEVNET_URL,
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      chainId: 245022926,
+    },
+    jenkins: {
+      url: process.env.JENKINS_URL,
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      chainId: 1798,
+    },
+    rskTestnet: {
+      url: process.env.RSKTESTNET_URL,
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      chainId: 31,
+    },
+    zircuitTestnet: {
+      url: process.env.ZIRCUIT_TESTNET_URL,
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
+    morphHolesky: {
+      url: process.env.MORPH_HOLESKY_URL,
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      chainId: 17000,
+    },
+    scrollSepolia: {
+      url: process.env.SCROLL_SEPOLIA_URL,
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      chainId: 17000,
+    },
   },
 };
 
 export default config;
+
+
+
+
