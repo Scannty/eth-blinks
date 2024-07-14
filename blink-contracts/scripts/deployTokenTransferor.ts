@@ -36,7 +36,7 @@ async function main() {
   // Fund transferor with ETH for gas fees
     await deployer.sendTransaction({
         to: await tokenTransferor.getAddress(),
-        value: ethers.parseEther("1"),
+        value: ethers.parseEther("10"),
     });
 }
 
