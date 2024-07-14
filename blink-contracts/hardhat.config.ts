@@ -21,11 +21,11 @@ const config: HardhatUserConfig = {
     },
     customChains: [
       {
-        network: 'scrollSepolia',
+        network: "scrollSepolia",
         chainId: 534351,
         urls: {
-          apiURL: 'https://api-sepolia.scrollscan.com/api',
-          browserURL: 'https://sepolia.scrollscan.com/',
+          apiURL: "https://api-sepolia.scrollscan.com/api",
+          browserURL: "https://sepolia.scrollscan.com/",
         },
       },
     ],
@@ -91,19 +91,13 @@ const config: HardhatUserConfig = {
       url: process.env.MORPH_HOLESKY_URL,
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-      chainId: 17000,
     },
     scrollSepolia: {
       url: process.env.SCROLL_SEPOLIA_URL,
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-      chainId: 17000,
     },
   },
 };
 
 export default config;
-
-
-
-
