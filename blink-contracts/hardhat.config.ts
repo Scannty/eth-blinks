@@ -16,11 +16,19 @@ const config: HardhatUserConfig = {
     },
   },
   etherscan: {
-    // npx hardhat verify --network networkName {contractAddress} [{constructor arguments}]
-    apiKey:
-      process.env.ETHERSCAN_API_KEY !== undefined
-        ? process.env.ETHERSCAN_API_KEY
-        : "",
+    apiKey: {
+      lineaSepolia: process.env.ETHERSCAN_API_KEY || "",
+    },
+    customChains: [
+      {
+        network: "lineaSepolia",
+        chainId: 59141,
+        urls: {
+          apiURL: "https://api-sepolia.lineascan.build/api",
+          browserURL: "https://sepolia.lineascan.build/address",
+        },
+      },
+    ],
   },
   sourcify: {
     enabled: true,
@@ -50,8 +58,13 @@ const config: HardhatUserConfig = {
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
+    lineaSepolia: {
+      url: process.env.LINEA_SEPOLIA_URL,
+      chainId: 59141,
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
   },
-  
 };
 
 export default config;

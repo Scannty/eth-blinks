@@ -12,6 +12,9 @@ Welcome to Ephi! Our mission is to bridge the gap between web3 users and everyda
 - **Arbitrum Sepolia** 🟠
     - TokenTransferor:[`0x3f6ec2Ca69EBB445D11865B8BcA8Be1Dc184114d`](https://sepolia.arbiscan.io/address/0x3f6ec2Ca69EBB445D11865B8BcA8Be1Dc184114d)
 
+- **Linea Sepolia** 🟤
+  - Donations: [`0x3f6ec2Ca69EBB445D11865B8BcA8Be1Dc184114d`](https://sepolia.lineascan.build/address/address/0x3f6ec2Ca69EBB445D11865B8BcA8Be1Dc184114d)
+
 
 ## How It Works 🔧
 
