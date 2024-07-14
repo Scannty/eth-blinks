@@ -31,8 +31,8 @@ const Section1 = ({ handleButtonClick }) => {
       </div>
       <div className={`waitlist-section ${inView ? 'fadeIn' : ''}`} style={styles.waitlistSection}>
         <p className='description' style={styles.description}>
-          Make affiliate links, promote swaps, mint NFT's and much more. Deploy on X, Reddit, Facebook, etc. Community driven and open sourced.
-        </p>
+        Create affiliate links, promote swaps, mint NFT's, create donation campaigns, bridge to new chains and anything else you can think of.
+        Deploy anywhere on the web. Community driven and open sourced.        </p>
         <button
           variant="light"
           className="launch-app-button2"
