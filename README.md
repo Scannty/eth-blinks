@@ -37,6 +37,10 @@ Welcome to Ephi! Our mission is to bridge the gap between web3 users and everyda
 
   - Donations:[`0x3f6ec2Ca69EBB445D11865B8BcA8Be1Dc184114d`](https://sepolia.scrollscan.com/address/0x3f6ec2Ca69EBB445D11865B8BcA8Be1Dc184114d)
 
+- **Morph Holesky** 🔵
+
+  - Donations:[`0x3f6ec2Ca69EBB445D11865B8BcA8Be1Dc184114d`](https://explorer-holesky.morphl2.io/address/0x3f6ec2Ca69EBB445D11865B8BcA8Be1Dc184114d)
+
 ## How It Works 🔧
 
 ### Creating and Posting Components 🛠️
