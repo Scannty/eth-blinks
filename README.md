@@ -4,6 +4,15 @@
 
 Welcome to Ephi! Our mission is to bridge the gap between web3 users and everyday internet applications. Interacting with blockchain technology often requires isolated applications, which can be a significant barrier to adoption. Ephi breaks down these barriers by allowing users to create custom components using HTML and JavaScript. These components are then posted on IPFS and rendered by our extension whenever you post them, enabling blockchain interactions on any everyday application.
 
+📜 Contracts are deployed and verified on the following networks:
+
+- **Base Sepolia** 🟢
+  - TokenTransferor: [`0x5E23A12Dd75Bb2432d40B4fc2f676603306a3ff8`](https://sepolia.basescan.org/address/0x5E23A12Dd75Bb2432d40B4fc2f676603306a3ff8)
+
+- **Arbitrum Sepolia** 🟠
+    - TokenTransferor:[`0x3f6ec2Ca69EBB445D11865B8BcA8Be1Dc184114d`](https://sepolia.arbiscan.io/address/0x3f6ec2Ca69EBB445D11865B8BcA8Be1Dc184114d)
+
+
 ## How It Works 🔧
 
 ### Creating and Posting Components 🛠️
@@ -39,6 +48,7 @@ Ephi is built to seamlessly integrate with existing web technologies and the Eth
 - **User-Friendly**: Designed to be intuitive and easy to use, even for those new to blockchain technology.
 
 ## Key Features 🌟
+
 ### Blockchain Interaction 🌐
 
 - **On Any App**: Bring blockchain transactions and interactions to any web surface capable of displaying a URL.
@@ -51,7 +61,6 @@ Ephi brings blockchain technology into everyday internet applications, making it
 ---
 
 Feel free to reach out if you have any questions or want to contribute! 🌐💬
-
 
 ## Requirements
 
@@ -110,6 +119,7 @@ npm install
 ```
 
 3. Run the server
+
 ```bash
 node server.js
 ```
@@ -140,6 +150,7 @@ npm start
 ```
 
 ### Running Test Server(Optional)
+
 1. Install Dependencies
 
 ```bash
