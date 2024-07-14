@@ -497,13 +497,8 @@ app.get('/swap', (req, res) => {
   })
 })
 
-<<<<<<< Updated upstream
-app.get('/blink', (req, res) => {
-  return res.json({ iframe: { html: '', js: '' } })
-=======
 app.get("/blink", (req, res) => {
   return res.json({ iframe: { html: "", js: "" } });
->>>>>>> Stashed changes
   res.json({
     iframe: {
       html: `
@@ -573,13 +568,8 @@ document.getElementById("dugme").addEventListener('click', showAlert);
   });
 });
 
-<<<<<<< Updated upstream
-app.get('/blink-erc20', (req, res) => {
-  return res.json({ iframe: { html: '', js: '' } })
-=======
 app.get("/blink-erc20", (req, res) => {
   return res.json({ iframe: { html: "", js: "" } });
->>>>>>> Stashed changes
   res.json({
     iframe: {
       html: `

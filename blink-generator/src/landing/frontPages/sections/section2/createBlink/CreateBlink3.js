@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import templates from '../../../../../assets/blinkTemplates.json';
 
-function CreateBlink3({ currentBlinkObject, setCurrentBlinkObject, handleNextClick }) {
+function CreateBlink3({ currentBlinkObject, setCurrentBlinkObject, handleNextClick, newIPFShash }) {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [linkCopied, setLinkCopied] = useState(false);
   const [socialLinkCopied, setSocialLinkCopied] = useState(false);
@@ -14,7 +14,7 @@ function CreateBlink3({ currentBlinkObject, setCurrentBlinkObject, handleNextCli
 
   const copyLink = async () => {
     try {
-      const url = 'testtt'; // The IPFS link you want to copy
+      const url = 'ipfs://'+newIPFShash; // The IPFS link you want to copy
       await navigator.clipboard.writeText(url);
       setLinkCopied(true);
       setTimeout(() => setLinkCopied(false), 2000);
@@ -25,7 +25,7 @@ function CreateBlink3({ currentBlinkObject, setCurrentBlinkObject, handleNextCli
 
   const copySocialLink = async () => {
     try {
-      const url = 'ipfs://test1'; // The social link you want to copy
+      const url = '<blk ipfs://'+newIPFShash+' blk>'
       await navigator.clipboard.writeText(url);
       setSocialLinkCopied(true);
       setTimeout(() => setSocialLinkCopied(false), 2000);

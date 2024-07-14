@@ -4,7 +4,7 @@ import templates from '../../../../../assets/blinkTemplates.json';
 import Loader1 from '../../../../components/Loader1';
 import { saveAs } from 'file-saver';
 
-function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject, handleNextClick }) {
+function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject, handleNextClick, setNewIPFShash }) {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [editingElement, setEditingElement] = useState(null);
   const [bgColor, setBgColor] = useState('#ffffff');
@@ -18,7 +18,6 @@ function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject, handleNextCli
   const [destinationAddress, setDestinationAddress] = useState('');
   const [destinationDecimals, setDestinationDecimals] = useState('');
   const [recipient, setRecipient] = useState("0x000000000000000000000000000000000");
-
   useEffect(() => {
     if (currentBlinkObject.templateName) {
       setSelectedTemplate(currentBlinkObject.templateName);
@@ -138,7 +137,10 @@ function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject, handleNextCli
       },
     });
     console.log(res);
-    console.log(await res.text());
+    let ipfsText = await res.text();
+    setNewIPFShash(ipfsText)
+
+    handleNextClick()
   };
 
   const handleDeployClick = async () => {
