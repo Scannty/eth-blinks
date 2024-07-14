@@ -35,7 +35,7 @@ const Section1 = ({ handleButtonClick }) => {
         </p>
         <button
           variant="light"
-          className="launch-app-button"
+          className="launch-app-button2"
           style={styles.primaryButton}
           onClick={handleButtonClick}
         >
@@ -44,7 +44,7 @@ const Section1 = ({ handleButtonClick }) => {
 
         <button
           variant="light"
-          className="launch-app-button"
+          className="launch-app-button2"
           style={styles.secondaryButton}
           onClick={handleButtonClick}
         >
@@ -87,6 +87,7 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     border: '1px solid black',
+    color: '#f15d50da'
 
   },
   secondaryButton: {
