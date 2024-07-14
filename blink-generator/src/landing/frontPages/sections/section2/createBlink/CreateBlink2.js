@@ -4,7 +4,7 @@ import templates from '../../../../../assets/blinkTemplates.json';
 import Loader1 from '../../../../components/Loader1';
 import { saveAs } from 'file-saver';
 
-function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject, handleNextClick }) {
+function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject, handleNextClick, setNewIPFShash }) {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [editingElement, setEditingElement] = useState(null);
   const [bgColor, setBgColor] = useState('#ffffff');
@@ -19,7 +19,6 @@ function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject, handleNextCli
   const [destinationAddress, setDestinationAddress] = useState('');
   const [destinationDecimals, setDestinationDecimals] = useState('');
   const [recipient, setRecipient] = useState("0x000000000000000000000000000000000");
-
   useEffect(() => {
     if (currentBlinkObject.templateName) {
       setSelectedTemplate(currentBlinkObject.templateName);
@@ -84,52 +83,25 @@ function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject, handleNextCli
   const createBlink = async () => {
     const editedHtml = document.querySelector('.templateContainer').innerHTML;
     const htmlContent = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Custom Component</title>
-  <style>
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      background-color: #f0f0f0;
-    }
-    .templateContainer {
-      width: 300px;
-      height: 200px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-  </style>
-</head>
-<body>
-  <div class="templateContainer">
-    ${editedHtml}
-  </div>
-</body>
-</html>
+      ${editedHtml}
     `;
-
+  
     const modifiedJs = templates[selectedTemplate].js
-      .replace('var referrer;', `var referrer = '${referrer}';`)
+      .replace('referrer = null', `referrer = "${referrer}";`)
       .replace(
-        /destinationToken = \{(.|\n)*?\};/,
+        /destinationToken = \{[\s\S]*?\}/,
         `destinationToken = { // HARDCODE BY GENERATOR
           name: "${tokenName}",
           address: "${destinationAddress}",
           decimals: ${destinationDecimals},
           image: "https://cdn3d.iconscout.com/3d/premium/thumb/usdc-10229270-8263869.png?f=webp"
         };`
+      )
+      .replace(
+        /const recipient = '0x53FA684bDd93da5324BDc8B607F8E35eC79ccF5A';/,
+        `const recipient = '${recipient}';`
       );
-
+  
     const iFrame = { iframe: { html: htmlContent, js: modifiedJs } };
     const res = await fetch('http://localhost:8000/storeToIpfs', {
       method: 'POST',
@@ -139,14 +111,20 @@ function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject, handleNextCli
       },
     });
     console.log(res);
-    console.log(await res.text());
+    console.log(htmlContent);
+    let ipfsText = await res.text();
+    setNewIPFShash(ipfsText);
+  
+    handleNextClick();
   };
-
+  
   const handleDeployClick = async () => {
     setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 5000)); // Simulate 5 seconds delay
-    setIsLoading(false);
     createBlink();
+    await new Promise((resolve) => setTimeout(resolve, 4000)); // Simulate 5 seconds delay
+    setIsLoading(false);
+
+
   };
 
   const handleDownloadClick = () => {
@@ -160,21 +138,10 @@ function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject, handleNextCli
   <title>Custom Component</title>
   <style>
     body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      background-color: #f0f0f0;
+      
     }
     .templateContainer {
-      width: 300px;
-      height: 200px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+     
     }
   </style>
 </head>

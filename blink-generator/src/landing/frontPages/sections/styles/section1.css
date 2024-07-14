@@ -199,6 +199,10 @@
 
 .swap-card {
 	min-width: 400px !important;
+	max-width: 400px !important;
+	min-height: 550px !important;
+	max-height: 550px !important;
+	margin-top: 0px !important;
 }
 .swap-naslovcek {
 	margin-top: 0px !important;
@@ -206,10 +210,20 @@
 #referrerWarning {
 	margin-top: 0px !important;
 }
-.swap-card {
-	margin-top: 0px !important;
-}
+
 .my-banner {
 	margin-top: 0px !important;
 	margin-bottom: 0px !important;
+}
+.bridge-card {
+	min-width: 400px !important;
+	max-width: 400px !important;
+	min-height: 550px !important;
+	max-height: 550px !important;
+}
+.card {
+	min-width: 400px !important;
+	max-width: 400px !important;
+	min-height: 550px !important;
+	max-height: 550px !important;
 }

@@ -637,7 +637,6 @@ app.get('/blink-erc20', (req, res) => {
 });
 
 app.get("/bridge", (req, res) => {
-  //return res.json({iframe: {html: "", js: ""}});
   res.json({
     iframe: {
       html: `
@@ -736,6 +735,7 @@ app.get("/bridge", (req, res) => {
             display: flex;
             align-items: center;
             justify-content: center;
+            text-decoration: none; /* Added for hyperlink style reset */
           }
           button:disabled {
             cursor: not-allowed;
@@ -758,6 +758,10 @@ app.get("/bridge", (req, res) => {
             font-size: 24px;
             margin-right: 8px;
           }
+          .bridge-button-link {
+            color: white; /* Ensuring the text color remains white */
+            text-decoration: none;
+          }
         </style>
         <div class="bridge-card">
           <img
@@ -775,8 +779,8 @@ app.get("/bridge", (req, res) => {
                   />
                   <select id="fromNetwork">
                     <option value="eth">Ethereum</option>
-                    <option value="avax">Avalanche</option>
-                    <option value="bsc">Binance Smart Chain</option>
+                    <option value="avax">Base</option>
+                    <option value="bsc">Arbitrum</option>
                   </select>
                 </div>
               </div>
@@ -789,8 +793,8 @@ app.get("/bridge", (req, res) => {
                   />
                   <select id="toNetwork">
                     <option value="eth">Ethereum</option>
-                    <option value="avax">Avalanche</option>
-                    <option value="bsc">Binance Smart Chain</option>
+                    <option value="avax">Base</option>
+                    <option value="bsc">Arbitrum</option>
                   </select>
                 </div>
               </div>
@@ -819,13 +823,13 @@ app.get("/bridge", (req, res) => {
           await ethereum.request({ method: 'eth_requestAccounts' });
           const provider = new ethers.providers.Web3Provider(window.ethereum);
           const signer = provider.getSigner();
-          console.log(signer);
+          console.log(await signer.getAddress());
           const fromNetwork = document.getElementById('fromNetwork').value;
-          const toNetwork = "4949039107694359620";
+          const toNetwork = "3478487238524512106";
           const amount = document.getElementById('amountInput').value;
           console.log(amount);
-          const bridgeContractAddress = "0x462B15Cd62644191a7d91793b2dC539Ad9a50207";
-          const usdcAddress = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+          const bridgeContractAddress = "0x19889Bb510bbD3a8FA233aED7A67261d471d703E";
+          const usdcAddress = "0x036CbD53842c5426634e7929541eC2318f3dCF7e";
           const decimals = 6 // replace with token decimals
           const amountToSend = "0x"+(amount * Math.pow(10, decimals)).toString(16)
           console.log("Amount to Send:", amountToSend);
@@ -834,21 +838,22 @@ app.get("/bridge", (req, res) => {
           await usdcContract.transfer(bridgeContractAddress, amountToSend);
           // then call the bridge function with  function transferTokensPayNative(
           const bridgeContract = new ethers.Contract(bridgeContractAddress, ["function transferTokensPayNative(uint64 _destinationChainSelector, address _receiver, address _token, uint256 _amount) public"], signer);
-          await bridgeContract.transferTokensPayNative(toNetwork, await signer.getAddress(), usdcAddress, amountToSend);
+          const tx = await bridgeContract.transferTokensPayNative(toNetwork, await signer.getAddress(), usdcAddress, amountToSend);
           // Disable the button and add loading class
           button.disabled = true;
           button.classList.add('loading');
           button.innerHTML = 'Bridging...';
       
-          // Simulate a delay for the bridging process
-          await new Promise(resolve => setTimeout(resolve, 5000)); // 5 seconds delay
+          // Wait for the transaction to be confirmed
+          const receipt = await tx.wait();
+          const txHash = receipt.transactionHash;
       
-          // Show success message
+          // Show success message with hyperlink
           button.classList.remove('loading');
           button.classList.add('success');
-          button.innerHTML = '<span class="checkmark">✓</span> Bridging Successful';
+          button.innerHTML = \`<a class="bridge-button-link" href="https://ccip.chain.link/tx/\${txHash}" target="_blank"><span class="checkmark">✓</span> Bridging Successful</a>\`;
       
-          // Reset button after 3 seconds
+          // Reset button after 3 seconds (optional)
           setTimeout(() => {
             button.disabled = false;
             button.classList.remove('success');
