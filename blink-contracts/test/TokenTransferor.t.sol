@@ -6,20 +6,20 @@ import {Test, console} from "forge-std/Test.sol";
 
 contract TokenTransferorTest is Test {
     TokenTransferor tokenTransferor;
-    address constant USDC_WHALE = 0xA726021d836F92E97a45a914bE4f074790975C2B;
-    address constant USDC = 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913;
+    address constant USDC_WHALE = 0x76d881229E6670759fF4Da9b105B99a6D28Bc429;
+    address constant USDC = 0x036CbD53842c5426634e7929541eC2318f3dCF7e;
 
     function setUp() external {
-        string memory rpcEndpoint = vm.envString("BASE_FORK_URL");
-        address ccipRouterAddress = 0x881e3A65B4d4a04dD529061dd0071cf975F58bCD;
-        address linkTokenAddress = 0x88Fb150BDc53A65fe94Dea0c9BA0a6dAf8C6e196;
+        string memory rpcEndpoint = vm.envString("BASE_SEPOLIA_URL");
+        address ccipRouterAddress = 0xD3b06cEbF099CE7DA4AcCf578aaebFDBd6e88a93;
+        address linkTokenAddress = 0xE4aB69C077896252FAFBD49EFD26B5D171A32410;
         vm.createSelectFork(rpcEndpoint); // Testing on Avalanche Fuji testnet
         vm.startPrank(USDC_WHALE);
         tokenTransferor = new TokenTransferor(
             ccipRouterAddress,
             linkTokenAddress
         );
-        tokenTransferor.allowlistDestinationChain(4949039107694359620, true); // Allow Arbitrum
+        tokenTransferor.allowlistDestinationChain(3478487238524512106, true); // Allow Arbitrum
         vm.stopPrank();
     }
 
@@ -32,11 +32,11 @@ contract TokenTransferorTest is Test {
         payable(address(tokenTransferor)).transfer(1 ether);
         IERC20(USDC).transfer(
             address(tokenTransferor),
-            10000000
-        ); // 10 USDC
+            1000000
+        ); // 1 USDC
         // Send USDC to Sepolia
-        uint64 destinationId = 4949039107694359620;
-        uint256 amount = 10000000; // 10 USDC
+        uint64 destinationId = 3478487238524512106;
+        uint256 amount = 1000000; // 1 USDC
 
         tokenTransferor.transferTokensPayNative(
             destinationId,

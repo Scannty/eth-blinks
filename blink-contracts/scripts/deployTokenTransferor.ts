@@ -7,9 +7,9 @@ async function main() {
   let routerAddress: string = "";
   let linkAddress: string = "";
 
-  if (network.name === "baseFork") {
-    routerAddress = "0x881e3A65B4d4a04dD529061dd0071cf975F58bCD"; // CCIP Router on Arbitrum
-    linkAddress = "0x88Fb150BDc53A65fe94Dea0c9BA0a6dAf8C6e196"; // LINK token on Arbitrum
+  if (network.name === "baseSepolia") {
+    routerAddress = "0xD3b06cEbF099CE7DA4AcCf578aaebFDBd6e88a93"; // CCIP Router on Base
+    linkAddress = "0xE4aB69C077896252FAFBD49EFD26B5D171A32410"; // LINK token on Base
   }
 
   console.log(
@@ -31,13 +31,14 @@ async function main() {
   console.log("✅ Token Transferor:", await tokenTransferor.getAddress());
 
   // Set Arbitrum as destination chain for the token transferor
-  await tokenTransferor.allowlistDestinationChain("4949039107694359620", true); // Allow Arbitrum
+  await tokenTransferor.allowlistDestinationChain("3478487238524512106", true); // Allow Arbitrum
 
   // Fund transferor with ETH for gas fees
-    await deployer.sendTransaction({
-        to: await tokenTransferor.getAddress(),
-        value: ethers.parseEther("10"),
-    });
+  await deployer.sendTransaction({
+    to: await tokenTransferor.getAddress(),
+    value: ethers.parseEther("0.1"),
+  });
+  console.log("✅ Token Transferor funded with ETH");
 }
 
 main()
