@@ -222,6 +222,12 @@ app.get('/swap', (req, res) => {
             image: "https://cdn3d.iconscout.com/3d/premium/thumb/usdc-10229270-8263869.png?f=webp"
         }
 
+        if(typeof buttonDefaultText === 'undefined')
+          var buttonDefaultText;
+
+        if(!buttonDefaultText)
+          buttonDefaultText = document.getElementById("dugme")?.innerHTML;
+
         if(destinationToken.address=='0x6B175474E89094C44Da98b954EedeAC495271d0F')
           document.getElementById("tokenDAI")?.parentNode.removeChild(document.getElementById("tokenDAI"));
         if(destinationToken.address=='0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2')
@@ -259,8 +265,6 @@ app.get('/swap', (req, res) => {
             document.getElementById("referrerWarning").style.display = 'none';
         }
 
-        document.getElementById("naslovchek").innerHTML = "Buy "+ destinationToken.name + " on UniswapV2";
-        console.log('USDC Bridge');
         document.getElementById("fromTokenS").addEventListener('click', function(event) {
           event.stopPropagation();
         });
@@ -411,7 +415,7 @@ app.get('/swap', (req, res) => {
             setTimeout(() => {
               dugme.disabled = false;
               dugme.classList.remove('success');
-              dugme.innerHTML = 'Buy USDC';
+              dugme.innerHTML = buttonDefaultText;
             }, 3000);
           } catch (error) {
             console.error(error);
@@ -419,7 +423,7 @@ app.get('/swap', (req, res) => {
             
             dugme.disabled = false;
             dugme.classList.remove('loading');
-            dugme.innerHTML = 'Buy USDC';
+            dugme.innerHTML = buttonDefaultText;
           }
 
         }
@@ -483,7 +487,7 @@ app.get('/swap', (req, res) => {
                 const expectedOutputAmount = ethers.utils.formatUnits(amountsOut[1], destinationToken.decimals);
 
                 // Update the UI
-                expectedOutputAmountP.innerText = "~" + expectedOutputAmount + " USDC";
+                expectedOutputAmountP.innerText = "~" + expectedOutputAmount + " " + destinationToken.name;
             } catch (error) {
                 console.error(error);
                 expectedOutputAmountP.innerText = "Error fetching expected output amount";
@@ -497,13 +501,8 @@ app.get('/swap', (req, res) => {
   })
 })
 
-<<<<<<< Updated upstream
 app.get('/blink', (req, res) => {
   return res.json({ iframe: { html: '', js: '' } })
-=======
-app.get("/blink", (req, res) => {
-  return res.json({ iframe: { html: "", js: "" } });
->>>>>>> Stashed changes
   res.json({
     iframe: {
       html: `
@@ -573,13 +572,8 @@ document.getElementById("dugme").addEventListener('click', showAlert);
   });
 });
 
-<<<<<<< Updated upstream
 app.get('/blink-erc20', (req, res) => {
   return res.json({ iframe: { html: '', js: '' } })
-=======
-app.get("/blink-erc20", (req, res) => {
-  return res.json({ iframe: { html: "", js: "" } });
->>>>>>> Stashed changes
   res.json({
     iframe: {
       html: `

@@ -14,6 +14,7 @@ function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject, handleNextCli
   const [isLoading, setIsLoading] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
+  const [tokenName, setTokenName] = useState('');
   const [referrer, setReferrer] = useState('');
   const [destinationAddress, setDestinationAddress] = useState('');
   const [destinationDecimals, setDestinationDecimals] = useState('');
@@ -122,7 +123,7 @@ function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject, handleNextCli
       .replace(
         /destinationToken = \{(.|\n)*?\};/,
         `destinationToken = { // HARDCODE BY GENERATOR
-          name: "USDC",
+          name: "${tokenName}",
           address: "${destinationAddress}",
           decimals: ${destinationDecimals},
           image: "https://cdn3d.iconscout.com/3d/premium/thumb/usdc-10229270-8263869.png?f=webp"
@@ -190,7 +191,7 @@ function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject, handleNextCli
       .replace(
         /destinationToken = \{(.|\n)*?\};/,
         `destinationToken = { // HARDCODE BY GENERATOR
-          name: "USDC",
+          name: "${tokenName}",
           address: "${destinationAddress}",
           decimals: ${destinationDecimals},
           image: "https://cdn3d.iconscout.com/3d/premium/thumb/usdc-10229270-8263869.png?f=webp"
@@ -312,8 +313,27 @@ function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject, handleNextCli
       fontSize: '1em',
       marginBottom: '5px',
       marginRight:'25px'
+    }}>Token name</label>
+    <input
+      type="text"
+      value={tokenName}
+      onChange={(e) => setTokenName(e.target.value)}
+      style={{
+        padding: '5px',
+        marginBottom: '10px',
+        borderRadius: '3px',
+        border: '1px solid #ccc',
+        width: '200px',
+        marginRight:'25px'
 
-    }}>Destination Address</label>
+      }}
+    />
+    <label style={{
+      fontSize: '1em',
+      marginBottom: '5px',
+      marginRight:'25px'
+
+    }}>Token Address</label>
     <input
       type="text"
       value={destinationAddress}
@@ -333,7 +353,7 @@ function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject, handleNextCli
       marginBottom: '5px',
       marginRight:'25px'
 
-    }}>Destination Decimals</label>
+    }}>Token Decimals</label>
     <input
       type="number"
       value={destinationDecimals}
