@@ -51,3 +51,106 @@ Ephi brings blockchain technology into everyday internet applications, making it
 ---
 
 Feel free to reach out if you have any questions or want to contribute! 🌐💬
+
+
+## Requirements
+
+Before you begin, you need to install the following tools:
+
+- [Node (v18)](https://nodejs.org/en/download/)
+- [Git](https://git-scm.com/downloads)
+- [Foundry](https://book.getfoundry.sh/getting-started/installation)
+
+## Quick start
+
+**Clone the Repository**
+
+```bash
+git clone git@github.com:Scannty/eth-blinks.git
+```
+
+### Setting Up Smart Contracts
+
+1. Setup the environment
+
+Create a .env file (see the .env.example)
+
+2. Install Dependencies
+
+```bash
+cd blink-contracts/
+forge install
+```
+
+3. Compile and Test Contracts
+
+```bash
+forge build
+forge test
+```
+
+4. Deploy contracts
+
+```bash
+npx hardhat run scripts/deployReferralExample.ts --network $networkName
+npx hardhat run scripts/deployTokenTransferor.ts --network $networkName
+```
+
+### Setting Up Backend
+
+1. Setup the environment
+
+Create a .env file (see the .env.example)
+
+2. Install Dependencies
+
+```bash
+cd blink-back-end/
+npm install
+```
+
+3. Run the server
+```bash
+node server.js
+```
+
+### Setting Up the Frontend
+
+1. Install Dependencies
+
+```bash
+cd blinks-generator
+npm install
+```
+
+2. Run App
+
+```bash
+npm start
+```
+
+### Add Extension
+
+1. In browser extension window enable developer mode
+
+2. Click on `load from unpacked` and select blink-extension folder
+
+```bash
+npm start
+```
+
+### Running Test Server(Optional)
+1. Install Dependencies
+
+```bash
+cd blinks-test-server
+npm install
+```
+
+2. Run App
+
+```bash
+node app.js
+```
+
+3. Use http://localhost/$routeName instead of IPFS
