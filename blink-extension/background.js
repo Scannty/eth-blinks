@@ -1,13 +1,13 @@
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "eval") {
-    
     try {
-      //alert(message.code);
-      const result = eval("(()=>{"+message.code+"})()");
+      // Use Function constructor instead of eval for better security  
+      const result = new Function(message.code)();
       sendResponse({ result });
     } catch (error) {
       sendResponse({ error: error.message });
     }
-    return true; // Indicate that the response will be sent asynchronously
+    // Use sendResponse correctly with a clear indication of asynchronous behav
+    return true; 
   }
 });
