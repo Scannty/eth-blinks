@@ -1,118 +1,108 @@
-// Function to inject a script into the page context
-function injectScript(code) {
-  const script = document.createElement('script');
-  script.setAttribute('type', 'text/javascript');
-  script.textContent = code;
-  (document.head || document.documentElement).appendChild(script);
-  script.onload = function () {
-    script.remove();
-  };
+// Finds <blk URL blk> tags on the page and replaces each with a sandboxed iframe
+// that renders the blink. Blink JS runs inside the extension sandbox (not in the
+// host page), and wallet calls are relayed to the page's window.ethereum through
+// bridge.js, which runs in the page's main world.
+
+const IPFS_GATEWAY = "https://ipfs.io/ipfs/";
+const SANDBOX_URL = chrome.runtime.getURL("sandbox.html");
+
+const blinkFrames = new Map(); // blinkId -> iframe
+let nextBlinkId = 1;
+
+function resolveBlinkUrl(raw) {
+  const url = raw.trim();
+  if (url.startsWith("http")) return url;
+  if (url.startsWith("ipfs://")) return IPFS_GATEWAY + url.substring("ipfs://".length);
+  return null;
 }
 
-
-const makeid = () => {
-  return Math.floor(Math.random() * 100000000)
-}
-
-function updateIds(htmlString, number) {
-  const tempDiv = document.createElement('div');
-  tempDiv.innerHTML = htmlString;
-
-  const elementsWithId = tempDiv.querySelectorAll('[id]');
-  elementsWithId.forEach(element => {
-    element.id += number;
-  });
-
-  const styleTags = tempDiv.querySelectorAll('style');
-  styleTags.forEach(styleTag => {
-    styleTag.innerHTML = styleTag.innerHTML.replace(/#(\w+)\s*\{/g, (match, id) => {
-      return `#${id}${number}{`;
+function fetchBlink(url) {
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage({ action: "fetchBlink", url }, (response) => {
+      if (chrome.runtime.lastError) return reject(new Error(chrome.runtime.lastError.message));
+      if (!response || response.error) return reject(new Error(response ? response.error : "No response"));
+      resolve(response);
     });
   });
-
-  return tempDiv.innerHTML;
 }
 
-function updateIdsInJsCode(jsCode, number) {
-  return jsCode.replace(/getElementById\s*\(\s*(['"`])(\w+)\1\s*\)/g, (match, quote, id) => {
-    return `getElementById(${quote}${id}${number}${quote})`;
+function mountBlink(placeholder, url) {
+  const blinkId = String(nextBlinkId++);
+  const iframe = document.createElement("iframe");
+  iframe.src = SANDBOX_URL;
+  iframe.style.cssText = "width:100%;height:120px;border:0;display:block;background:transparent;";
+  blinkFrames.set(blinkId, iframe);
+  placeholder.appendChild(iframe);
+
+  const blinkPromise = fetchBlink(url);
+  iframe.addEventListener("load", async () => {
+    try {
+      const { html, js } = await blinkPromise;
+      // Blinks used to be injected straight into the page, so pass along the text styles they would have inherited
+      const { color, fontFamily, fontSize } = getComputedStyle(placeholder);
+      iframe.contentWindow.postMessage({ type: "ephi:render", blinkId, html, js, style: { color, fontFamily, fontSize } }, "*");
+    } catch (error) {
+      console.error(`[Ephi] Failed to load blink ${url}:`, error);
+      placeholder.textContent = `⚠️ Could not load blink (${error.message})`;
+      blinkFrames.delete(blinkId);
+    }
   });
 }
 
-async function replaceBlkTags() {
+function replaceBlkTags() {
   // Find all span elements containing <blk ... blk> or &lt;blk ... blk&gt;
-  const spans = document.querySelectorAll('span');
+  const spans = document.querySelectorAll("span");
+  const blkRegex = /(&lt;|<)blk\s*(.*?)\s*blk(&gt;|>)/g;
 
-  const fetchPromises = [];
-  spans.forEach(span => {
-    const blkRegex = /(&lt;|<)blk\s*(.*?)\s*blk(&gt;|>)/g;
-    let match;
-    while ((match = blkRegex.exec(span.innerHTML)) !== null) {
-      let url = null;
-      const match2 = match;
-      const url1 = match[2].trim();
+  spans.forEach((span) => {
+    if (!blkRegex.test(span.innerHTML)) return;
+    blkRegex.lastIndex = 0;
 
-      if (url1.startsWith("http"))
-        url = url1;
-      else if (url1.startsWith("ipfs://"))
-        url = "https://ipfs.io/ipfs/" + url1.substring("ipfs://".length);
+    const pending = [];
+    span.innerHTML = span.innerHTML.replace(blkRegex, (match, open, rawUrl) => {
+      const url = resolveBlinkUrl(rawUrl.replace(/&amp;/g, "&"));
+      if (!url) return match;
+      const placeholderId = `ephi-blink-${nextBlinkId}-${pending.length}-${Date.now()}`;
+      pending.push({ placeholderId, url });
+      return `<div class="ephi-blink" id="${placeholderId}"></div>`;
+    });
 
-      console.log(`Fetching URL: ${url}`);  // Debugging information
-      if (!url)
-        continue;
-
-      fetchPromises.push(
-        fetch(url)
-          .then(response => {
-            if (response.ok) {
-              return response.json().then(result => {
-                const { html, js } = result.iframe;
-                return { span, match: match2, htmlText: html, jsCode: js };
-              });
-            } else {
-              console.error(`Failed to fetch ${url}: ${response.statusText}`);
-              return null;
-            }
-          })
-          .catch(error => {
-            console.error(`Error fetching ${url}:`, error);
-            return null;
-          })
-      );
-    }
-  });
-
-  const results = await Promise.all(fetchPromises);
-
-  results.forEach(result => {
-    if (result) {
-      const randomNumber = makeid();
-      const newHtml = updateIds(result.htmlText, randomNumber);
-
-      // Replace only the matched content within the span
-      const spanHtml = result.span.innerHTML;
-      console.log(spanHtml);
-      console.log(result);
-      console.log(result.match);
-      console.log(spanHtml.replace(result.match[0], newHtml))
-      result.span.innerHTML = spanHtml.replace(result.match[0], newHtml);
-
-      setTimeout(() => {
-        const newJS = updateIdsInJsCode(result.jsCode, randomNumber);
-        injectScript(newJS);
-      }, 500);
-    }
+    pending.forEach(({ placeholderId, url }) => {
+      const placeholder = document.getElementById(placeholderId);
+      if (placeholder) mountBlink(placeholder, url);
+    });
   });
 }
 
-(function () {
-  const script = document.createElement('script');
-  script.src = 'https://cdn.ethers.io/lib/ethers-5.2.umd.min.js';
-  script.onload = function () {
-    // You can put additional code here if needed to run after ethers is loaded
-  };
-  document.head.appendChild(script);
-})();
+// Messages coming from blink iframes
+window.addEventListener("message", (event) => {
+  const data = event.data;
+  if (!data || typeof data.type !== "string" || !data.type.startsWith("ephi:")) return;
+
+  const iframe = blinkFrames.get(data.blinkId);
+  if (!iframe || event.source !== iframe.contentWindow) return;
+
+  if (data.type === "ephi:resize") {
+    iframe.style.height = `${Math.ceil(data.height)}px`;
+  } else if (data.type === "ephi:rpc") {
+    // Relay to bridge.js in the page's main world
+    window.postMessage({ type: "ephi:bridge-request", blinkId: data.blinkId, rpcId: data.rpcId, method: data.method, params: data.params }, window.location.origin);
+  }
+});
+
+// Responses and wallet events coming from bridge.js
+window.addEventListener("message", (event) => {
+  if (event.source !== window) return;
+  const data = event.data;
+  if (!data) return;
+
+  if (data.type === "ephi:bridge-response") {
+    const iframe = blinkFrames.get(data.blinkId);
+    if (iframe) iframe.contentWindow.postMessage({ type: "ephi:rpc-result", rpcId: data.rpcId, result: data.result, error: data.error }, "*");
+  } else if (data.type === "ephi:bridge-event") {
+    blinkFrames.forEach((iframe) => iframe.contentWindow.postMessage({ type: "ephi:wallet-event", event: data.event, payload: data.payload }, "*"));
+  }
+});
 
 // Run the function every 1 second
 setInterval(replaceBlkTags, 1000);

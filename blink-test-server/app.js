@@ -1267,4 +1267,12 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "test.html"));
 });
 
-app.listen(80);
+// Simulated social feed with <blk ... blk> tags, for testing the extension locally
+app.get("/feed", (req, res) => {
+  res.sendFile(path.join(__dirname, "feed.html"));
+});
+
+const port = process.env.PORT || 8080;
+app.listen(port, () => {
+  console.log(`Blink test server listening on http://localhost:${port}`);
+});

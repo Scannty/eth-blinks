@@ -103,16 +103,27 @@ function CreateBlink2({ currentBlinkObject, setCurrentBlinkObject, handleNextCli
       );
   
     const iFrame = { iframe: { html: htmlContent, js: modifiedJs } };
-    const res = await fetch('http://localhost:8000/storeToIpfs', {
-      method: 'POST',
-      body: JSON.stringify(iFrame),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
+    let res;
+    try {
+      res = await fetch(`${backendUrl}/storeToIpfs`, {
+        method: 'POST',
+        body: JSON.stringify(iFrame),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+    } catch (error) {
+      alert(`Could not reach the backend at ${backendUrl}. Is blink-back-end running?`);
+      return;
+    }
     console.log(res);
     console.log(htmlContent);
     let ipfsText = await res.text();
+    if (!res.ok) {
+      alert(ipfsText);
+      return;
+    }
     setNewIPFShash(ipfsText);
   
     handleNextClick();

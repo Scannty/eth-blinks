@@ -1,13 +1,20 @@
 const pinataSdk = require('@pinata/sdk')
 require('dotenv').config({ path: __dirname + '/.env' })
 
-const pinata = new pinataSdk(process.env.PINATA_API_KEY, process.env.PINATA_SECRET_API_KEY)
+const IPFS_GATEWAY = 'https://ipfs.io/ipfs/'
+
+// Accepts either a Pinata JWT or the legacy API key + secret pair
+const pinata = process.env.PINATA_JWT
+  ? new pinataSdk({ pinataJWTKey: process.env.PINATA_JWT })
+  : new pinataSdk(process.env.PINATA_API_KEY, process.env.PINATA_SECRET_API_KEY)
 
 async function helloWorldCtrl(req, res, next) {
-  console.log(process.env.PINATA_API_KEY)
-  console.log(await pinata.testAuthentication())
-  res.send('Hello World')
-  next()
+  try {
+    await pinata.testAuthentication()
+    res.send('Hello World. Pinata authentication OK')
+  } catch (error) {
+    res.status(500).send('Hello World. Pinata authentication FAILED, check blink-back-end/.env: ' + (error.message || JSON.stringify(error)))
+  }
 }
 
 async function publishToIPFS(iframe) {
@@ -32,9 +39,8 @@ async function storeToIpfsCtrl(req, res, next) {
     res.send(ipfsFile.IpfsHash)
   } catch (error) {
     console.log(error)
-    res.send('Error')
+    res.status(500).send('Failed to store blink on IPFS: ' + (error.message || JSON.stringify(error)))
   }
-  next()
 }
 
 async function generateEthTransferBlinkCtrl(req, res, next) {
@@ -103,7 +109,7 @@ document.getElementById('dugme${id}').addEventListener('click', showAlert);
   }
 
   // 3) Send the IPFS link to the user
-  const ipfsLink = `https://gateway.ipfs.io/ipfs/${cid}`
+  const ipfsLink = `${IPFS_GATEWAY}${cid}`
   res.send('Transfer   Blink generated. Check it out at: ' + ipfsLink)
 
   next()
@@ -177,5 +183,7 @@ document.getElementById('dugme').addEventListener('click', showAlert);
   } catch (error) {
     console.log(error)
   }
+
+  res.send('ERC-20 Transfer Blink generated. Check it out at: ' + `${IPFS_GATEWAY}${cid}`)
 }
 module.exports = { helloWorldCtrl, generateEthTransferBlinkCtrl, generateErc20TransferBlinkCtrl, storeToIpfsCtrl }

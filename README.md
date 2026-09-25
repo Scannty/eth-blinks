@@ -137,7 +137,7 @@ npx hardhat run scripts/deployTokenTransferor.ts --network $networkName
 
 1. Setup the environment
 
-Create a .env file (see the .env.example)
+Create a `.env` file (see `.env.example`). Get a JWT (or an API key + secret) from [Pinata](https://app.pinata.cloud/developers/api-keys). Without it, the generator's **Deploy** button can't publish blinks to IPFS.
 
 2. Install Dependencies
 
@@ -146,50 +146,54 @@ cd blink-back-end/
 npm install
 ```
 
-3. Run the server
+3. Run the server (port 8000, override with `PORT`)
 
 ```bash
 node server.js
 ```
+
+Open http://localhost:8000 to check that your Pinata credentials work.
 
 ### Setting Up the Frontend
 
 1. Install Dependencies
 
 ```bash
-cd blinks-generator
+cd blink-generator
 npm install
 ```
 
-2. Run App
+2. Run App (http://localhost:3000)
 
 ```bash
 npm start
 ```
+
+The generator talks to the backend at `http://localhost:8000`. Set `REACT_APP_BACKEND_URL` to use a different one.
 
 ### Add Extension
 
-1. In browser extension window enable developer mode
+The extension uses Manifest V3. Each blink renders in a sandboxed iframe, and its wallet calls are forwarded to your browser wallet (e.g. MetaMask) on the page.
 
-2. Click on `load from unpacked` and select blink-extension folder
+1. Open `chrome://extensions` and enable **Developer mode**
+2. Click **Load unpacked** and select the `blink-extension` folder
+3. After changing extension code, click the reload icon on the extension card and refresh the page
 
-```bash
-npm start
-```
+Blinks render on x.com and on `localhost` pages.
 
-### Running Test Server(Optional)
+### Running Test Server (Optional)
 
 1. Install Dependencies
 
 ```bash
-cd blinks-test-server
+cd blink-test-server
 npm install
 ```
 
-2. Run App
+2. Run App (port 8080, override with `PORT`)
 
 ```bash
 node app.js
 ```
 
-3. Use http://localhost/$routeName instead of IPFS
+3. Open http://localhost:8080/feed to see the example blinks rendered by the extension, or use `<blk http://localhost:8080/$routeName blk>` (`swap`, `bridge`, `donation`, `faucet`) instead of an IPFS link
