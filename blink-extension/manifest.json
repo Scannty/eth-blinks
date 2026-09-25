@@ -23,6 +23,13 @@
     {
       "matches": [
         "*://*.x.com/*",
+        "*://x.com/*"
+      ],
+      "js": ["x-ticker-swap.js"]
+    },
+    {
+      "matches": [
+        "*://*.x.com/*",
         "*://x.com/*",
         "http://localhost/*",
         "http://127.0.0.1/*"
