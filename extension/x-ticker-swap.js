@@ -855,7 +855,7 @@
   `;
 
   // The Buy button that sits inside X's ticker card, next to the sparkline
-  const TRIGGER_STYLE = `${VERDICT_STYLE}
+  const TRIGGER_STYLE = `
     :host { all: initial; }
     .toggle {
       display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
@@ -867,18 +867,6 @@
     }
     .toggle:hover { opacity: .9; }
     .toggle svg { width: 14px; height: 14px; fill: currentColor; }
-    /* Intercepta verdict, nested at the end of the Buy button while the panel is collapsed */
-    .toggle:has(.verdict) { padding-right: 3px; }
-    .verdict {
-      display: inline-flex; align-items: center; gap: 4px; margin-left: 3px;
-      font-size: 11px; height: 20px; padding: 0 7px 0 6px; border-radius: 9999px;
-      color: #fff; background: var(--verdict);
-    }
-    .verdict.warn { color: #000; }
-    .verdict.loading, .verdict.unknown { padding: 0 6px; color: var(--bg); background: color-mix(in srgb, var(--bg) 18%, transparent); }
-    .verdict.loading { animation: pulse 1s ease-in-out infinite; }
-    .toggle .verdict .ic-mark { width: 8px; height: 11px; }
-    @keyframes pulse { 50% { opacity: .45; } }
     .toggle.open { background: transparent; color: var(--text); border-color: var(--border); }
     .toggle.open:hover { background: var(--hover); opacity: 1; }
   `;
@@ -1001,6 +989,7 @@
       const img = article.querySelector('[data-testid="Tweet-User-Avatar"] img');
       return img && img.src.startsWith("https://pbs.twimg.com/") ? img.src.replace(/_(normal|bigger|x96)\./, "_400x400.") : "";
     }
+    function isOwnTweet() { return !!author && sameHandle(author, loggedInHandle()); }
     // Buys pay the author's kickback, unless the buyer is the author
     function activeKickback() {
       const kickback = state.kickback;
@@ -1053,10 +1042,7 @@
       $(".root").classList.toggle("open", state.open);
       toggle.classList.toggle("open", state.open);
       toggle.setAttribute("aria-expanded", String(state.open));
-      const verdict = state.open ? null : verdictBadge();
-      toggle.innerHTML = state.open ? `${CLOSE_SVG}<span>Close</span>` : `${SWAP_SVG}<span>Buy</span>${verdict ? verdict.html : ""}`;
-      if (verdict) toggle.title = verdict.title;
-      else toggle.removeAttribute("title");
+      toggle.innerHTML = state.open ? `${CLOSE_SVG}<span>Close</span>` : `${SWAP_SVG}<span>Buy</span>`;
       // Join the panel to the card while open: square off the card's bottom corners
       link.style.borderBottomLeftRadius = state.open ? "0" : "";
       link.style.borderBottomRightRadius = state.open ? "0" : "";
@@ -1185,7 +1171,7 @@
 
       // The author's own tweet: invite them to verify, or confirm they're earning
       const owner = $(".owner");
-      owner.hidden = !(author && sameHandle(author, loggedInHandle()));
+      owner.hidden = !isOwnTweet();
       if (owner.hidden) return;
       // render runs on every price tick: only rebuild when the registration changes, so the button stays clickable
       const ownerKey = state.kickback ? `earning:${state.kickback.bips}` : "verify";
@@ -1193,7 +1179,7 @@
       owner.dataset.state = ownerKey;
       owner.innerHTML = state.kickback
         ? `${WORLD_ID_SVG}<span class="copy">Verified human · you earn <b>${pct(state.kickback.bips)}</b> when others buy from this tweet</span>`
-        : `<span class="copy">Earn a kickback when people buy <b>$${escapeHtml(ticker.symbol)}</b> from your tweet</span><button class="earn">${WORLD_ID_SVG}Verify with World ID</button>`;
+        : `<span class="copy">Earn a kickback on <b>$${escapeHtml(ticker.symbol)}</b> buys</span><button class="earn">${WORLD_ID_SVG}Verify with World ID</button>`;
     }
 
     function loadKickback() {
@@ -1206,31 +1192,19 @@
       }, (error) => console.warn("[XSwap] Kickback lookup failed:", error.message));
     }
 
-    // Compact verdict inside the collapsed Buy button -> { html, title }, or null when there's nothing to show
-    function verdictBadge() {
-      const security = state.security;
-      if (!security || security.native) return null;
-      const symbol = mainToken();
-      let kind, label, title;
-      if (security.loading) [kind, label, title] = ["loading", "", `Checking ${symbol} with Intercepta…`];
-      else if (security.error) [kind, label, title] = ["unknown", "", `Intercepta check unavailable (${security.error})`];
-      else if (security.action === "info") [kind, label, title] = ["safe", "Safe", `Intercepta: no known risks for ${symbol}`];
-      else if (security.action === "warn") [kind, label, title] = ["warn", "Caution", `Intercepta flagged ${symbol}: ${security.reasons.join(" · ") || "risky token"}`];
-      else [kind, label, title] = ["block", "Unsafe", `Intercepta blocked ${symbol}: ${security.reasons.join(" · ") || "unsafe token"}`];
-      return { html: `<span class="verdict ${kind}">${INTERCEPTA_MARK_SVG}${label ? `<span>${label}</span>` : ""}</span>`, title };
-    }
-
     function checkSecurity() {
       const chainId = state.chainId;
+      // Native ETH has no contract to scan, so it's checked as WETH
       const token = tokenOn(chainId, mainToken());
-      if (token.address === NATIVE) {
+      const scanned = token.address === NATIVE ? tokenOn(chainId, "WETH") : token;
+      if (!scanned) {
         state.security = { native: true };
         render();
         return;
       }
       state.security = { loading: true };
       render();
-      tokenRisk(chainId, token.address)
+      tokenRisk(chainId, scanned.address)
         .then((risk) => risk, (error) => ({ error: error.message }))
         .then((security) => {
           if (chainId !== state.chainId) return;
