@@ -23,26 +23,51 @@ X ticker card ──► x-ticker-swap.js (swap panel)
 - **`extension/`**: the Manifest V3 extension. `x-ticker-swap.js` injects the Buy button and swap panel, `bridge.js` runs in the page's main world to reach your wallet, and `kickbacks.html` is the World ID verification page for authors.
 - **`backend/`**: a small Express server that keeps the API keys and the World ID signing key out of the extension. Verified authors are stored in `backend/data/kickbacks.json`.
 
-## World ID Integration Debrief 🪪
+## Uniswap integration 🦄
 
-Kickbacks pay tweet authors 0.5% of every buy made from their ticker card, so the reward invites farming with many X accounts. Before an account can earn, the author proves with World ID (Proof of Human, IDKit v4) that they are one unique human. The backend verifies the proof and stores the nullifier, so one human can earn for only one X account.
+Every quote and swap goes through the [Uniswap Trading API](https://developers.uniswap.org), routed over Uniswap v2, v3 and v4 pools on Base, Ethereum, Arbitrum, Optimism and Unichain. Where to find it:
 
-**Time to first success:** about 1h40m, from starting the integration to the first proof verified by our server. That includes Developer Portal setup and one runtime fix, the WebAssembly permission described below.
+| What | Code |
+|---|---|
+| API proxy that keeps the API key on the server (`check_approval`, `quote`, `swap` only) | [`backend/uniswap.js`](backend/uniswap.js), route at [`backend/server.js#L14`](backend/server.js#L14) |
+| Client for the proxy, with no-route errors mapped to a readable message | [`extension/x-ticker-swap.js#L291-L306`](extension/x-ticker-swap.js#L291-L306) |
+| Quote request: exact input, v2/v3/v4 routing, auto slippage, and the author's kickback as an integrator fee | [`extension/x-ticker-swap.js#L309-L324`](extension/x-ticker-swap.js#L309-L324) (fee at [L322](extension/x-ticker-swap.js#L322)) |
+| Splitting the quote's output into the buyer's amount and the author's fee | [`extension/x-ticker-swap.js#L327-L335`](extension/x-ticker-swap.js#L327-L335) |
+| Turning the quote's `permitData` into an EIP-712 Permit2 signature request | [`extension/x-ticker-swap.js#L338-L346`](extension/x-ticker-swap.js#L338-L346) |
+| Live quotes while typing (debounced, stale responses dropped) | [`extension/x-ticker-swap.js#L1259-L1290`](extension/x-ticker-swap.js#L1259-L1290) |
+| Swap flow: `check_approval` → `quote` → Permit2 signature → `swap` → send | [`extension/x-ticker-swap.js#L1395-L1469`](extension/x-ticker-swap.js#L1395-L1469) |
 
-**Friction we hit**
+Our feedback on building with the Uniswap API is in [FEEDBACK.md](FEEDBACK.md).
 
-- Most examples online target IDKit v2/v3, and `@worldcoin/idkit-standalone` is deprecated. It took a moment to confirm that v4 (`@worldcoin/idkit-core`) with a backend RP signature is the current path.
-- `idkit-core` has no ready-made UI outside React. We render the connector URI as a QR code ourselves with a separate QR library.
-- The IDKit browser build compiles WebAssembly. Inside a Chrome MV3 extension it failed at runtime until we added `'wasm-unsafe-eval'` to the extension's security policy. The docs don't mention extensions.
-- Staging verification is closed by default. Simulator proofs failed with `environment_not_allowed` until we opened a 24-hour staging window and sent its token in an `x-staging-verification-token` header. We only learned this from the error message and the Developer Portal MCP.
-- The docs pair `allow_legacy_proofs: true` with `proofOfHuman`, but also warn that legacy and v4 proofs produce different nullifiers. It was unclear which one to store to guarantee one human, one account.
+## Intercepta security checks 🛡️
 
-**Missing capability or documentation**
+People and autonomous agents scan X for alpha and act on cashtags fast, often on tokens someone is shilling. XSwap puts an Intercepta check between seeing a ticker and paying for it, so anything buying through a ticker card sees whether the token and the transaction are safe before money moves.
 
-- A vanilla-JS drop-in widget (QR, status, errors) for non-React apps and browser extensions.
-- A quickstart section on testing with the simulator that covers the staging window and its token.
+- **Token check when the panel opens.** Intercepta rates the token. `warn` shows the reasons in the panel, and `block` disables Buy (selling stays possible, so holders can get out).
+- **Transaction simulation before every signature.** The approval reset, the approval and the swap are each simulated before the wallet is asked to sign. The panel shows what you'll receive according to the simulation. If Intercepta flags the transaction, it's held until the user picks **Cancel** or **Continue anyway**.
 
-**The one improvement with the greatest impact:** document the staging verification window in the main quickstart, or open it automatically for new apps. It was the only step that blocked testing entirely, and the fix is not discoverable from the docs.
+Where to find it:
+
+| What | Code |
+|---|---|
+| API proxy that keeps the key on the server and caches token verdicts for 10 minutes | [`backend/intercepta.js`](backend/intercepta.js), routes at [`backend/server.js#L15-L16`](backend/server.js#L15-L16) |
+| Extension background call to the proxy | [`extension/background.js#L22-L30`](extension/background.js#L22-L30) |
+| Token risk check (`block` / `warn` / `info` and reasons) | [`extension/x-ticker-swap.js#L376-L385`](extension/x-ticker-swap.js#L376-L385) |
+| Transaction simulation before signing | [`extension/x-ticker-swap.js#L390-L399`](extension/x-ticker-swap.js#L390-L399) |
+| Blocked tokens disable Buy, and the verdict shown in the panel | [`extension/x-ticker-swap.js#L1133-L1160`](extension/x-ticker-swap.js#L1133-L1160) |
+| Holding a flagged transaction until the user decides | [`extension/x-ticker-swap.js#L1217-L1232`](extension/x-ticker-swap.js#L1217-L1232) |
+| Every transaction goes through the check before it's sent | [`extension/x-ticker-swap.js#L1236-L1246`](extension/x-ticker-swap.js#L1236-L1246) |
+
+**Feedback on the Intercepta API**
+
+- Token risk and transaction simulation return clear `action` values and readable detector descriptions, so we could show them to users without rewriting them.
+- Token risk is on `/v2` and simulation on `/v1`, with different response shapes. One version would make the client simpler.
+- Positive signals (`HIGH_REPUTATION_TOKEN`) come back in the same `detectors` list as risks, so we filter them out by code. A severity or polarity field would remove that guesswork.
+- Transaction simulation doesn't cover every chain we swap on (Unichain is missing), so part of our flow has no simulation.
+
+## World ID 🪪
+
+Kickback authors prove with World ID (Proof of Human, IDKit v4) that they are one unique human, so one person can earn for only one X account. See [docs/world-id.md](docs/world-id.md) for why we chose this credential, the verification flow and its alternative paths, and our integration debrief.
 
 ## Requirements
 
