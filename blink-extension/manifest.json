@@ -18,14 +18,18 @@
         "http://localhost/*",
         "http://127.0.0.1/*"
       ],
-      "js": ["content.js"]
+      "js": [
+        "content.js"
+      ]
     },
     {
       "matches": [
         "*://*.x.com/*",
         "*://x.com/*"
       ],
-      "js": ["x-ticker-swap.js"]
+      "js": [
+        "x-ticker-swap.js"
+      ]
     },
     {
       "matches": [
@@ -34,18 +38,38 @@
         "http://localhost/*",
         "http://127.0.0.1/*"
       ],
-      "js": ["bridge.js"],
+      "js": [
+        "bridge.js"
+      ],
       "world": "MAIN",
       "run_at": "document_start"
     }
   ],
   "sandbox": {
-    "pages": ["sandbox.html"]
+    "pages": [
+      "sandbox.html"
+    ]
   },
   "web_accessible_resources": [
     {
-      "resources": ["sandbox.html", "sandbox.js", "vendor/ethers-5.7.2.umd.min.js"],
-      "matches": ["<all_urls>"]
+      "resources": [
+        "sandbox.html",
+        "sandbox.js",
+        "vendor/ethers-5.7.2.umd.min.js"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    },
+    {
+      "resources": [
+        "icons/tokens/*.png",
+        "icons/chains/*.png"
+      ],
+      "matches": [
+        "*://x.com/*",
+        "*://*.x.com/*"
+      ]
     }
   ],
   "icons": {

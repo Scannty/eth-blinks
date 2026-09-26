@@ -139,6 +139,8 @@ npx hardhat run scripts/deployTokenTransferor.ts --network $networkName
 
 Create a `.env` file (see `.env.example`). Get a JWT (or an API key + secret) from [Pinata](https://app.pinata.cloud/developers/api-keys). Without it, the generator's **Deploy** button can't publish blinks to IPFS.
 
+For the Uniswap blink on X, also set `UNISWAP_API_KEY` (free key from the [Uniswap developer dashboard](https://developers.uniswap.org/dashboard)). The extension asks the backend for quotes and swap transactions, so the key never ships in the extension.
+
 2. Install Dependencies
 
 ```bash
@@ -180,6 +182,8 @@ The extension uses Manifest V3. Each blink renders in a sandboxed iframe, and it
 3. After changing extension code, click the reload icon on the extension card and refresh the page
 
 Blinks render on x.com and on `localhost` pages.
+
+**Uniswap blink on X:** supported tickers on X (`$ETH`, `$BTC`, `$UNI`, `$LINK`, `$AERO`, …) get a small **Buy** pill under their ticker card. Pressing it opens a swap panel that quotes and executes the swap on **Base mainnet** through the Uniswap Trading API. These are real swaps with real funds. The backend must be running with `UNISWAP_API_KEY` set.
 
 ### Running Test Server (Optional)
 
