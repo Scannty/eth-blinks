@@ -2,10 +2,10 @@
 // X renders a ticker card (icon, name, price, change, sparkline) for cashtags like $ETH.
 // This script adds a "Buy" button inside supported cards. Pressing it expands a swap panel,
 // styled as part of the card, that quotes and executes the swap through the Uniswap Trading
-// API (proxied by blink-back-end so the API key stays server-side) on the selected network.
+// API (proxied by backend so the API key stays server-side) on the selected network.
 (() => {
-  const BLINK_ID = "x-ticker-swap";
-  const HOST_ATTR = "data-ephi-ticker-swap";
+  const SOURCE_ID = "x-ticker-swap";
+  const HOST_ATTR = "data-xswap-ticker-swap";
 
   // ---------------------------------------------------------------------------
   // Networks and tokens. Every address and its decimals were verified on-chain,
@@ -170,7 +170,7 @@
   const wallet = { account: null, chainId: null }; // chainId as a number
 
   function refreshAllPanels() {
-    document.querySelectorAll(`[${HOST_ATTR}]`).forEach((host) => host.dispatchEvent(new Event("ephi:wallet")));
+    document.querySelectorAll(`[${HOST_ATTR}]`).forEach((host) => host.dispatchEvent(new Event("xswap:wallet")));
   }
 
   if (inExtension) {
@@ -178,13 +178,13 @@
       if (event.source !== window) return;
       const data = event.data;
       if (!data) return;
-      if (data.type === "ephi:bridge-response" && data.blinkId === BLINK_ID) {
+      if (data.type === "xswap:bridge-response" && data.sourceId === SOURCE_ID) {
         const pending = pendingRpcs.get(data.rpcId);
         if (!pending) return;
         pendingRpcs.delete(data.rpcId);
         if (data.error) pending.reject(Object.assign(new Error(data.error.message), { code: data.error.code }));
         else pending.resolve(data.result);
-      } else if (data.type === "ephi:bridge-event") {
+      } else if (data.type === "xswap:bridge-event") {
         if (data.event === "accountsChanged") wallet.account = (data.payload && data.payload[0]) || null;
         if (data.event === "chainChanged") wallet.chainId = parseInt(data.payload, 16);
         refreshAllPanels();
@@ -200,7 +200,7 @@
     return new Promise((resolve, reject) => {
       const rpcId = nextRpcId++;
       pendingRpcs.set(rpcId, { resolve, reject });
-      window.postMessage({ type: "ephi:bridge-request", blinkId: BLINK_ID, rpcId, method, params }, window.location.origin);
+      window.postMessage({ type: "xswap:bridge-request", sourceId: SOURCE_ID, rpcId, method, params }, window.location.origin);
     });
   }
 
@@ -286,10 +286,10 @@
     .catch(() => {});
 
   // ---------------------------------------------------------------------------
-  // Uniswap Trading API (via the extension background -> blink-back-end proxy)
+  // Uniswap Trading API (via the extension background -> backend proxy)
   // ---------------------------------------------------------------------------
   function uniswapApi(endpoint, body) {
-    if (!inExtension) return Promise.reject(new Error("Live quotes need the Ephi extension"));
+    if (!inExtension) return Promise.reject(new Error("Live quotes need the XSwap extension"));
     return new Promise((resolve, reject) => {
       chrome.runtime.sendMessage({ action: "uniswap", endpoint, body }, (response) => {
         if (chrome.runtime.lastError) return reject(new Error(chrome.runtime.lastError.message));
@@ -346,7 +346,7 @@
   }
 
   // ---------------------------------------------------------------------------
-  // Intercepta security checks (via the extension background -> blink-back-end proxy)
+  // Intercepta security checks (via the extension background -> backend proxy)
   // ---------------------------------------------------------------------------
   // Chains Intercepta can simulate transactions on (Unichain isn't supported yet)
   const TX_SCAN_CHAINS = new Set([1, 10, 8453, 42161]);
@@ -355,7 +355,7 @@
   const tokenRiskCache = new Map(); // `${chainId}:${address}` -> Promise of the verdict
 
   function interceptaApi(message) {
-    if (!inExtension) return Promise.reject(new Error("Security checks need the Ephi extension"));
+    if (!inExtension) return Promise.reject(new Error("Security checks need the XSwap extension"));
     return new Promise((resolve, reject) => {
       chrome.runtime.sendMessage({ action: "intercepta", ...message }, (response) => {
         if (chrome.runtime.lastError) return reject(new Error(chrome.runtime.lastError.message));
@@ -406,7 +406,7 @@
   const kickbackCache = new Map(); // handle -> { expires, request: Promise of { handle, wallet, bips } or null }
 
   function kickbacksApi(message) {
-    if (!inExtension) return Promise.reject(new Error("Kickbacks need the Ephi extension"));
+    if (!inExtension) return Promise.reject(new Error("Kickbacks need the XSwap extension"));
     return new Promise((resolve, reject) => {
       chrome.runtime.sendMessage({ action: "kickbacks", ...message }, (response) => {
         if (chrome.runtime.lastError) return reject(new Error(chrome.runtime.lastError.message));
@@ -454,7 +454,7 @@
   // Coming back from the World ID page: forget cached registrations so panels pick up the new one
   window.addEventListener("focus", () => {
     kickbackCache.clear();
-    document.querySelectorAll(`[${HOST_ATTR}]`).forEach((host) => host.dispatchEvent(new Event("ephi:kickback")));
+    document.querySelectorAll(`[${HOST_ATTR}]`).forEach((host) => host.dispatchEvent(new Event("xswap:kickback")));
   });
 
   // ---------------------------------------------------------------------------
@@ -607,6 +607,8 @@
     }
     .chain-icon { width: 28px; height: 28px; border-radius: 8px; flex: none; object-fit: cover; }
   `;
+  // XSwap logo (images/logo.svg), inlined so it needs no web-accessible resource
+  const XSWAP_LOGO_SVG = `<svg class="logo" viewBox="0 0 128 128" aria-hidden="true"><rect width="128" height="128" rx="30" fill="#0b0b0c"/><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="15"><path d="M36 36 L92 92" stroke="#fafaf9"/><path d="M36 92 L88 40" stroke="#0b0b0c" stroke-width="29"/><path d="M36 92 L90 38 M66 38 H90 V62" stroke="#00c230"/></g></svg>`;
   const CHECK_SVG = `<svg class="check" viewBox="0 0 24 24"><path d="M9.64 18.952l-5.55-4.861 1.317-1.504 3.951 3.459 8.459-10.948L19.4 6.32 9.64 18.952z"/></svg>`;
 
   const dropdown = (() => {
@@ -625,7 +627,7 @@
     function open({ anchor, title, items, selected, themeVars, onSelect }) {
       close();
       host = document.createElement("div");
-      host.setAttribute("data-ephi-dropdown", "");
+      host.setAttribute("data-xswap-dropdown", "");
       const root = host.attachShadow({ mode: "open" });
       root.innerHTML = `<style>${DROPDOWN_STYLE}</style><div class="menu" role="menu">
         ${title ? `<div class="title">${escapeHtml(title)}</div>` : ""}
@@ -810,6 +812,9 @@
     .cta:hover { opacity: .9; }
     .cta:disabled { opacity: .5; cursor: default; }
     .status { font-size: 13px; color: var(--muted); line-height: 18px; text-align: center; }
+    .powered { display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 12px; line-height: 16px; color: var(--muted); }
+    .powered .logo { width: 14px; height: 14px; flex: none; }
+    .powered b { color: var(--text); font-weight: 700; }
     .status.error { color: rgb(244, 33, 46); }
     .status.ok { color: rgb(0, 186, 124); }
     .status a { color: var(--accent); text-decoration: none; }
@@ -964,6 +969,7 @@
               <div class="kickback" hidden></div>
               <button class="cta"></button>
               <div class="status" hidden></div>
+              <div class="powered">Powered by ${XSWAP_LOGO_SVG}<b>XSwap</b></div>
             </div>
           </div>
         </div>
@@ -977,7 +983,7 @@
 
     // Buy button inside the card: appended to X's flex row, so the sparkline shrinks to make room
     const triggerHost = document.createElement("span");
-    triggerHost.setAttribute("data-ephi-ticker-trigger", "");
+    triggerHost.setAttribute("data-xswap-ticker-trigger", "");
     triggerHost.style.cssText = "display:flex;align-items:center;flex:none;padding:0 12px 0 8px;";
     const triggerRoot = triggerHost.attachShadow({ mode: "open" });
     triggerRoot.innerHTML = `<style>${TRIGGER_STYLE}</style><button class="toggle" aria-expanded="false"></button>`;
@@ -1204,7 +1210,7 @@
         state.kickback = kickback;
         if (changed && !state.busy) scheduleQuote(); // the fee changes the quote
         else render();
-      }, (error) => console.warn("[Ephi] Kickback lookup failed:", error.message));
+      }, (error) => console.warn("[XSwap] Kickback lookup failed:", error.message));
     }
 
     // Compact verdict inside the collapsed Buy button -> { html, title }, or null when there's nothing to show
@@ -1266,7 +1272,7 @@
       try {
         scan = await scanTransaction(chainId, tx);
       } catch (error) {
-        console.warn("[Ephi] Intercepta transaction check failed:", error.message);
+        console.warn("[XSwap] Intercepta transaction check failed:", error.message);
       }
       if (scan && scan.reasons.length) await confirmRisk(scan.reasons);
       return { scan, send: () => sendTransaction(tx) };
@@ -1590,8 +1596,8 @@
 
     if (!quoteTokens().includes(state.quoteToken)) state.quoteToken = quoteTokens()[0];
 
-    host.addEventListener("ephi:wallet", () => { followWalletChain(); refreshBalance(); render(); });
-    host.addEventListener("ephi:kickback", loadKickback);
+    host.addEventListener("xswap:wallet", () => { followWalletChain(); refreshBalance(); render(); });
+    host.addEventListener("xswap:kickback", loadKickback);
     loadKickback();
     checkSecurity(); // verdicts are cached per token (here and in the backend), so cards scrolling by stay cheap
     // Keep the card-price line current while no quote is shown

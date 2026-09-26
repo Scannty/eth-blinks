@@ -1,4 +1,4 @@
-// Ephi backend (blink-back-end). Proxies the Uniswap Trading API so the API key stays server-side.
+// XSwap backend (backend/). Proxies the Uniswap Trading API so the API key stays server-side.
 const BACKEND_URL = "http://localhost:8000";
 
 // Fetches run here (with host_permissions) to avoid the host page's CORS and CSP restrictions.
@@ -15,7 +15,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         try { body = JSON.parse(text); } catch { body = { message: text }; }
         sendResponse({ ok: response.ok, status: response.status, body });
       })
-      .catch((error) => sendResponse({ ok: false, status: 0, body: { message: `Ephi backend not reachable at ${BACKEND_URL} (${error.message})` } }));
+      .catch((error) => sendResponse({ ok: false, status: 0, body: { message: `XSwap backend not reachable at ${BACKEND_URL} (${error.message})` } }));
     return true;
   }
 
@@ -35,7 +35,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         try { body = JSON.parse(text); } catch { body = { message: text }; }
         sendResponse({ ok: response.ok, status: response.status, body });
       })
-      .catch((error) => sendResponse({ ok: false, status: 0, body: { message: `Ephi backend not reachable at ${BACKEND_URL} (${error.message})` } }));
+      .catch((error) => sendResponse({ ok: false, status: 0, body: { message: `XSwap backend not reachable at ${BACKEND_URL} (${error.message})` } }));
     return true;
   }
 
@@ -55,7 +55,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         try { body = JSON.parse(text); } catch { body = { message: text }; }
         sendResponse({ ok: response.ok, status: response.status, body });
       })
-      .catch((error) => sendResponse({ ok: false, status: 0, body: { message: `Ephi backend not reachable at ${BACKEND_URL} (${error.message})` } }));
+      .catch((error) => sendResponse({ ok: false, status: 0, body: { message: `XSwap backend not reachable at ${BACKEND_URL} (${error.message})` } }));
     return true;
   }
 

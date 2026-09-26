@@ -8,7 +8,7 @@
     subscribed = true;
     ["accountsChanged", "chainChanged", "connect", "disconnect"].forEach((event) => {
       window.ethereum.on(event, (payload) => {
-        window.postMessage({ type: "ephi:bridge-event", event, payload: JSON.parse(JSON.stringify(payload ?? null)) }, window.location.origin);
+        window.postMessage({ type: "xswap:bridge-event", event, payload: JSON.parse(JSON.stringify(payload ?? null)) }, window.location.origin);
       });
     });
   }
@@ -16,10 +16,10 @@
   window.addEventListener("message", async (event) => {
     if (event.source !== window) return;
     const data = event.data;
-    if (!data || data.type !== "ephi:bridge-request") return;
+    if (!data || data.type !== "xswap:bridge-request") return;
 
     const respond = (result, error) =>
-      window.postMessage({ type: "ephi:bridge-response", blinkId: data.blinkId, rpcId: data.rpcId, result, error }, window.location.origin);
+      window.postMessage({ type: "xswap:bridge-response", sourceId: data.sourceId, rpcId: data.rpcId, result, error }, window.location.origin);
 
     if (typeof window.ethereum === "undefined") return respond(undefined, { code: 4900, message: "No wallet found. Install MetaMask or another browser wallet." });
 

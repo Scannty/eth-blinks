@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Ephi",
+  "name": "XSwap",
   "version": "2.0",
   "description": "Buy tokens straight from X ticker cards through Uniswap, with Intercepta token checks and World ID verified creator kickbacks.",
   "host_permissions": [

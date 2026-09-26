@@ -35,7 +35,7 @@ function signalFor(handle, wallet) {
 function missingConfig(res) {
   return res.status(503).json({
     error: 'MissingConfig',
-    message: 'WORLD_APP_ID, WORLD_RP_ID and WORLD_RP_SIGNING_KEY must be set in blink-back-end/.env',
+    message: 'WORLD_APP_ID, WORLD_RP_ID and WORLD_RP_SIGNING_KEY must be set in backend/.env',
   })
 }
 

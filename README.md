@@ -1,11 +1,11 @@
-# 🌐 Ephi
+# 🌐 XSwap
 
-Ephi is a Chrome extension that lets you buy a token straight from its ticker card on X. When a tweet mentions a supported cashtag (`$ETH`, `$UNI`, `$AERO`, …), X shows a ticker card. Ephi adds a **Buy** button to that card, and pressing it opens a swap panel inside the card. You never leave the timeline.
+XSwap is a Chrome extension that lets you buy a token straight from its ticker card on X. When a tweet mentions a supported cashtag (`$ETH`, `$UNI`, `$AERO`, …), X shows a ticker card. XSwap adds a **Buy** button to that card, and pressing it opens a swap panel inside the card. You never leave the timeline.
 
 ## Features ✨
 
 - **Swap through Uniswap** 🦄: quotes and swaps run through the Uniswap Trading API on Base, Ethereum, Arbitrum, Optimism and Unichain. Your browser wallet (e.g. MetaMask) signs the transactions. These are real swaps with real funds.
-- **Token safety checks with Intercepta** 🛡️: before you buy, Ephi checks the token and the swap transaction with Intercepta. Tokens flagged as risky get a warning or are blocked, and you must confirm before continuing.
+- **Token safety checks with Intercepta** 🛡️: before you buy, XSwap checks the token and the swap transaction with Intercepta. Tokens flagged as risky get a warning or are blocked, and you must confirm before continuing.
 - **Creator kickbacks with World ID** 🪪: a tweet's author earns 0.5% of every buy made from the ticker card in their tweet. The fee is paid through Uniswap's integrator fee, straight to the author's wallet. To earn, the author proves with World ID that they are a unique human, so one person can't farm kickbacks with many X accounts.
 
 ## How It Works 🔧
@@ -14,14 +14,14 @@ Ephi is a Chrome extension that lets you buy a token straight from its ticker ca
 X ticker card ──► x-ticker-swap.js (swap panel)
                      │  wallet calls ──► bridge.js ──► window.ethereum
                      ▼
-                 background.js ──► blink-back-end (localhost:8000)
+                 background.js ──► backend (localhost:8000)
                                      ├─ /uniswap/*     Uniswap Trading API proxy
                                      ├─ /intercepta/*  token and transaction checks
                                      └─ /kickbacks/*   World ID verification + author registry
 ```
 
-- **`blink-extension/`**: the Manifest V3 extension. `x-ticker-swap.js` injects the Buy button and swap panel, `bridge.js` runs in the page's main world to reach your wallet, and `kickbacks.html` is the World ID verification page for authors.
-- **`blink-back-end/`**: a small Express server that keeps the API keys and the World ID signing key out of the extension. Verified authors are stored in `blink-back-end/data/kickbacks.json`.
+- **`extension/`**: the Manifest V3 extension. `x-ticker-swap.js` injects the Buy button and swap panel, `bridge.js` runs in the page's main world to reach your wallet, and `kickbacks.html` is the World ID verification page for authors.
+- **`backend/`**: a small Express server that keeps the API keys and the World ID signing key out of the extension. Verified authors are stored in `backend/data/kickbacks.json`.
 
 ## World ID Integration Debrief 🪪
 
@@ -57,7 +57,7 @@ git clone git@github.com:Scannty/eth-blinks.git
 
 ### Backend
 
-1. Create `blink-back-end/.env` (see `.env.example`):
+1. Create `backend/.env` (see `.env.example`):
    - `UNISWAP_API_KEY`: a free key from the [Uniswap developer dashboard](https://developers.uniswap.org/dashboard).
    - `INTERCEPTA_API_KEY`: from [Intercepta](https://intercepta.io).
    - `WORLD_*`: in the [World Developer Portal](https://developer.world.org), create an external app, enable World ID 4.0 and create the `earn-kickbacks` action. Use `staging` to test with the [World ID Simulator](https://simulator.worldcoin.org), or `production` for the real World App.
@@ -65,7 +65,7 @@ git clone git@github.com:Scannty/eth-blinks.git
 2. Install and run (port 8000, override with `PORT`):
 
 ```bash
-cd blink-back-end/
+cd backend/
 npm install
 node server.js
 ```
@@ -73,7 +73,7 @@ node server.js
 ### Extension
 
 1. Open `chrome://extensions` and enable **Developer mode**
-2. Click **Load unpacked** and select the `blink-extension` folder
+2. Click **Load unpacked** and select the `extension` folder
 3. Open x.com and look for a ticker card with a **Buy** button
 
 After changing extension code, click the reload icon on the extension card and refresh X. The extension expects the backend at `http://localhost:8000` (`BACKEND_URL` in `background.js`).

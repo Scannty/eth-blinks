@@ -101,7 +101,7 @@
       const completion = await request.pollUntilCompletion({ pollInterval: 2000, timeout: 300000 });
       if (cancelled) return;
       if (!completion.success) {
-        console.warn("[Ephi] World ID request failed", request.getDebugReport());
+        console.warn("[XSwap] World ID request failed", request.getDebugReport());
         const messages = {
           timeout: "World ID request timed out. Try again.",
           cancelled: "World ID request cancelled.",

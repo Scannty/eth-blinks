@@ -11,7 +11,7 @@ async function uniswapProxyCtrl(req, res) {
     return res.status(404).json({ error: 'NotFound', message: `Unknown Uniswap endpoint: ${endpoint}` })
   }
   if (!process.env.UNISWAP_API_KEY) {
-    return res.status(500).json({ error: 'MissingApiKey', message: 'UNISWAP_API_KEY is not set in blink-back-end/.env' })
+    return res.status(500).json({ error: 'MissingApiKey', message: 'UNISWAP_API_KEY is not set in backend/.env' })
   }
 
   try {

@@ -10,7 +10,7 @@ const port = process.env.PORT || 8000
 app.use(cors())
 app.use(express.json())
 
-app.get('/', (req, res) => res.send('Ephi backend OK'))
+app.get('/', (req, res) => res.send('XSwap backend OK'))
 app.post('/uniswap/:endpoint', uniswapProxyCtrl)
 app.get('/intercepta/token/:chainId/:address', interceptaTokenCtrl)
 app.post('/intercepta/transaction/:chainId', interceptaTransactionCtrl)
@@ -19,5 +19,5 @@ app.post('/kickbacks/register', registerCtrl)
 app.get('/kickbacks/:handle', getKickbackCtrl)
 
 app.listen(port, () => {
-  console.log(`Ephi backend listening on port ${port}`)
+  console.log(`XSwap backend listening on port ${port}`)
 })

@@ -25,7 +25,7 @@ async function interceptaFetch(path, options = {}) {
 }
 
 function missingKey(res) {
-  return res.status(503).json({ error: 'MissingApiKey', message: 'INTERCEPTA_API_KEY is not set in blink-back-end/.env' })
+  return res.status(503).json({ error: 'MissingApiKey', message: 'INTERCEPTA_API_KEY is not set in backend/.env' })
 }
 
 // GET /intercepta/token/:chainId/:address -> token risk verdict (riskLevel, action, detectors, taxes)
