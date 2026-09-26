@@ -46,6 +46,10 @@ People and autonomous agents scan X for alpha and act on cashtags fast, often on
 - **Token check when the panel opens.** Intercepta rates the token. `warn` shows the reasons in the panel, and `block` disables Buy (selling stays possible, so holders can get out).
 - **Transaction simulation before every signature.** The approval reset, the approval and the swap are each simulated before the wallet is asked to sign. The panel shows what you'll receive according to the simulation. If Intercepta flags the transaction, it's held until the user picks **Cancel** or **Continue anyway**.
 
+**Example:** real PEPE lives on Ethereum, but on Base a copycat also calls itself PEPE, and Intercepta flags it as a honeypot. Open the Buy panel on a `$PEPE` card: on Ethereum the check passes, on Base Buy is disabled.
+
+**Coming next: any token, from its address.** Today XSwap works on the ticker cards X renders, for a curated list of tokens. Next, anyone will be able to paste a token's contract address into a tweet and get the same buy card on it. That opens XSwap to every new token, which is also where most scams are. Intercepta becomes the gate that makes this safe: every pasted token is checked before the card lets anyone buy it.
+
 Where to find it:
 
 | What | Code |
