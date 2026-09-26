@@ -332,6 +332,59 @@
   }
 
   // ---------------------------------------------------------------------------
+  // Intercepta security checks (via the extension background -> blink-back-end proxy)
+  // ---------------------------------------------------------------------------
+  // Chains Intercepta can simulate transactions on (Unichain isn't supported yet)
+  const TX_SCAN_CHAINS = new Set([1, 10, 8453, 42161]);
+  // Detectors that vouch for a token rather than warn about it
+  const POSITIVE_DETECTORS = new Set(["HIGH_REPUTATION_TOKEN"]);
+  const tokenRiskCache = new Map(); // `${chainId}:${address}` -> Promise of the verdict
+
+  function interceptaApi(message) {
+    if (!inExtension) return Promise.reject(new Error("Security checks need the Ephi extension"));
+    return new Promise((resolve, reject) => {
+      chrome.runtime.sendMessage({ action: "intercepta", ...message }, (response) => {
+        if (chrome.runtime.lastError) return reject(new Error(chrome.runtime.lastError.message));
+        if (!response.ok) {
+          const body = response.body || {};
+          return reject(Object.assign(new Error(body.message || body.error || `Intercepta API error ${response.status}`), { status: response.status }));
+        }
+        resolve(response.body);
+      });
+    });
+  }
+
+  function detectorReasons(detectors) {
+    return (detectors || []).filter((d) => !POSITIVE_DETECTORS.has(d.code)).map((d) => d.description || d.code);
+  }
+
+  // -> { action: "block" | "warn" | "info", reasons: [description] }
+  function tokenRisk(chainId, address) {
+    const key = `${chainId}:${address.toLowerCase()}`;
+    if (!tokenRiskCache.has(key)) {
+      const request = interceptaApi({ check: "token", chainId, address }).then((body) => ({
+        action: body.action === "block" || body.action === "warn" ? body.action : "info",
+        reasons: detectorReasons(body.detectors),
+      }));
+      request.catch(() => tokenRiskCache.delete(key)); // don't cache failures, so the next open retries
+      tokenRiskCache.set(key, request);
+    }
+    return tokenRiskCache.get(key);
+  }
+
+  // Simulates a transaction before it's signed -> { reasons, send, receive }, or null if the chain isn't supported
+  async function scanTransaction(chainId, tx) {
+    if (!TX_SCAN_CHAINS.has(chainId)) return null;
+    const body = await interceptaApi({
+      check: "transaction",
+      chainId,
+      body: { transaction: { from: wallet.account, to: tx.to, data: tx.data, value: toHexQuantity(tx.value) } },
+    });
+    const movement = body.assetsMovement || {};
+    return { reasons: detectorReasons(body.detectors), send: movement.send || [], receive: movement.receive || [] };
+  }
+
+  // ---------------------------------------------------------------------------
   // Units and formatting
   // ---------------------------------------------------------------------------
   function parseUnits(value, decimals) {
@@ -552,7 +605,13 @@
   // ---------------------------------------------------------------------------
   // Panel UI
   // ---------------------------------------------------------------------------
-  const STYLE = `
+  const VERDICT_STYLE = `
+    .ic-mark { width: 11px; height: 15px; fill: currentColor; flex: none; }
+    .safe { --verdict: rgb(0, 186, 124); }
+    .warn { --verdict: rgb(255, 173, 31); }
+    .block { --verdict: #ff4c3f; }
+  `;
+  const STYLE = `${VERDICT_STYLE}
     :host { all: initial; display: block; }
     * { box-sizing: border-box; }
     .root { font-family: var(--font); color: var(--text); -webkit-font-smoothing: antialiased; container-type: inline-size; }
@@ -682,21 +741,51 @@
     .status.ok { color: rgb(0, 186, 124); }
     .status a { color: var(--accent); text-decoration: none; }
     .status a:hover { text-decoration: underline; }
+
+    /* Intercepta verdict on the card's token */
+    .security { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; line-height: 16px; color: var(--verdict, var(--muted)); }
+    .security .ic-mark { width: 10px; height: 14px; margin-top: 1px; }
+    .security b { font-weight: 700; }
+    .security.loading { animation: pulse 1s ease-in-out infinite; }
+    .status .ic-mark { width: 9px; height: 12px; vertical-align: -1px; margin-right: 2px; }
+
+    /* Held transaction: Intercepta flagged it, the user decides */
+    .risk { text-align: left; display: flex; flex-direction: column; gap: 6px; }
+    .risk ul { margin: 0; padding-left: 18px; }
+    .risk-actions { display: flex; gap: 8px; justify-content: flex-end; }
+    .risk-actions button {
+      font: inherit; font-size: 13px; font-weight: 700; border-radius: 9999px; height: 30px; padding: 0 14px; cursor: pointer;
+      color: var(--text); background: none; border: 1px solid var(--border);
+    }
+    .risk-actions button:hover { background: var(--hover); }
+    .risk-actions button[data-risk="continue"] { color: #ff4c3f; border-color: #ff4c3f; }
   `;
 
   // The Buy button that sits inside X's ticker card, next to the sparkline
-  const TRIGGER_STYLE = `
+  const TRIGGER_STYLE = `${VERDICT_STYLE}
     :host { all: initial; }
     .toggle {
-      display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
-      font-family: var(--font); font-size: 14px; font-weight: 700; line-height: 1;
+      display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+      font-family: var(--font); font-size: 13px; font-weight: 700; line-height: 1;
       color: var(--bg); background: var(--text); border: 1px solid var(--text); border-radius: 9999px;
-      height: 32px; padding: 0 14px 0 12px; cursor: pointer;
+      height: 28px; padding: 0 12px 0 10px; cursor: pointer;
       -webkit-font-smoothing: antialiased;
       transition: opacity .15s, background-color .15s, color .15s, border-color .15s;
     }
     .toggle:hover { opacity: .9; }
-    .toggle svg { width: 16px; height: 16px; fill: currentColor; }
+    .toggle svg { width: 14px; height: 14px; fill: currentColor; }
+    /* Intercepta verdict, nested at the end of the Buy button while the panel is collapsed */
+    .toggle:has(.verdict) { padding-right: 3px; }
+    .verdict {
+      display: inline-flex; align-items: center; gap: 4px; margin-left: 3px;
+      font-size: 11px; height: 20px; padding: 0 7px 0 6px; border-radius: 9999px;
+      color: #fff; background: var(--verdict);
+    }
+    .verdict.warn { color: #000; }
+    .verdict.loading, .verdict.unknown { padding: 0 6px; color: var(--bg); background: color-mix(in srgb, var(--bg) 18%, transparent); }
+    .verdict.loading { animation: pulse 1s ease-in-out infinite; }
+    .toggle .verdict .ic-mark { width: 8px; height: 11px; }
+    @keyframes pulse { 50% { opacity: .45; } }
     .toggle.open { background: transparent; color: var(--text); border-color: var(--border); }
     .toggle.open:hover { background: var(--hover); opacity: 1; }
   `;
@@ -704,6 +793,10 @@
   const CARET_SVG = `<svg class="caret" viewBox="0 0 24 24"><path d="M3.543 8.96l1.414-1.42L12 14.59l7.043-7.05 1.414 1.42L12 17.41 3.543 8.96z"/></svg>`;
   const ARROW_SVG = `<svg viewBox="0 0 24 24"><path d="M13 3v13.59l5.043-5.05 1.414 1.42L12 20.41l-7.457-7.45 1.414-1.42L11 16.59V3h2z"/></svg>`;
   const SWAP_SVG = `<svg viewBox="0 0 24 24"><path d="M16.293 3.293a1 1 0 0 1 1.414 0l3.5 3.5a1 1 0 0 1 0 1.414l-3.5 3.5-1.414-1.414L18.086 8.5H6V6.5h12.086l-1.793-1.793a1 1 0 0 1 0-1.414zM7.707 12.293l1.414 1.414L7.328 15.5H19.5v2H7.328l1.793 1.793-1.414 1.414-3.5-3.5a1 1 0 0 1 0-1.414l3.5-3.5z"/></svg>`;
+  // Intercepta's logo mark: a 3x4 grid of dots (same geometry as intercepta.io/images/logo-nav.svg)
+  const INTERCEPTA_MARK_SVG = `<svg class="ic-mark" viewBox="0 0 21 29" aria-hidden="true">${
+    [2.5, 10.5, 18.5, 26.5].flatMap((cy) => [2.5, 10.5, 18.5].map((cx) => `<circle cx="${cx}" cy="${cy}" r="2.5"/>`)).join("")
+  }</svg>`;
   const CLOSE_SVG = `<svg viewBox="0 0 24 24"><path d="M10.59 12L4.54 5.96l1.42-1.42L12 10.59l6.04-6.05 1.42 1.42L13.41 12l6.05 6.04-1.42 1.42L12 13.41l-6.04 6.05-1.42-1.42L10.59 12z"/></svg>`;
 
   function createPanel(article, link, ticker) {
@@ -726,8 +819,10 @@
       quoting: false,
       balance: null,
       busy: false,
+      security: null, // Intercepta verdict on the card's token: { loading } | { action, reasons } | { error } | { native }
     };
     let quoteSeq = 0;
+    let pendingRisk = null; // { resolve, reject } while a flagged transaction waits for the user
     let quoteTimer = null;
 
     root.innerHTML = `
@@ -766,6 +861,7 @@
                 <div class="details"></div>
                 <span class="via">via ${tokenLogoHtml("UNI", "uni")}<b>Uniswap</b></span>
               </div>
+              <div class="security" hidden></div>
               <button class="cta"></button>
               <div class="status" hidden></div>
             </div>
@@ -845,7 +941,10 @@
       $(".root").classList.toggle("open", state.open);
       toggle.classList.toggle("open", state.open);
       toggle.setAttribute("aria-expanded", String(state.open));
-      toggle.innerHTML = state.open ? `${CLOSE_SVG}<span>Close</span>` : `${SWAP_SVG}<span>Buy ${escapeHtml(ticker.symbol)}</span>`;
+      const verdict = state.open ? null : verdictBadge();
+      toggle.innerHTML = state.open ? `${CLOSE_SVG}<span>Close</span>` : `${SWAP_SVG}<span>Buy</span>${verdict ? verdict.html : ""}`;
+      if (verdict) toggle.title = verdict.title;
+      else toggle.removeAttribute("title");
       // Join the panel to the card while open: square off the card's bottom corners
       link.style.borderBottomLeftRadius = state.open ? "0" : "";
       link.style.borderBottomRightRadius = state.open ? "0" : "";
@@ -904,10 +1003,15 @@
       }
       $(".details").innerHTML = parts.join("<span>·</span>");
 
+      renderSecurity();
+
       // Main button
       const cta = $(".cta");
       const insufficient = state.balance !== null && amountIn() > state.balance;
       if (state.busy) {
+        cta.disabled = true;
+      } else if (buyBlocked()) {
+        cta.textContent = `${mainToken()} flagged as unsafe`;
         cta.disabled = true;
       } else if (!wallet.account) {
         cta.textContent = "Connect wallet";
@@ -925,6 +1029,100 @@
         cta.textContent = `${state.side === "buy" ? "Buy" : "Sell"} ${mainToken()}`;
         cta.disabled = !state.quote || state.quote.amountOut === null || state.quoting || !!state.quote.estimated;
       }
+    }
+
+    // Buying a token Intercepta blocks is refused. Selling one stays possible: it's how you get out.
+    function buyBlocked() {
+      return state.side === "buy" && !!state.security && state.security.action === "block";
+    }
+
+    function renderSecurity() {
+      const row = $(".security");
+      const security = state.security;
+      const symbol = escapeHtml(mainToken());
+      row.hidden = !security || !!security.native;
+      if (row.hidden) return;
+      row.removeAttribute("title");
+      if (security.loading) {
+        row.className = "security loading";
+        row.innerHTML = `${INTERCEPTA_MARK_SVG}<span>Checking ${symbol} with Intercepta…</span>`;
+      } else if (security.error) {
+        row.className = "security";
+        row.title = security.error;
+        row.innerHTML = `${INTERCEPTA_MARK_SVG}<span>Intercepta check unavailable</span>`;
+      } else if (security.action === "info") {
+        row.className = "security safe";
+        row.innerHTML = `${INTERCEPTA_MARK_SVG}<span>No known risks for ${symbol} · Intercepta</span>`;
+      } else {
+        const reasons = security.reasons.length ? security.reasons.map(escapeHtml).join(" · ") : `${security.action === "block" ? "Unsafe" : "Risky"} token`;
+        row.className = `security ${security.action}`;
+        row.innerHTML = `${INTERCEPTA_MARK_SVG}<span><b>Intercepta ${security.action === "block" ? "blocked" : "flagged"} ${symbol}:</b> ${reasons}</span>`;
+      }
+    }
+
+    // Compact verdict inside the collapsed Buy button -> { html, title }, or null when there's nothing to show
+    function verdictBadge() {
+      const security = state.security;
+      if (!security || security.native) return null;
+      const symbol = mainToken();
+      let kind, label, title;
+      if (security.loading) [kind, label, title] = ["loading", "", `Checking ${symbol} with Intercepta…`];
+      else if (security.error) [kind, label, title] = ["unknown", "", `Intercepta check unavailable (${security.error})`];
+      else if (security.action === "info") [kind, label, title] = ["safe", "Safe", `Intercepta: no known risks for ${symbol}`];
+      else if (security.action === "warn") [kind, label, title] = ["warn", "Caution", `Intercepta flagged ${symbol}: ${security.reasons.join(" · ") || "risky token"}`];
+      else [kind, label, title] = ["block", "Unsafe", `Intercepta blocked ${symbol}: ${security.reasons.join(" · ") || "unsafe token"}`];
+      return { html: `<span class="verdict ${kind}">${INTERCEPTA_MARK_SVG}${label ? `<span>${label}</span>` : ""}</span>`, title };
+    }
+
+    function checkSecurity() {
+      const chainId = state.chainId;
+      const token = tokenOn(chainId, mainToken());
+      if (token.address === NATIVE) {
+        state.security = { native: true };
+        render();
+        return;
+      }
+      state.security = { loading: true };
+      render();
+      tokenRisk(chainId, token.address)
+        .then((risk) => risk, (error) => ({ error: error.message }))
+        .then((security) => {
+          if (chainId !== state.chainId) return;
+          state.security = security;
+          render();
+        });
+    }
+
+    // Hold a flagged transaction until the user cancels or explicitly continues
+    function confirmRisk(reasons) {
+      return new Promise((resolve, reject) => {
+        pendingRisk = { resolve, reject };
+        setStatus(`<div class="risk"><b>Intercepta flagged this transaction</b><ul>${reasons.map((r) => `<li>${escapeHtml(r)}</li>`).join("")}</ul>
+          <div class="risk-actions"><button data-risk="cancel">Cancel</button><button data-risk="continue">Continue anyway</button></div></div>`, "error");
+      });
+    }
+
+    function answerRisk(proceed) {
+      const pending = pendingRisk;
+      pendingRisk = null;
+      if (!pending) return;
+      setStatus("");
+      if (proceed) pending.resolve();
+      else pending.reject(Object.assign(new Error("Cancelled after Intercepta's warning."), { code: "RISK_CANCELLED" }));
+    }
+
+    // Simulate with Intercepta, then send. If the check itself fails the transaction still goes
+    // through: every token here is on the verified list, and the wallet prompt remains the final gate.
+    async function guardedSend(chainId, tx, step) {
+      step("Checking transaction…");
+      let scan = null;
+      try {
+        scan = await scanTransaction(chainId, tx);
+      } catch (error) {
+        console.warn("[Ephi] Intercepta transaction check failed:", error.message);
+      }
+      if (scan && scan.reasons.length) await confirmRisk(scan.reasons);
+      return { scan, send: () => sendTransaction(tx) };
     }
 
     // --- quotes --------------------------------------------------------------
@@ -1012,6 +1210,7 @@
       if (payToken() !== previousPay) { state.amount = ""; input.value = ""; }
       state.balance = null;
       state.quote = null;
+      checkSecurity();
       setStatus("");
       scheduleQuote();
       refreshBalance();
@@ -1090,13 +1289,15 @@
             walletAddress: wallet.account, token: tokenOn(chainId, tokenIn).address, amount, chainId,
           });
           if (approval.cancel) {
+            const { send } = await guardedSend(chainId, approval.cancel, step);
             step("Reset approval in wallet…");
-            await waitForReceipt(await sendTransaction(approval.cancel));
+            await waitForReceipt(await send());
           }
           if (approval.approval) {
+            const { send } = await guardedSend(chainId, approval.approval, step);
             step(`Approve ${tokenIn} in wallet…`);
             setStatus(`One-time approval so Uniswap can use your ${escapeHtml(tokenIn)}.`);
-            await waitForReceipt(await sendTransaction(approval.approval));
+            await waitForReceipt(await send());
           }
         }
 
@@ -1112,13 +1313,16 @@
           signature = await walletRequest("eth_signTypedData_v4", [wallet.account, typedDataFromPermit(quoteResponse.permitData)]);
         }
 
-        // 4. Build and send the swap transaction
-        step("Confirm swap in wallet…");
+        // 4. Build the swap transaction, simulate it with Intercepta, then send it
         setStatus("");
         const swapRequest = { quote: quoteResponse.quote };
         if (quoteResponse.permitData) Object.assign(swapRequest, { signature, permitData: quoteResponse.permitData });
         const { swap } = await uniswapApi("swap", swapRequest);
-        const hash = await sendTransaction(swap);
+        const { scan, send } = await guardedSend(chainId, swap, step);
+        step("Confirm swap in wallet…");
+        const simulated = scan && scan.receive.find((asset) => asset.symbol && asset.amount);
+        if (simulated) setStatus(`${INTERCEPTA_MARK_SVG} Simulated by Intercepta: you receive ~${formatAmount(parseFloat(simulated.amount))} ${escapeHtml(simulated.symbol)}`);
+        const hash = await send();
 
         step("Swapping…");
         const txLink = `<a href="${explorer.explorer}/tx/${hash}" target="_blank" rel="noopener">View on ${explorer.explorerName}</a>`;
@@ -1132,7 +1336,8 @@
         state.quote = null;
       } catch (error) {
         const rejected = error.code === 4001 || /reject|denied/i.test(error.message);
-        setStatus(rejected ? "Cancelled in wallet." : escapeHtml(error.message), rejected ? "" : "error");
+        if (error.code === "RISK_CANCELLED") setStatus(escapeHtml(error.message));
+        else setStatus(rejected ? "Cancelled in wallet." : escapeHtml(error.message), rejected ? "" : "error");
       } finally {
         state.busy = false;
         refreshBalance();
@@ -1175,6 +1380,8 @@
 
     root.addEventListener("click", (event) => {
       const target = event.target;
+      const riskButton = target.closest("[data-risk]");
+      if (riskButton) { answerRisk(riskButton.dataset.risk === "continue"); return; }
       if (state.busy) return;
       const walletButton = target.closest(".wallet");
       if (walletButton) {
@@ -1212,6 +1419,7 @@
       if (state.open) {
         setTimeout(() => input.focus({ preventScroll: true }), 150);
         refreshBalance();
+        if (!state.security || state.security.error) checkSecurity();
       }
     });
 
@@ -1229,6 +1437,7 @@
     if (!quoteTokens().includes(state.quoteToken)) state.quoteToken = quoteTokens()[0];
 
     host.addEventListener("ephi:wallet", () => { followWalletChain(); refreshBalance(); render(); });
+    checkSecurity(); // verdicts are cached per token (here and in the backend), so cards scrolling by stay cheap
     // Keep the card-price line current while no quote is shown
     new MutationObserver(() => { if (!state.quote && !state.busy) render(); }).observe(link, { childList: true, characterData: true, subtree: true });
     render();
