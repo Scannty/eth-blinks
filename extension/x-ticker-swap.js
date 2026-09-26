@@ -728,9 +728,10 @@
     .wallet .caret { width: 16px; height: 16px; fill: var(--muted); }
     .wallet .dot { width: 8px; height: 8px; border-radius: 50%; background: rgb(255, 173, 31); }
 
-    .row { display: flex; align-items: stretch; gap: 8px; flex-wrap: wrap; position: relative; }
+    /* Pay box on top, receive box below, with the switch button on the seam between them */
+    .row { display: flex; flex-direction: column; gap: 4px; position: relative; }
     .box {
-      flex: 1 1 170px; min-width: 0;
+      min-width: 0;
       background: var(--surface);
       border: 1px solid transparent;
       border-radius: 12px;
@@ -739,9 +740,6 @@
       transition: border-color .15s;
     }
     .box.pay:focus-within { border-color: var(--accent); }
-    /* Leave room for the round switch button that sits between the two boxes */
-    .box.pay { padding-right: 22px; }
-    .box.get { padding-left: 22px; }
     .lbl-row { display: flex; justify-content: space-between; gap: 8px; }
     .lbl, .sub { font-size: 13px; color: var(--muted); line-height: 16px; white-space: nowrap; }
     .sub { min-height: 16px; }
@@ -788,12 +786,7 @@
       transition: background-color .15s;
     }
     .flip:hover { background: var(--hover); }
-    .flip svg { width: 16px; height: 16px; fill: currentColor; transform: rotate(-90deg); }
-    @container (max-width: 360px) {
-      .flip svg { transform: none; }
-      .box.pay { padding-right: 12px; }
-      .box.get { padding-left: 12px; }
-    }
+    .flip svg { width: 16px; height: 16px; fill: currentColor; }
 
     .meta { display: flex; align-items: center; justify-content: space-between; gap: 4px 12px; flex-wrap: wrap; font-size: 13px; color: var(--muted); min-height: 16px; }
     .details { display: flex; flex-wrap: wrap; gap: 4px 8px; }

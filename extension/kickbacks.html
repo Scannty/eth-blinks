@@ -6,31 +6,26 @@
   <title>Earn kickbacks · XSwap × World ID</title>
   <link rel="icon" href="images/icon48.png">
   <style>
+    /* Always dark, like X in dark mode, whatever the system theme */
     :root {
-      --bg: #fafaf9; --text: #0b0b0c; --muted: #6b6f76; --faint: #a3a8af; --line: #e6e6e3; --field: #fff;
-      --green: #00c230; --blue: #007cfb; --error: #d92d20; --mark: rgba(11, 11, 12, .035);
-      --cta-bg: #0b0b0c; --cta-text: #fff;
-      color-scheme: light;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #0b0b0c; --text: #f2f2f0; --muted: #8e939b; --faint: #5b6068; --line: #232427; --field: #141416;
-        --mark: rgba(255, 255, 255, .03); --cta-bg: #f2f2f0; --cta-text: #0b0b0c;
-        color-scheme: dark;
-      }
+      --bg: #0b0b0c; --text: #f2f2f0; --muted: #8e939b; --faint: #5b6068; --line: #232427; --field: #0b0b0c;
+      --green: #00c230; --blue: #007cfb; --error: #ff4c3f;
+      --card: #111113;
+      --cta-bg: #f2f2f0; --cta-text: #0b0b0c;
+      color-scheme: dark;
     }
     * { box-sizing: border-box; }
     body {
-      margin: 0; min-height: 100vh; padding: 72px 24px 48px; background: var(--bg); color: var(--text);
+      margin: 0; min-height: 100vh; padding: 48px 16px; background: var(--bg); color: var(--text);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
       font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       -webkit-font-smoothing: antialiased; overflow-x: hidden;
     }
     .wid { fill: currentColor; flex: none; }
-    /* The one background element: World's mark, oversized and cropped */
-    .watermark { position: fixed; right: -18vmax; bottom: -22vmax; width: 70vmax; height: 70vmax; color: var(--mark); fill: currentColor; z-index: -1; pointer-events: none; }
 
-    main { max-width: 420px; margin: 0 auto; }
-    .brand { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 56px; }
+    /* One centered card on a plain dark page */
+    main { width: 100%; max-width: 480px; background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 32px; }
+    .brand { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--muted); padding-bottom: 24px; margin-bottom: 28px; border-bottom: 1px solid var(--line); }
     .brand .wid { width: 18px; height: 18px; color: var(--text); }
     .brand .plus { color: var(--faint); font-weight: 400; }
 
@@ -41,14 +36,14 @@
     .pfp .initial { display: grid; place-items: center; font-size: 26px; font-weight: 700; color: var(--muted); }
     .pfp .badge {
       position: absolute; right: -4px; bottom: -4px; width: 26px; height: 26px; border-radius: 50%;
-      display: grid; place-items: center; background: var(--bg); color: var(--faint); transition: color .3s;
+      display: grid; place-items: center; background: var(--card); color: var(--faint); transition: color .3s;
     }
     .pfp .badge .wid { width: 22px; height: 22px; }
     body[data-step="done"] .pfp .badge { color: var(--green); }
     .me b { display: block; font-size: 17px; letter-spacing: -.01em; }
     .me span { font-size: 13px; color: var(--muted); }
 
-    h1 { margin: 0 0 12px; font-size: 30px; line-height: 1.15; letter-spacing: -.025em; font-weight: 700; }
+    h1 { margin: 0 0 12px; font-size: 27px; line-height: 1.15; letter-spacing: -.025em; font-weight: 700; }
     .lede { margin: 0 0 32px; color: var(--muted); }
     .lede b { color: var(--text); font-weight: 600; }
 
@@ -99,11 +94,10 @@
     .status { margin-top: 16px; font-size: 14px; color: var(--muted); }
     .status.error { color: var(--error); }
 
-    footer { margin-top: 64px; font-size: 12px; color: var(--faint); }
+    footer { width: 100%; max-width: 480px; margin-top: 20px; font-size: 12px; color: var(--faint); text-align: center; }
     [hidden] { display: none !important; }
     @media (max-width: 460px) {
-      body { padding-top: 40px; }
-      .brand { margin-bottom: 36px; }
+      main { padding: 24px 20px; }
       .scan-row { flex-direction: column; }
     }
   </style>
@@ -122,7 +116,6 @@
     </symbol>
   </svg>
 
-  <svg class="watermark" aria-hidden="true"><use href="#world"/></svg>
 
   <main>
     <div class="brand"><svg class="wid"><use href="#xswap"/></svg>XSwap <span class="plus">+</span> <svg class="wid"><use href="#world"/></svg>World ID</div>
@@ -139,7 +132,7 @@
       <label for="wallet">Payout wallet <small>· same address on every network</small></label>
       <input id="wallet" class="wallet" placeholder="0x…" spellcheck="false" autocomplete="off">
       <button class="cta verify"><svg class="wid"><use href="#world"/></svg>Verify with World ID</button>
-      <p class="fine">One World ID per X account. Your own buys don't earn a kickback. World ID proves you're a unique person without telling us who you are.</p>
+      <p class="fine">One World ID per X account. World ID proves you're a unique person without telling us who you are.</p>
     </section>
 
     <!-- Step 2: scan -->
@@ -179,8 +172,8 @@
 
     <p class="status" hidden></p>
 
-    <footer>Proofs verified by World ID. Swaps and fees settled by Uniswap.</footer>
   </main>
+  <footer>Proofs verified by World ID. Swaps and fees settled by Uniswap.</footer>
   <script src="vendor/qrcode-generator-1.4.4.js"></script>
   <script src="vendor/idkit/idkit.global.js"></script>
   <script src="kickbacks.js"></script>

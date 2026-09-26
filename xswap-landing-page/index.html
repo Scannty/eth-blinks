@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XSwap: buy tokens from X ticker cards</title>
+  <meta name="description" content="XSwap is a Chrome extension that adds a Buy button to X ticker cards. Swap through Uniswap without leaving the timeline.">
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <header class="nav wrap">
+    <a class="brand" href="#top" aria-label="XSwap home">
+      <img src="assets/logo.svg" alt="" width="28" height="28">
+      <span>XSwap</span>
+    </a>
+    <nav class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#faq">FAQ</a>
+      <a href="https://github.com/Scannty/eth-blinks">GitHub</a>
+    </nav>
+    <a class="btn btn-sm" href="#install" data-store-link>Add to Chrome</a>
+  </header>
+
+  <main id="top">
+
+    <!-- Hero -->
+    <section class="hero wrap">
+      <div class="hero-copy">
+        <p class="eyebrow">A Chrome extension for X</p>
+        <h1>Buy the token<br>in the tweet.</h1>
+        <p class="lede">
+          When a post mentions <b>$DRV</b>, X shows a ticker card. XSwap puts a Buy button on that card
+          and opens a Uniswap swap right under it. You sign with your own wallet and keep scrolling.
+        </p>
+        <div class="actions">
+          <a class="btn" href="#install" data-store-link>
+            <svg class="chrome" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3.6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 8.4h8.6M8.9 13.8 4.6 6.3M15.1 13.8 10.8 21.3" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+            Add to Chrome
+          </a>
+          <a class="link" href="#install">Install from source &rarr;</a>
+        </div>
+        <p class="fine">Free. Works in Chrome, Brave, Arc and Edge with MetaMask, Rabby or any injected wallet.</p>
+      </div>
+
+      <!-- A static recreation of the extension inside an X post -->
+      <figure class="demo" aria-label="XSwap swap panel inside an X post">
+        <article class="post">
+          <div class="post-head">
+            <img class="avatar" src="assets/0xfirehose.jpg" alt="">
+            <div class="who">
+              <b>firehose</b> <span>@0xfirehose · 2h</span>
+            </div>
+          </div>
+          <p class="post-text">Onchain options are finally taking off. <span class="cashtag">$DRV</span> is still early, adding here.</p>
+
+          <div class="card">
+            <div class="card-row">
+              <img class="tok" src="assets/tokens/DRV.png" alt="">
+              <div class="card-name">
+                <b>Derive</b>
+                <span>DRV <b>$0.4203</b> <em class="up">+6.84%</em></span>
+              </div>
+              <svg class="spark" viewBox="0 0 120 28" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="spark-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".3"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><path class="area" d="M0 19.5 L2 19.7 L4 22.0 L6 21.6 L8 21.5 L10 21.8 L12 19.7 L14 19.6 L16 20.1 L18 21.7 L20 19.1 L22 17.7 L24 15.0 L26 16.7 L28 17.6 L30 14.7 L32 17.4 L34 20.0 L36 20.7 L38 21.2 L40 18.9 L42 15.8 L44 15.8 L46 13.0 L48 10.9 L50 9.2 L52 6.1 L54 5.7 L56 5.2 L58 7.0 L60 6.9 L62 7.6 L64 7.4 L66 8.1 L68 7.7 L70 6.2 L72 8.9 L74 11.7 L76 13.6 L78 14.6 L80 13.3 L82 11.5 L84 10.0 L86 7.2 L88 8.6 L90 7.8 L92 9.7 L94 8.8 L96 11.4 L98 13.3 L100 10.1 L102 8.1 L104 10.4 L106 10.0 L108 12.7 L110 11.9 L112 9.1 L114 9.7 L116 11.2 L118 9.6 L120 6.9 L120 28 L0 28Z"/><path d="M0 19.5 L2 19.7 L4 22.0 L6 21.6 L8 21.5 L10 21.8 L12 19.7 L14 19.6 L16 20.1 L18 21.7 L20 19.1 L22 17.7 L24 15.0 L26 16.7 L28 17.6 L30 14.7 L32 17.4 L34 20.0 L36 20.7 L38 21.2 L40 18.9 L42 15.8 L44 15.8 L46 13.0 L48 10.9 L50 9.2 L52 6.1 L54 5.7 L56 5.2 L58 7.0 L60 6.9 L62 7.6 L64 7.4 L66 8.1 L68 7.7 L70 6.2 L72 8.9 L74 11.7 L76 13.6 L78 14.6 L80 13.3 L82 11.5 L84 10.0 L86 7.2 L88 8.6 L90 7.8 L92 9.7 L94 8.8 L96 11.4 L98 13.3 L100 10.1 L102 8.1 L104 10.4 L106 10.0 L108 12.7 L110 11.9 L112 9.1 L114 9.7 L116 11.2 L118 9.6 L120 6.9"/></svg>
+              <button class="toggle" type="button" tabindex="-1">
+                <svg viewBox="0 0 24 24"><path d="M10.59 12L4.54 5.96l1.42-1.42L12 10.59l6.04-6.05 1.42 1.42L13.41 12l6.05 6.04-1.42 1.42L12 13.41l-6.04 6.05-1.42-1.42L10.59 12z"/></svg>
+                Close
+              </button>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head">
+                <div class="seg"><span class="on">Buy</span><span>Sell</span></div>
+                <span class="wallet"><img src="assets/chains/base.png" alt="">0x71c4…9a2e</span>
+              </div>
+              <div class="boxes">
+                <div class="box">
+                  <span class="lbl-row"><span class="lbl">You pay</span><span class="lbl">Balance 1,250.00</span></span>
+                  <div class="line"><b>100</b><span class="pill"><img src="assets/tokens/USDC.png" alt="">USDC</span></div>
+                  <span class="lbl">$100.00</span>
+                </div>
+                <span class="flip" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 3v13.59l5.043-5.05 1.414 1.42L12 20.41l-7.457-7.45 1.414-1.42L11 16.59V3h2z"/></svg></span>
+                <div class="box">
+                  <span class="lbl">You receive</span>
+                  <div class="line"><b>236.76</b><span class="pill"><img src="assets/tokens/DRV.png" alt="">DRV</span></div>
+                  <span class="lbl">$99.51</span>
+                </div>
+              </div>
+              <div class="panel-meta">
+                <span>Gas ≈ $0.01 · Impact &lt;0.01%</span>
+                <span class="via"><img src="assets/tokens/UNI.png" alt="">Uniswap</span>
+              </div>
+              <div class="note check">
+                <svg class="mark ic" viewBox="0 0 21 29" aria-hidden="true"><circle cx="2.5" cy="2.5" r="2.5"/><circle cx="10.5" cy="2.5" r="2.5"/><circle cx="18.5" cy="2.5" r="2.5"/><circle cx="2.5" cy="10.5" r="2.5"/><circle cx="10.5" cy="10.5" r="2.5"/><circle cx="18.5" cy="10.5" r="2.5"/><circle cx="2.5" cy="18.5" r="2.5"/><circle cx="10.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/><circle cx="2.5" cy="26.5" r="2.5"/><circle cx="10.5" cy="26.5" r="2.5"/><circle cx="18.5" cy="26.5" r="2.5"/></svg><b>Intercepta</b> No risks found for this token or transaction.
+              </div>
+              <div class="note">
+                <svg class="mark" viewBox="0 0 528 528" aria-hidden="true"><g transform="translate(0,528) scale(0.1,-0.1)"><path d="M2358 5195 c-1 -1 -30 -6 -63 -9 -139 -13 -302 -44 -420 -78 -78 -22 -229 -73 -260 -88 -11 -5 -42 -19 -70 -30 -71 -31 -198 -96 -280 -143 -82 -47 -228 -147 -233 -159 -2 -4 -8 -8 -13 -8 -5 0 -17 -8 -27 -17 -10 -10 -36 -31 -58 -48 -104 -80 -311 -293 -390 -400 -16 -22 -32 -42 -35 -45 -3 -3 -26 -34 -50 -70 -24 -36 -46 -67 -49 -70 -3 -3 -11 -16 -19 -30 -8 -14 -36 -63 -63 -109 -43 -74 -60 -109 -113 -226 -54 -118 -97 -244 -135 -392 -36 -140 -32 -121 -55 -273 -27 -170 -27 -581 0 -720 2 -10 7 -40 10 -67 7 -43 35 -177 49 -228 22 -81 30 -109 48 -160 58 -173 154 -379 242 -519 31 -48 56 -92 56 -96 0 -5 3 -10 8 -12 4 -1 29 -34 56 -72 27 -38 57 -77 65 -86 9 -9 32 -36 51 -60 83 -104 289 -298 412 -389 35 -25 65 -49 66 -53 2 -5 8 -8 12 -8 5 0 37 -19 72 -42 107 -72 202 -123 333 -180 50 -21 99 -43 110 -48 38 -17 167 -60 253 -84 91 -26 117 -32 192 -46 25 -5 61 -11 80 -15 39 -7 55 -10 150 -22 80 -10 453 -10 535 0 110 13 140 17 195 28 83 15 89 17 175 40 100 26 97 25 115 31 8 3 53 18 100 34 47 15 96 34 110 41 14 7 29 13 33 13 19 0 289 141 368 192 91 59 268 189 310 228 98 91 205 200 261 265 39 44 78 90 89 101 10 12 19 26 19 32 0 6 4 12 8 14 11 4 111 149 148 213 15 28 33 53 39 57 5 4 7 8 2 8 -4 0 3 17 16 37 24 39 107 210 107 221 0 4 6 19 14 34 21 39 74 199 102 308 35 133 51 219 70 375 24 201 15 484 -21 695 -3 19 -8 44 -9 55 -2 11 -9 43 -16 70 -6 28 -14 61 -16 74 -9 48 -93 290 -130 377 -45 106 -124 258 -170 332 -19 29 -34 55 -34 58 0 3 -13 22 -28 42 -16 20 -48 64 -72 97 -174 237 -441 486 -688 641 -115 72 -327 184 -347 184 -3 0 -24 9 -48 19 -91 41 -213 82 -312 107 -68 17 -147 34 -175 39 -19 3 -42 8 -50 10 -8 2 -37 7 -65 10 -27 4 -68 9 -90 12 -45 5 -471 13 -477 8z m422 -489 c84 -11 172 -24 200 -31 14 -3 37 -8 53 -11 22 -4 90 -24 202 -58 6 -2 19 -7 30 -11 11 -4 49 -19 85 -33 153 -59 362 -182 504 -296 67 -54 206 -181 206 -189 0 -2 -339 -4 -752 -4 -805 0 -845 -1 -1003 -38 -170 -39 -353 -120 -494 -218 -87 -62 -259 -228 -323 -312 -42 -56 -148 -227 -148 -239 0 -3 -11 -29 -24 -58 -34 -76 -62 -162 -81 -250 -17 -77 -17 -78 -49 -79 -27 0 -152 1 -181 2 -5 0 -48 0 -95 0 -148 -1 -206 -1 -222 0 -7 0 -40 0 -73 -1 -33 -1 -73 -2 -89 -1 l-29 1 7 53 c8 66 13 96 32 177 9 36 17 72 19 80 2 8 4 15 5 15 1 0 3 7 5 15 9 48 74 219 117 309 125 261 297 488 518 681 34 30 69 59 77 64 9 4 23 16 33 25 92 82 348 224 510 283 30 11 62 22 70 25 8 3 20 7 25 9 6 1 48 13 95 27 93 27 246 55 349 64 36 3 67 6 68 7 6 5 304 -2 353 -8z m1681 -1224 c81 -186 119 -313 145 -477 3 -22 9 -57 14 -78 5 -22 4 -39 -2 -43 -5 -3 -40 -5 -76 -4 -37 1 -73 1 -79 1 -96 -4 -284 -2 -292 3 -6 4 -11 4 -11 -1 0 -4 -21 -7 -47 -5 -27 1 -68 2 -93 2 -36 1 -279 0 -375 0 -11 0 -45 1 -75 1 -30 1 -61 1 -67 0 -74 -4 -284 -2 -292 3 -6 4 -11 4 -11 -1 0 -4 -21 -7 -47 -5 -53 2 -71 3 -293 2 -85 0 -162 0 -170 1 -16 0 -254 0 -282 -1 -35 0 -108 0 -120 1 -7 0 -51 0 -98 0 -126 -1 -201 -1 -222 0 -7 0 -63 -1 -124 -2 -62 -1 -116 1 -122 5 -19 11 51 185 112 276 79 118 188 222 311 297 85 53 235 106 330 119 28 3 52 8 54 10 2 2 427 4 945 4 l941 0 46 -108z m-3242 -1102 c5 -8 12 -33 16 -55 5 -22 9 -46 11 -52 9 -48 53 -164 93 -249 93 -195 228 -370 380 -492 25 -20 48 -40 51 -43 10 -13 149 -99 159 -99 6 0 11 -3 11 -8 0 -4 19 -16 43 -26 121 -54 196 -84 227 -92 42 -9 41 -9 60 -16 17 -7 104 -24 165 -34 22 -4 391 -8 820 -9 429 -2 787 -4 795 -5 21 -1 -126 -138 -244 -227 -457 -343 -1037 -482 -1606 -383 -79 14 -78 14 -200 44 -45 11 -186 60 -195 68 -5 4 -15 8 -22 8 -14 0 -259 117 -278 132 -5 5 -50 35 -100 68 -49 32 -100 68 -112 79 -12 12 -25 21 -28 21 -16 0 -240 220 -300 295 -22 28 -42 52 -46 55 -3 3 -21 28 -40 55 -18 28 -37 52 -40 55 -3 3 -26 39 -51 80 -63 105 -129 240 -163 330 -1 3 -7 18 -14 34 -22 53 -68 219 -85 306 -10 47 -21 102 -25 122 -5 20 -5 40 0 45 5 5 167 9 360 8 301 0 352 -2 358 -15z m3404 2 c-2 -6 -5 -31 -8 -54 -4 -43 -9 -69 -22 -123 -4 -16 -7 -34 -8 -40 -1 -5 -3 -12 -4 -15 -1 -3 -4 -16 -7 -30 -12 -71 -83 -267 -133 -370 l-32 -65 -932 1 c-513 1 -950 4 -972 7 -139 22 -274 72 -387 144 -138 89 -283 255 -347 398 -29 64 -60 152 -56 157 2 2 658 3 1457 3 1116 -1 1452 -3 1451 -13z"/></g></svg><b>0.5%</b> of this buy goes to @0xfirehose, a verified human.
+              </div>
+              <span class="cta">Buy DRV</span>
+            </div>
+          </div>
+        </article>
+      </figure>
+    </section>
+
+    <!-- How it works -->
+    <section id="how" class="wrap section">
+      <h2>How it works</h2>
+      <ol class="steps">
+        <li>
+          <span class="num">1</span>
+          <h3>Scroll X like you already do</h3>
+          <p>XSwap only runs on x.com. When a post has a ticker card, a Buy button appears next to the chart.</p>
+        </li>
+        <li>
+          <span class="num">2</span>
+          <h3>Pick an amount</h3>
+          <p>The card opens a swap panel. Pay with USDC, ETH or USDT, and see the Uniswap quote, gas and price impact before you commit.</p>
+        </li>
+        <li>
+          <span class="num">3</span>
+          <h3>Sign in your wallet</h3>
+          <p>Your wallet asks you to approve and sign. XSwap never holds your funds or keys, and the tokens land in your own address.</p>
+        </li>
+      </ol>
+    </section>
+
+    <!-- Details -->
+    <section class="wrap section">
+      <div class="spec">
+        <div class="spec-row">
+          <h3><img class="h-logo" src="assets/uniswap.png" alt="">Routed through Uniswap</h3>
+          <div>
+            <p>Quotes and swaps come from the Uniswap Trading API, on the chain you choose. Base is the default.</p>
+            <ul class="chains">
+              <li><img src="assets/chains/base.png" alt="">Base</li>
+              <li><img src="assets/chains/ethereum.png" alt="">Ethereum</li>
+              <li><img src="assets/chains/arbitrum.png" alt="">Arbitrum</li>
+              <li><img src="assets/chains/optimism.png" alt="">Optimism</li>
+              <li><img src="assets/chains/unichain.png" alt="">Unichain</li>
+            </ul>
+          </div>
+        </div>
+        <div class="spec-row">
+          <h3><svg class="h-logo ic" viewBox="0 0 21 29" aria-hidden="true"><circle cx="2.5" cy="2.5" r="2.5"/><circle cx="10.5" cy="2.5" r="2.5"/><circle cx="18.5" cy="2.5" r="2.5"/><circle cx="2.5" cy="10.5" r="2.5"/><circle cx="10.5" cy="10.5" r="2.5"/><circle cx="18.5" cy="10.5" r="2.5"/><circle cx="2.5" cy="18.5" r="2.5"/><circle cx="10.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/><circle cx="2.5" cy="26.5" r="2.5"/><circle cx="10.5" cy="26.5" r="2.5"/><circle cx="18.5" cy="26.5" r="2.5"/></svg>Checked before you buy</h3>
+          <div>
+            <p>
+              Every token and every swap transaction is checked by <a href="https://intercepta.io">Intercepta</a> first.
+              Risky tokens show a warning and need an extra confirmation. Known scams are blocked outright.
+            </p>
+          </div>
+        </div>
+        <div class="spec-row">
+          <h3><svg class="h-logo" viewBox="0 0 528 528" aria-hidden="true"><g transform="translate(0,528) scale(0.1,-0.1)"><path d="M2358 5195 c-1 -1 -30 -6 -63 -9 -139 -13 -302 -44 -420 -78 -78 -22 -229 -73 -260 -88 -11 -5 -42 -19 -70 -30 -71 -31 -198 -96 -280 -143 -82 -47 -228 -147 -233 -159 -2 -4 -8 -8 -13 -8 -5 0 -17 -8 -27 -17 -10 -10 -36 -31 -58 -48 -104 -80 -311 -293 -390 -400 -16 -22 -32 -42 -35 -45 -3 -3 -26 -34 -50 -70 -24 -36 -46 -67 -49 -70 -3 -3 -11 -16 -19 -30 -8 -14 -36 -63 -63 -109 -43 -74 -60 -109 -113 -226 -54 -118 -97 -244 -135 -392 -36 -140 -32 -121 -55 -273 -27 -170 -27 -581 0 -720 2 -10 7 -40 10 -67 7 -43 35 -177 49 -228 22 -81 30 -109 48 -160 58 -173 154 -379 242 -519 31 -48 56 -92 56 -96 0 -5 3 -10 8 -12 4 -1 29 -34 56 -72 27 -38 57 -77 65 -86 9 -9 32 -36 51 -60 83 -104 289 -298 412 -389 35 -25 65 -49 66 -53 2 -5 8 -8 12 -8 5 0 37 -19 72 -42 107 -72 202 -123 333 -180 50 -21 99 -43 110 -48 38 -17 167 -60 253 -84 91 -26 117 -32 192 -46 25 -5 61 -11 80 -15 39 -7 55 -10 150 -22 80 -10 453 -10 535 0 110 13 140 17 195 28 83 15 89 17 175 40 100 26 97 25 115 31 8 3 53 18 100 34 47 15 96 34 110 41 14 7 29 13 33 13 19 0 289 141 368 192 91 59 268 189 310 228 98 91 205 200 261 265 39 44 78 90 89 101 10 12 19 26 19 32 0 6 4 12 8 14 11 4 111 149 148 213 15 28 33 53 39 57 5 4 7 8 2 8 -4 0 3 17 16 37 24 39 107 210 107 221 0 4 6 19 14 34 21 39 74 199 102 308 35 133 51 219 70 375 24 201 15 484 -21 695 -3 19 -8 44 -9 55 -2 11 -9 43 -16 70 -6 28 -14 61 -16 74 -9 48 -93 290 -130 377 -45 106 -124 258 -170 332 -19 29 -34 55 -34 58 0 3 -13 22 -28 42 -16 20 -48 64 -72 97 -174 237 -441 486 -688 641 -115 72 -327 184 -347 184 -3 0 -24 9 -48 19 -91 41 -213 82 -312 107 -68 17 -147 34 -175 39 -19 3 -42 8 -50 10 -8 2 -37 7 -65 10 -27 4 -68 9 -90 12 -45 5 -471 13 -477 8z m422 -489 c84 -11 172 -24 200 -31 14 -3 37 -8 53 -11 22 -4 90 -24 202 -58 6 -2 19 -7 30 -11 11 -4 49 -19 85 -33 153 -59 362 -182 504 -296 67 -54 206 -181 206 -189 0 -2 -339 -4 -752 -4 -805 0 -845 -1 -1003 -38 -170 -39 -353 -120 -494 -218 -87 -62 -259 -228 -323 -312 -42 -56 -148 -227 -148 -239 0 -3 -11 -29 -24 -58 -34 -76 -62 -162 -81 -250 -17 -77 -17 -78 -49 -79 -27 0 -152 1 -181 2 -5 0 -48 0 -95 0 -148 -1 -206 -1 -222 0 -7 0 -40 0 -73 -1 -33 -1 -73 -2 -89 -1 l-29 1 7 53 c8 66 13 96 32 177 9 36 17 72 19 80 2 8 4 15 5 15 1 0 3 7 5 15 9 48 74 219 117 309 125 261 297 488 518 681 34 30 69 59 77 64 9 4 23 16 33 25 92 82 348 224 510 283 30 11 62 22 70 25 8 3 20 7 25 9 6 1 48 13 95 27 93 27 246 55 349 64 36 3 67 6 68 7 6 5 304 -2 353 -8z m1681 -1224 c81 -186 119 -313 145 -477 3 -22 9 -57 14 -78 5 -22 4 -39 -2 -43 -5 -3 -40 -5 -76 -4 -37 1 -73 1 -79 1 -96 -4 -284 -2 -292 3 -6 4 -11 4 -11 -1 0 -4 -21 -7 -47 -5 -27 1 -68 2 -93 2 -36 1 -279 0 -375 0 -11 0 -45 1 -75 1 -30 1 -61 1 -67 0 -74 -4 -284 -2 -292 3 -6 4 -11 4 -11 -1 0 -4 -21 -7 -47 -5 -53 2 -71 3 -293 2 -85 0 -162 0 -170 1 -16 0 -254 0 -282 -1 -35 0 -108 0 -120 1 -7 0 -51 0 -98 0 -126 -1 -201 -1 -222 0 -7 0 -63 -1 -124 -2 -62 -1 -116 1 -122 5 -19 11 51 185 112 276 79 118 188 222 311 297 85 53 235 106 330 119 28 3 52 8 54 10 2 2 427 4 945 4 l941 0 46 -108z m-3242 -1102 c5 -8 12 -33 16 -55 5 -22 9 -46 11 -52 9 -48 53 -164 93 -249 93 -195 228 -370 380 -492 25 -20 48 -40 51 -43 10 -13 149 -99 159 -99 6 0 11 -3 11 -8 0 -4 19 -16 43 -26 121 -54 196 -84 227 -92 42 -9 41 -9 60 -16 17 -7 104 -24 165 -34 22 -4 391 -8 820 -9 429 -2 787 -4 795 -5 21 -1 -126 -138 -244 -227 -457 -343 -1037 -482 -1606 -383 -79 14 -78 14 -200 44 -45 11 -186 60 -195 68 -5 4 -15 8 -22 8 -14 0 -259 117 -278 132 -5 5 -50 35 -100 68 -49 32 -100 68 -112 79 -12 12 -25 21 -28 21 -16 0 -240 220 -300 295 -22 28 -42 52 -46 55 -3 3 -21 28 -40 55 -18 28 -37 52 -40 55 -3 3 -26 39 -51 80 -63 105 -129 240 -163 330 -1 3 -7 18 -14 34 -22 53 -68 219 -85 306 -10 47 -21 102 -25 122 -5 20 -5 40 0 45 5 5 167 9 360 8 301 0 352 -2 358 -15z m3404 2 c-2 -6 -5 -31 -8 -54 -4 -43 -9 -69 -22 -123 -4 -16 -7 -34 -8 -40 -1 -5 -3 -12 -4 -15 -1 -3 -4 -16 -7 -30 -12 -71 -83 -267 -133 -370 l-32 -65 -932 1 c-513 1 -950 4 -972 7 -139 22 -274 72 -387 144 -138 89 -283 255 -347 398 -29 64 -60 152 -56 157 2 2 658 3 1457 3 1116 -1 1452 -3 1451 -13z"/></g></svg>The author gets paid</h3>
+          <div>
+            <p>
+              When you buy from a post, its author earns 0.5% of the trade, paid through Uniswap's integrator fee straight to their wallet.
+              To earn, authors prove with World ID that they are one unique human, so nobody can farm it with a hundred accounts.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- Install -->
+    <section id="install" class="wrap section">
+      <h2>Install</h2>
+      <div class="install">
+        <div class="install-col">
+          <h3>From the Chrome Web Store</h3>
+          <ol>
+            <li>Open the XSwap listing.</li>
+            <li>Click <b>Add to Chrome</b>, then <b>Add extension</b>.</li>
+            <li>Pin it from the puzzle icon if you like, then open x.com.</li>
+          </ol>
+          <a class="btn" href="#install" data-store-link data-store-only>Open in Chrome Web Store</a>
+          <p class="fine" data-store-pending>The store listing is in review. Until it's live, install from source.</p>
+        </div>
+        <div class="install-col">
+          <h3>From source</h3>
+          <ol>
+            <li>Download the code from <a href="https://github.com/Scannty/eth-blinks">GitHub</a> and unzip it.</li>
+            <li>Go to <code>chrome://extensions</code> and turn on <b>Developer mode</b>.</li>
+            <li>Click <b>Load unpacked</b> and pick the <code>extension</code> folder.</li>
+            <li>Open x.com and find a post with a ticker card.</li>
+          </ol>
+          <a class="btn btn-ghost" href="https://github.com/Scannty/eth-blinks/archive/refs/heads/master.zip">Download .zip</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="wrap section">
+      <h2>Questions</h2>
+      <dl class="faq">
+        <div>
+          <dt>Does XSwap hold my funds?</dt>
+          <dd>No. Swaps are signed by your own wallet and settle on-chain through Uniswap. XSwap never sees your keys.</dd>
+        </div>
+        <div>
+          <dt>What does it cost?</dt>
+          <dd>The extension is free. You pay network gas and Uniswap's normal fees. If the post's author is verified, 0.5% of the trade goes to them.</dd>
+        </div>
+        <div>
+          <dt>What can the extension see?</dt>
+          <dd>It runs only on x.com, where it reads ticker cards and the post author's handle. It doesn't read your DMs or post anything.</dd>
+        </div>
+        <div>
+          <dt>I post about tokens. How do I earn?</dt>
+          <dd>Install XSwap and open one of your own posts with a ticker card. Under the card you'll see a prompt to verify with World ID and add the wallet you want paid to.</dd>
+        </div>
+        <div>
+          <dt>Are these real trades?</dt>
+          <dd>Yes. Every swap uses real funds on mainnet. Check the quote and the Intercepta result before you sign.</dd>
+        </div>
+      </dl>
+    </section>
+
+  </main>
+
+  <footer class="footer wrap">
+    <div class="brand">
+      <img src="assets/logo.svg" alt="" width="22" height="22">
+      <span>XSwap</span>
+    </div>
+    <p>Swaps by Uniswap. Token checks by Intercepta. Humans verified by World ID.</p>
+    <a href="https://github.com/Scannty/eth-blinks">GitHub</a>
+  </footer>
+
+  <script>
+    // Set this once the Chrome Web Store listing is live. While it's empty,
+    // every "Add to Chrome" button scrolls to the install section instead.
+    const STORE_URL = "";
+
+    if (STORE_URL) {
+      document.querySelectorAll("[data-store-link]").forEach((a) => { a.href = STORE_URL; });
+      document.querySelectorAll("[data-store-pending]").forEach((el) => { el.hidden = true; });
+    } else {
+      document.querySelectorAll("[data-store-only]").forEach((el) => { el.hidden = true; });
+    }
+  </script>
+</body>
+</html>
