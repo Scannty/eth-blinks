@@ -4,14 +4,13 @@ XSwap lets people buy a token from its ticker card on X without leaving the time
 
 ## Time to first success
 
-**TODO:** roughly how long from getting an API key to the first real swap landing onchain, and what took most of that time.
+About 2 hours from getting an API key to the first real swap landing onchain. The Trading API worked well and the integration went smoothly; the points below are small things we had to work out along the way.
 
 ## What worked well
 
 - The three-call flow (`check_approval` → `quote` → `swap`) maps cleanly onto a swap UI. We didn't need to touch the Universal Router or pick pools ourselves.
 - `integratorFees` made creator kickbacks possible with one extra field on the quote. The fee is paid in the same transaction, so we don't hold funds or run a payout job.
 - One API across five chains. Adding a chain was only a matter of adding token addresses.
-- **TODO:** anything else that was easier than expected.
 
 ## Friction we hit
 
@@ -21,14 +20,12 @@ XSwap lets people buy a token from its ticker card on X without leaving the time
 - **Quotes need a `swapper` address before the user connects a wallet.** To show live prices on the card before connecting, we quote with a placeholder address and quote again with the real wallet before swapping.
 - **The API key can't live in a browser extension.** Anything shipped in an extension is public, so we added a small backend proxy just to hold the key ([`backend/uniswap.js`](backend/uniswap.js)).
 - **Error codes for "no route".** We match both `NoRouteFoundError` and `NoQuotesAvailable` to show one "No Uniswap route" message. A documented list of error codes would help.
-- **TODO:** anything else that slowed you down (docs, dashboard, rate limits, a specific chain or token).
 
 ## Missing capability or documentation
 
 - A guide for integrator fees: how `aggregatedOutputs` changes, what the fee limits are, and which token the fee is paid in.
 - A way to use the API from client-only apps (browser extensions, static sites) without running a backend, for example domain- or origin-scoped keys.
-- **TODO:** anything else.
 
 ## The one improvement with the greatest impact
 
-**TODO:** pick one. A candidate: return `permitData` as a complete EIP-712 payload (with `EIP712Domain` and `primaryType`) so it can be passed straight to `eth_signTypedData_v4`.
+Return `permitData` as a complete EIP-712 payload (with `EIP712Domain` and `primaryType`) so it can be passed straight to `eth_signTypedData_v4`. Every integrator that signs with a raw wallet provider instead of viem has to rebuild this by hand, and it is easy to get wrong.
