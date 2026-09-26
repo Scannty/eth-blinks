@@ -305,8 +305,9 @@
     });
   }
 
-  function quoteRequest(chainId, tokenIn, tokenOut, amount, swapper) {
-    return {
+  // kickback: { bips, wallet } to pay the tweet's author a share of the output, or null
+  function quoteRequest(chainId, tokenIn, tokenOut, amount, swapper, kickback) {
+    const request = {
       type: "EXACT_INPUT",
       amount,
       tokenInChainId: chainId,
@@ -317,6 +318,19 @@
       protocols: ["V2", "V3", "V4"], // classic AMM swap (a single wallet transaction)
       routingPreference: "BEST_PRICE",
       autoSlippage: "DEFAULT",
+    };
+    if (kickback) request.integratorFees = [{ bips: kickback.bips, recipient: kickback.wallet }];
+    return request;
+  }
+
+  // With a fee, quote.output is the gross amount: split it into what the swapper and the fee recipient get
+  function quoteOutputs(quote) {
+    const outputs = quote.aggregatedOutputs || [];
+    const own = outputs.find((output) => !output.fee);
+    const fee = outputs.find((output) => output.fee);
+    return {
+      amountOut: own ? BigInt(own.amount) : quote.output ? BigInt(quote.output.amount) : null,
+      kickbackOut: fee ? BigInt(fee.amount) : null,
     };
   }
 
@@ -383,6 +397,65 @@
     const movement = body.assetsMovement || {};
     return { reasons: detectorReasons(body.detectors), send: movement.send || [], receive: movement.receive || [] };
   }
+
+  // ---------------------------------------------------------------------------
+  // Kickbacks: a tweet's author who verified as human with World ID earns a small fee on buys
+  // from their tweet. Uniswap takes it from the bought token and pays it out in the same swap.
+  // ---------------------------------------------------------------------------
+  const KICKBACK_TTL_MS = 60 * 1000;
+  const kickbackCache = new Map(); // handle -> { expires, request: Promise of { handle, wallet, bips } or null }
+
+  function kickbacksApi(message) {
+    if (!inExtension) return Promise.reject(new Error("Kickbacks need the Ephi extension"));
+    return new Promise((resolve, reject) => {
+      chrome.runtime.sendMessage({ action: "kickbacks", ...message }, (response) => {
+        if (chrome.runtime.lastError) return reject(new Error(chrome.runtime.lastError.message));
+        if (!response.ok) {
+          const body = response.body || {};
+          return reject(Object.assign(new Error(body.message || body.error || `Kickbacks API error ${response.status}`), { status: response.status }));
+        }
+        resolve(response.body);
+      });
+    });
+  }
+
+  // -> { handle, wallet, bips } if the handle verified with World ID, else null
+  function kickbackFor(handle) {
+    const key = handle.toLowerCase();
+    const cached = kickbackCache.get(key);
+    if (cached && cached.expires > Date.now()) return cached.request;
+    const request = kickbacksApi({ op: "get", handle }).catch((error) => {
+      if (error.status === 404) return null;
+      kickbackCache.delete(key); // don't cache failures
+      throw error;
+    });
+    kickbackCache.set(key, { expires: Date.now() + KICKBACK_TTL_MS, request });
+    return request;
+  }
+
+  // The signed-in X account, from the sidebar's Profile link
+  function loggedInHandle() {
+    const link = document.querySelector('a[data-testid="AppTabBar_Profile_Link"]');
+    const match = link && (link.getAttribute("href") || "").match(/^\/([A-Za-z0-9_]{1,15})$/);
+    return match ? match[1] : null;
+  }
+
+  // The tweet's author (for a repost, the original author)
+  function tweetAuthor(article) {
+    const link = article.querySelector('[data-testid="User-Name"] a[href^="/"]');
+    const match = link && (link.getAttribute("href") || "").match(/^\/([A-Za-z0-9_]{1,15})$/);
+    return match ? match[1] : null;
+  }
+
+  function sameHandle(a, b) {
+    return !!a && !!b && a.toLowerCase() === b.toLowerCase();
+  }
+
+  // Coming back from the World ID page: forget cached registrations so panels pick up the new one
+  window.addEventListener("focus", () => {
+    kickbackCache.clear();
+    document.querySelectorAll(`[${HOST_ATTR}]`).forEach((host) => host.dispatchEvent(new Event("ephi:kickback")));
+  });
 
   // ---------------------------------------------------------------------------
   // Units and formatting
@@ -749,6 +822,28 @@
     .security.loading { animation: pulse 1s ease-in-out infinite; }
     .status .ic-mark { width: 9px; height: 12px; vertical-align: -1px; margin-right: 2px; }
 
+    /* Kickback to the tweet's author (World ID verified), or the author's invite to verify */
+    .kickback { display: flex; align-items: center; gap: 8px; font-size: 13px; line-height: 16px; color: var(--muted); }
+    .kickback .wid { width: 14px; height: 14px; fill: currentColor; flex: none; }
+    .kickback b { color: var(--text); font-weight: 700; }
+
+    /* On the author's own tweet, under the card whether the panel is open or not */
+    .owner {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 8px;
+      font-size: 13px; line-height: 16px; color: var(--muted);
+    }
+    .owner > .wid { width: 18px; height: 18px; fill: var(--text); flex: none; }
+    .owner .copy { flex: 1 1 180px; min-width: 0; }
+    .owner b { color: var(--text); font-weight: 700; }
+    .earn {
+      display: inline-flex; align-items: center; gap: 8px; flex: none; white-space: nowrap;
+      font: inherit; font-size: 14px; font-weight: 700; color: var(--bg); background: var(--text);
+      border: 0; border-radius: 9999px; height: 32px; padding: 0 14px 0 10px; cursor: pointer;
+      transition: opacity .15s;
+    }
+    .earn:hover { opacity: .9; }
+    .earn .wid { width: 18px; height: 18px; fill: currentColor; }
+
     /* Held transaction: Intercepta flagged it, the user decides */
     .risk { text-align: left; display: flex; flex-direction: column; gap: 6px; }
     .risk ul { margin: 0; padding-left: 18px; }
@@ -797,6 +892,8 @@
   const INTERCEPTA_MARK_SVG = `<svg class="ic-mark" viewBox="0 0 21 29" aria-hidden="true">${
     [2.5, 10.5, 18.5, 26.5].flatMap((cy) => [2.5, 10.5, 18.5].map((cx) => `<circle cx="${cx}" cy="${cy}" r="2.5"/>`)).join("")
   }</svg>`;
+  // World logo (from World's own favicon), inlined so it follows the theme color
+  const WORLD_ID_SVG = `<svg class="wid" viewBox="0 0 528 528" aria-hidden="true"><g transform="translate(0,528) scale(0.1,-0.1)"><path d="M2358 5195 c-1 -1 -30 -6 -63 -9 -139 -13 -302 -44 -420 -78 -78 -22 -229 -73 -260 -88 -11 -5 -42 -19 -70 -30 -71 -31 -198 -96 -280 -143 -82 -47 -228 -147 -233 -159 -2 -4 -8 -8 -13 -8 -5 0 -17 -8 -27 -17 -10 -10 -36 -31 -58 -48 -104 -80 -311 -293 -390 -400 -16 -22 -32 -42 -35 -45 -3 -3 -26 -34 -50 -70 -24 -36 -46 -67 -49 -70 -3 -3 -11 -16 -19 -30 -8 -14 -36 -63 -63 -109 -43 -74 -60 -109 -113 -226 -54 -118 -97 -244 -135 -392 -36 -140 -32 -121 -55 -273 -27 -170 -27 -581 0 -720 2 -10 7 -40 10 -67 7 -43 35 -177 49 -228 22 -81 30 -109 48 -160 58 -173 154 -379 242 -519 31 -48 56 -92 56 -96 0 -5 3 -10 8 -12 4 -1 29 -34 56 -72 27 -38 57 -77 65 -86 9 -9 32 -36 51 -60 83 -104 289 -298 412 -389 35 -25 65 -49 66 -53 2 -5 8 -8 12 -8 5 0 37 -19 72 -42 107 -72 202 -123 333 -180 50 -21 99 -43 110 -48 38 -17 167 -60 253 -84 91 -26 117 -32 192 -46 25 -5 61 -11 80 -15 39 -7 55 -10 150 -22 80 -10 453 -10 535 0 110 13 140 17 195 28 83 15 89 17 175 40 100 26 97 25 115 31 8 3 53 18 100 34 47 15 96 34 110 41 14 7 29 13 33 13 19 0 289 141 368 192 91 59 268 189 310 228 98 91 205 200 261 265 39 44 78 90 89 101 10 12 19 26 19 32 0 6 4 12 8 14 11 4 111 149 148 213 15 28 33 53 39 57 5 4 7 8 2 8 -4 0 3 17 16 37 24 39 107 210 107 221 0 4 6 19 14 34 21 39 74 199 102 308 35 133 51 219 70 375 24 201 15 484 -21 695 -3 19 -8 44 -9 55 -2 11 -9 43 -16 70 -6 28 -14 61 -16 74 -9 48 -93 290 -130 377 -45 106 -124 258 -170 332 -19 29 -34 55 -34 58 0 3 -13 22 -28 42 -16 20 -48 64 -72 97 -174 237 -441 486 -688 641 -115 72 -327 184 -347 184 -3 0 -24 9 -48 19 -91 41 -213 82 -312 107 -68 17 -147 34 -175 39 -19 3 -42 8 -50 10 -8 2 -37 7 -65 10 -27 4 -68 9 -90 12 -45 5 -471 13 -477 8z m422 -489 c84 -11 172 -24 200 -31 14 -3 37 -8 53 -11 22 -4 90 -24 202 -58 6 -2 19 -7 30 -11 11 -4 49 -19 85 -33 153 -59 362 -182 504 -296 67 -54 206 -181 206 -189 0 -2 -339 -4 -752 -4 -805 0 -845 -1 -1003 -38 -170 -39 -353 -120 -494 -218 -87 -62 -259 -228 -323 -312 -42 -56 -148 -227 -148 -239 0 -3 -11 -29 -24 -58 -34 -76 -62 -162 -81 -250 -17 -77 -17 -78 -49 -79 -27 0 -152 1 -181 2 -5 0 -48 0 -95 0 -148 -1 -206 -1 -222 0 -7 0 -40 0 -73 -1 -33 -1 -73 -2 -89 -1 l-29 1 7 53 c8 66 13 96 32 177 9 36 17 72 19 80 2 8 4 15 5 15 1 0 3 7 5 15 9 48 74 219 117 309 125 261 297 488 518 681 34 30 69 59 77 64 9 4 23 16 33 25 92 82 348 224 510 283 30 11 62 22 70 25 8 3 20 7 25 9 6 1 48 13 95 27 93 27 246 55 349 64 36 3 67 6 68 7 6 5 304 -2 353 -8z m1681 -1224 c81 -186 119 -313 145 -477 3 -22 9 -57 14 -78 5 -22 4 -39 -2 -43 -5 -3 -40 -5 -76 -4 -37 1 -73 1 -79 1 -96 -4 -284 -2 -292 3 -6 4 -11 4 -11 -1 0 -4 -21 -7 -47 -5 -27 1 -68 2 -93 2 -36 1 -279 0 -375 0 -11 0 -45 1 -75 1 -30 1 -61 1 -67 0 -74 -4 -284 -2 -292 3 -6 4 -11 4 -11 -1 0 -4 -21 -7 -47 -5 -53 2 -71 3 -293 2 -85 0 -162 0 -170 1 -16 0 -254 0 -282 -1 -35 0 -108 0 -120 1 -7 0 -51 0 -98 0 -126 -1 -201 -1 -222 0 -7 0 -63 -1 -124 -2 -62 -1 -116 1 -122 5 -19 11 51 185 112 276 79 118 188 222 311 297 85 53 235 106 330 119 28 3 52 8 54 10 2 2 427 4 945 4 l941 0 46 -108z m-3242 -1102 c5 -8 12 -33 16 -55 5 -22 9 -46 11 -52 9 -48 53 -164 93 -249 93 -195 228 -370 380 -492 25 -20 48 -40 51 -43 10 -13 149 -99 159 -99 6 0 11 -3 11 -8 0 -4 19 -16 43 -26 121 -54 196 -84 227 -92 42 -9 41 -9 60 -16 17 -7 104 -24 165 -34 22 -4 391 -8 820 -9 429 -2 787 -4 795 -5 21 -1 -126 -138 -244 -227 -457 -343 -1037 -482 -1606 -383 -79 14 -78 14 -200 44 -45 11 -186 60 -195 68 -5 4 -15 8 -22 8 -14 0 -259 117 -278 132 -5 5 -50 35 -100 68 -49 32 -100 68 -112 79 -12 12 -25 21 -28 21 -16 0 -240 220 -300 295 -22 28 -42 52 -46 55 -3 3 -21 28 -40 55 -18 28 -37 52 -40 55 -3 3 -26 39 -51 80 -63 105 -129 240 -163 330 -1 3 -7 18 -14 34 -22 53 -68 219 -85 306 -10 47 -21 102 -25 122 -5 20 -5 40 0 45 5 5 167 9 360 8 301 0 352 -2 358 -15z m3404 2 c-2 -6 -5 -31 -8 -54 -4 -43 -9 -69 -22 -123 -4 -16 -7 -34 -8 -40 -1 -5 -3 -12 -4 -15 -1 -3 -4 -16 -7 -30 -12 -71 -83 -267 -133 -370 l-32 -65 -932 1 c-513 1 -950 4 -972 7 -139 22 -274 72 -387 144 -138 89 -283 255 -347 398 -29 64 -60 152 -56 157 2 2 658 3 1457 3 1116 -1 1452 -3 1451 -13z"/></g></svg>`;
   const CLOSE_SVG = `<svg viewBox="0 0 24 24"><path d="M10.59 12L4.54 5.96l1.42-1.42L12 10.59l6.04-6.05 1.42 1.42L13.41 12l6.05 6.04-1.42 1.42L12 13.41l-6.04 6.05-1.42-1.42L10.59 12z"/></svg>`;
 
   function createPanel(article, link, ticker) {
@@ -820,7 +917,9 @@
       balance: null,
       busy: false,
       security: null, // Intercepta verdict on the card's token: { loading } | { action, reasons } | { error } | { native }
+      kickback: null, // the tweet author's registration: { handle, wallet, bips }, or null if they haven't verified
     };
+    const author = tweetAuthor(article);
     let quoteSeq = 0;
     let pendingRisk = null; // { resolve, reject } while a flagged transaction waits for the user
     let quoteTimer = null;
@@ -862,11 +961,13 @@
                 <span class="via">via ${tokenLogoHtml("UNI", "uni")}<b>Uniswap</b></span>
               </div>
               <div class="security" hidden></div>
+              <div class="kickback" hidden></div>
               <button class="cta"></button>
               <div class="status" hidden></div>
             </div>
           </div>
         </div>
+        <div class="owner" hidden></div>
       </div>`;
 
     const $ = (selector) => root.querySelector(selector);
@@ -896,6 +997,18 @@
     function getToken() { return state.side === "buy" ? mainToken() : state.quoteToken; }
     function decimalsOf(symbol) { return tokenOn(state.chainId, symbol).decimals; }
     function walletOnChain() { return !!wallet.account && wallet.chainId === state.chainId; }
+    // The author's profile picture (full size), shown on the World ID page
+    function authorAvatar() {
+      const img = article.querySelector('[data-testid="Tweet-User-Avatar"] img');
+      return img && img.src.startsWith("https://pbs.twimg.com/") ? img.src.replace(/_(normal|bigger|x96)\./, "_400x400.") : "";
+    }
+    // Buys pay the author's kickback, unless the buyer is the author
+    function activeKickback() {
+      const kickback = state.kickback;
+      if (!kickback || state.side !== "buy" || sameHandle(loggedInHandle(), kickback.handle)) return null;
+      if (wallet.account && wallet.account.toLowerCase() === kickback.wallet.toLowerCase()) return null;
+      return kickback;
+    }
 
     // X streams price updates into the card, so always read the current value from it
     function tickerPrice() {
@@ -1004,6 +1117,7 @@
       $(".details").innerHTML = parts.join("<span>·</span>");
 
       renderSecurity();
+      renderKickback(received);
 
       // Main button
       const cta = $(".cta");
@@ -1058,6 +1172,39 @@
         row.className = `security ${security.action}`;
         row.innerHTML = `${INTERCEPTA_MARK_SVG}<span><b>Intercepta ${security.action === "block" ? "blocked" : "flagged"} ${symbol}:</b> ${reasons}</span>`;
       }
+    }
+
+    function renderKickback(received) {
+      const row = $(".kickback");
+      const kickback = activeKickback();
+      const pct = (bips) => `${bips / 100}%`;
+      row.hidden = !kickback;
+      if (kickback) {
+        const share = state.quote && state.quote.kickbackOut ? unitsToNumber(state.quote.kickbackOut, decimalsOf(getToken())) : 0;
+        row.innerHTML = `${WORLD_ID_SVG}<span><b>${pct(kickback.bips)}${share > 0 && received > 0 ? ` (~${formatAmount(share)} ${escapeHtml(getToken())})` : ""} to @${escapeHtml(kickback.handle)}</b> · verified human with World ID</span>`;
+      }
+
+      // The author's own tweet: invite them to verify, or confirm they're earning
+      const owner = $(".owner");
+      owner.hidden = !(author && sameHandle(author, loggedInHandle()));
+      if (owner.hidden) return;
+      // render runs on every price tick: only rebuild when the registration changes, so the button stays clickable
+      const ownerKey = state.kickback ? `earning:${state.kickback.bips}` : "verify";
+      if (owner.dataset.state === ownerKey) return;
+      owner.dataset.state = ownerKey;
+      owner.innerHTML = state.kickback
+        ? `${WORLD_ID_SVG}<span class="copy">Verified human · you earn <b>${pct(state.kickback.bips)}</b> when others buy from this tweet</span>`
+        : `<span class="copy">Earn a kickback when people buy <b>$${escapeHtml(ticker.symbol)}</b> from your tweet</span><button class="earn">${WORLD_ID_SVG}Verify with World ID</button>`;
+    }
+
+    function loadKickback() {
+      if (!author) return;
+      kickbackFor(author).then((kickback) => {
+        const changed = (kickback && kickback.wallet) !== (state.kickback && state.kickback.wallet);
+        state.kickback = kickback;
+        if (changed && !state.busy) scheduleQuote(); // the fee changes the quote
+        else render();
+      }, (error) => console.warn("[Ephi] Kickback lookup failed:", error.message));
     }
 
     // Compact verdict inside the collapsed Buy button -> { html, title }, or null when there's nothing to show
@@ -1130,7 +1277,8 @@
       const payPrice = usdPrice(payToken());
       const getPrice = usdPrice(getToken());
       if (payPrice === null || getPrice === null) return null;
-      const out = (parseFloat(state.amount) * payPrice) / getPrice;
+      const kickback = activeKickback();
+      const out = (parseFloat(state.amount) * payPrice * (1 - (kickback ? kickback.bips : 0) / 10000)) / getPrice;
       const decimals = decimalsOf(getToken());
       return parseUnits(out.toFixed(Math.min(decimals, 12)), decimals);
     }
@@ -1148,12 +1296,12 @@
       render();
       quoteTimer = setTimeout(async () => {
         try {
-          const request = quoteRequest(state.chainId, payToken(), getToken(), amountIn().toString(), wallet.account || PREVIEW_SWAPPER);
+          const request = quoteRequest(state.chainId, payToken(), getToken(), amountIn().toString(), wallet.account || PREVIEW_SWAPPER, activeKickback());
           const response = await uniswapApi("quote", request);
           if (seq !== quoteSeq) return;
           const quote = response.quote || {};
           state.quote = {
-            amountOut: quote.output ? BigInt(quote.output.amount) : null,
+            ...quoteOutputs(quote),
             priceImpact: quote.priceImpact,
             gasFeeUSD: quote.gasFeeUSD,
             estimated: false,
@@ -1277,6 +1425,7 @@
       const tokenOut = getToken();
       const amount = amountIn().toString();
       const explorer = CHAINS[chainId];
+      const kickback = activeKickback();
       const step = (text) => { $(".cta").textContent = text; };
 
       state.busy = true;
@@ -1303,7 +1452,7 @@
 
         // 2. Fresh quote for the connected wallet
         step("Getting quote…");
-        const quoteResponse = await uniswapApi("quote", quoteRequest(chainId, tokenIn, tokenOut, amount, wallet.account));
+        const quoteResponse = await uniswapApi("quote", quoteRequest(chainId, tokenIn, tokenOut, amount, wallet.account, kickback));
 
         // 3. Permit2 signature, if the quote needs one
         let signature;
@@ -1329,8 +1478,9 @@
         setStatus(`Transaction sent · ${txLink}`);
         await waitForReceipt(hash);
 
-        const received = unitsToNumber(quoteResponse.quote.output.amount, tokenOn(chainId, tokenOut).decimals);
-        setStatus(`✓ ${state.side === "buy" ? "Bought" : "Sold"} · ~${formatAmount(received)} ${escapeHtml(tokenOut)} received · ${txLink}`, "ok", 5000);
+        const received = unitsToNumber(quoteOutputs(quoteResponse.quote).amountOut, tokenOn(chainId, tokenOut).decimals);
+        const kickbackNote = kickback ? ` · ${kickback.bips / 100}% to @${escapeHtml(kickback.handle)}` : "";
+        setStatus(`✓ ${state.side === "buy" ? "Bought" : "Sold"} · ~${formatAmount(received)} ${escapeHtml(tokenOut)} received${kickbackNote} · ${txLink}`, "ok", 5000);
         state.amount = "";
         input.value = "";
         state.quote = null;
@@ -1382,6 +1532,10 @@
       const target = event.target;
       const riskButton = target.closest("[data-risk]");
       if (riskButton) { answerRisk(riskButton.dataset.risk === "continue"); return; }
+      if (target.closest(".earn")) {
+        chrome.runtime.sendMessage({ action: "openKickbacks", handle: loggedInHandle(), wallet: wallet.account, avatar: authorAvatar() });
+        return;
+      }
       if (state.busy) return;
       const walletButton = target.closest(".wallet");
       if (walletButton) {
@@ -1437,6 +1591,8 @@
     if (!quoteTokens().includes(state.quoteToken)) state.quoteToken = quoteTokens()[0];
 
     host.addEventListener("ephi:wallet", () => { followWalletChain(); refreshBalance(); render(); });
+    host.addEventListener("ephi:kickback", loadKickback);
+    loadKickback();
     checkSecurity(); // verdicts are cached per token (here and in the backend), so cards scrolling by stay cheap
     // Keep the card-price line current while no quote is shown
     new MutationObserver(() => { if (!state.quote && !state.busy) render(); }).observe(link, { childList: true, characterData: true, subtree: true });

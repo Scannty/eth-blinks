@@ -4,6 +4,7 @@ const cors = require('cors')
 const controllers = require('./controllers.js')
 const { uniswapProxyCtrl } = require('./uniswap.js')
 const { interceptaTokenCtrl, interceptaTransactionCtrl } = require('./intercepta.js')
+const { getKickbackCtrl, rpContextCtrl, registerCtrl } = require('./kickbacks.js')
 const app = express()
 const port = process.env.PORT || 8000
 
@@ -17,6 +18,9 @@ app.post('/storeToIpfs', controllers.storeToIpfsCtrl)
 app.post('/uniswap/:endpoint', uniswapProxyCtrl)
 app.get('/intercepta/token/:chainId/:address', interceptaTokenCtrl)
 app.post('/intercepta/transaction/:chainId', interceptaTransactionCtrl)
+app.post('/kickbacks/rp-context', rpContextCtrl)
+app.post('/kickbacks/register', registerCtrl)
+app.get('/kickbacks/:handle', getKickbackCtrl)
 // app.post('/generateBridgeBlink', controllers.generateTransferBlinkCtrl)
 // app.post('/generateSwapBlink', controllers.generateTransferBlinkCtrl)
 

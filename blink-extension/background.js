@@ -50,4 +50,30 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       .catch((error) => sendResponse({ ok: false, status: 0, body: { message: `Ephi backend not reachable at ${BACKEND_URL} (${error.message})` } }));
     return true;
   }
+
+  // Kickbacks registry. get: GET /kickbacks/:handle, rpContext: POST /kickbacks/rp-context, register: POST /kickbacks/register
+  if (message.action === "kickbacks") {
+    const request = message.op === "get"
+      ? fetch(`${BACKEND_URL}/kickbacks/${encodeURIComponent(message.handle)}`)
+      : fetch(`${BACKEND_URL}/kickbacks/${message.op === "register" ? "register" : "rp-context"}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(message.body || {}),
+        });
+    request
+      .then(async (response) => {
+        const text = await response.text();
+        let body;
+        try { body = JSON.parse(text); } catch { body = { message: text }; }
+        sendResponse({ ok: response.ok, status: response.status, body });
+      })
+      .catch((error) => sendResponse({ ok: false, status: 0, body: { message: `Ephi backend not reachable at ${BACKEND_URL} (${error.message})` } }));
+    return true;
+  }
+
+  // Opens the World ID verification page (content scripts can't open extension pages themselves)
+  if (message.action === "openKickbacks") {
+    const params = new URLSearchParams({ handle: message.handle || "", wallet: message.wallet || "", avatar: message.avatar || "" });
+    chrome.tabs.create({ url: chrome.runtime.getURL(`kickbacks.html?${params}`), openerTabId: sender.tab && sender.tab.id });
+  }
 });

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Earn kickbacks · Ephi × World ID</title>
+  <link rel="icon" href="images/icon48.png">
+  <style>
+    :root {
+      --bg: #fafaf9; --text: #0b0b0c; --muted: #6b6f76; --faint: #a3a8af; --line: #e6e6e3; --field: #fff;
+      --green: #00c230; --blue: #007cfb; --error: #d92d20; --mark: rgba(11, 11, 12, .035);
+      --cta-bg: #0b0b0c; --cta-text: #fff;
+      color-scheme: light;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0b0b0c; --text: #f2f2f0; --muted: #8e939b; --faint: #5b6068; --line: #232427; --field: #141416;
+        --mark: rgba(255, 255, 255, .03); --cta-bg: #f2f2f0; --cta-text: #0b0b0c;
+        color-scheme: dark;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; padding: 72px 24px 48px; background: var(--bg); color: var(--text);
+      font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased; overflow-x: hidden;
+    }
+    .wid { fill: currentColor; flex: none; }
+    /* The one background element: World's mark, oversized and cropped */
+    .watermark { position: fixed; right: -18vmax; bottom: -22vmax; width: 70vmax; height: 70vmax; color: var(--mark); fill: currentColor; z-index: -1; pointer-events: none; }
+
+    main { max-width: 420px; margin: 0 auto; }
+    .brand { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 56px; }
+    .brand .wid { width: 18px; height: 18px; color: var(--text); }
+    .brand .plus { color: var(--faint); font-weight: 400; }
+
+    /* Profile picture with a World ID badge that turns green once verified */
+    .me { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; }
+    .pfp { position: relative; width: 64px; height: 64px; flex: none; }
+    .pfp img, .pfp .initial { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; display: block; background: var(--line); }
+    .pfp .initial { display: grid; place-items: center; font-size: 26px; font-weight: 700; color: var(--muted); }
+    .pfp .badge {
+      position: absolute; right: -4px; bottom: -4px; width: 26px; height: 26px; border-radius: 50%;
+      display: grid; place-items: center; background: var(--bg); color: var(--faint); transition: color .3s;
+    }
+    .pfp .badge .wid { width: 22px; height: 22px; }
+    body[data-step="done"] .pfp .badge { color: var(--green); }
+    .me b { display: block; font-size: 17px; letter-spacing: -.01em; }
+    .me span { font-size: 13px; color: var(--muted); }
+
+    h1 { margin: 0 0 12px; font-size: 30px; line-height: 1.15; letter-spacing: -.025em; font-weight: 700; }
+    .lede { margin: 0 0 32px; color: var(--muted); }
+    .lede b { color: var(--text); font-weight: 600; }
+
+    label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+    label small { font-weight: 400; color: var(--muted); }
+    input {
+      width: 100%; padding: 13px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--field); color: var(--text);
+      font: 14px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    input:focus { outline: none; border-color: var(--text); }
+    input:disabled { color: var(--muted); }
+
+    .cta {
+      display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; height: 50px; margin-top: 16px;
+      font: inherit; font-size: 15px; font-weight: 600; color: var(--cta-text); background: var(--cta-bg);
+      border: 0; border-radius: 10px; cursor: pointer; transition: opacity .15s;
+    }
+    .cta:hover { opacity: .88; }
+    .cta:disabled { opacity: .4; cursor: default; }
+    .cta .wid { width: 20px; height: 20px; }
+    .fine { margin: 16px 0 0; font-size: 13px; color: var(--muted); }
+
+    /* Scan */
+    .scan-row { display: flex; gap: 20px; align-items: flex-start; padding: 20px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .qr { position: relative; width: 180px; height: 180px; flex: none; padding: 10px; background: #fff; border-radius: 12px; border: 1px solid var(--line); }
+    .qr svg { display: block; width: 100%; height: 100%; }
+    .qr .center { position: absolute; left: 50%; top: 50%; width: 40px; height: 40px; margin: -20px 0 0 -20px; border-radius: 50%; background: #fff; display: grid; place-items: center; }
+    .qr .center .wid { width: 34px; height: 34px; color: #000; }
+    .steps { margin: 0; padding: 0 0 0 18px; font-size: 14px; color: var(--muted); }
+    .steps li + li { margin-top: 8px; }
+    .steps b { color: var(--text); font-weight: 600; }
+    .waiting { display: flex; align-items: center; gap: 8px; margin-top: 16px; font-size: 13px; color: var(--text); }
+    .waiting i { width: 7px; height: 7px; border-radius: 50%; background: var(--blue); animation: blink 1.2s ease-in-out infinite; }
+    @keyframes blink { 50% { opacity: .25; } }
+    .links { display: flex; gap: 16px; margin-top: 16px; font-size: 14px; }
+    .links a, .links button { font: inherit; color: var(--text); font-weight: 600; background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--faint); }
+    .links a:hover, .links button:hover { text-decoration-color: var(--text); }
+    .links .cancel { margin-left: auto; color: var(--muted); font-weight: 400; }
+    .hint { margin: 12px 0 0; font-size: 13px; color: var(--muted); }
+    .hint a { color: var(--text); }
+
+    /* Done */
+    dl { margin: 0; border-top: 1px solid var(--line); }
+    dl div { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+    dt { color: var(--muted); }
+    dd { margin: 0; font-weight: 600; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
+
+    .status { margin-top: 16px; font-size: 14px; color: var(--muted); }
+    .status.error { color: var(--error); }
+
+    footer { margin-top: 64px; font-size: 12px; color: var(--faint); }
+    [hidden] { display: none !important; }
+    @media (max-width: 460px) {
+      body { padding-top: 40px; }
+      .brand { margin-bottom: 36px; }
+      .scan-row { flex-direction: column; }
+    }
+  </style>
+</head>
+<body data-step="form">
+  <!-- World logo, from World's own favicon -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="world" viewBox="0 0 528 528"><g transform="translate(0,528) scale(0.1,-0.1)"><path d="M2358 5195 c-1 -1 -30 -6 -63 -9 -139 -13 -302 -44 -420 -78 -78 -22 -229 -73 -260 -88 -11 -5 -42 -19 -70 -30 -71 -31 -198 -96 -280 -143 -82 -47 -228 -147 -233 -159 -2 -4 -8 -8 -13 -8 -5 0 -17 -8 -27 -17 -10 -10 -36 -31 -58 -48 -104 -80 -311 -293 -390 -400 -16 -22 -32 -42 -35 -45 -3 -3 -26 -34 -50 -70 -24 -36 -46 -67 -49 -70 -3 -3 -11 -16 -19 -30 -8 -14 -36 -63 -63 -109 -43 -74 -60 -109 -113 -226 -54 -118 -97 -244 -135 -392 -36 -140 -32 -121 -55 -273 -27 -170 -27 -581 0 -720 2 -10 7 -40 10 -67 7 -43 35 -177 49 -228 22 -81 30 -109 48 -160 58 -173 154 -379 242 -519 31 -48 56 -92 56 -96 0 -5 3 -10 8 -12 4 -1 29 -34 56 -72 27 -38 57 -77 65 -86 9 -9 32 -36 51 -60 83 -104 289 -298 412 -389 35 -25 65 -49 66 -53 2 -5 8 -8 12 -8 5 0 37 -19 72 -42 107 -72 202 -123 333 -180 50 -21 99 -43 110 -48 38 -17 167 -60 253 -84 91 -26 117 -32 192 -46 25 -5 61 -11 80 -15 39 -7 55 -10 150 -22 80 -10 453 -10 535 0 110 13 140 17 195 28 83 15 89 17 175 40 100 26 97 25 115 31 8 3 53 18 100 34 47 15 96 34 110 41 14 7 29 13 33 13 19 0 289 141 368 192 91 59 268 189 310 228 98 91 205 200 261 265 39 44 78 90 89 101 10 12 19 26 19 32 0 6 4 12 8 14 11 4 111 149 148 213 15 28 33 53 39 57 5 4 7 8 2 8 -4 0 3 17 16 37 24 39 107 210 107 221 0 4 6 19 14 34 21 39 74 199 102 308 35 133 51 219 70 375 24 201 15 484 -21 695 -3 19 -8 44 -9 55 -2 11 -9 43 -16 70 -6 28 -14 61 -16 74 -9 48 -93 290 -130 377 -45 106 -124 258 -170 332 -19 29 -34 55 -34 58 0 3 -13 22 -28 42 -16 20 -48 64 -72 97 -174 237 -441 486 -688 641 -115 72 -327 184 -347 184 -3 0 -24 9 -48 19 -91 41 -213 82 -312 107 -68 17 -147 34 -175 39 -19 3 -42 8 -50 10 -8 2 -37 7 -65 10 -27 4 -68 9 -90 12 -45 5 -471 13 -477 8z m422 -489 c84 -11 172 -24 200 -31 14 -3 37 -8 53 -11 22 -4 90 -24 202 -58 6 -2 19 -7 30 -11 11 -4 49 -19 85 -33 153 -59 362 -182 504 -296 67 -54 206 -181 206 -189 0 -2 -339 -4 -752 -4 -805 0 -845 -1 -1003 -38 -170 -39 -353 -120 -494 -218 -87 -62 -259 -228 -323 -312 -42 -56 -148 -227 -148 -239 0 -3 -11 -29 -24 -58 -34 -76 -62 -162 -81 -250 -17 -77 -17 -78 -49 -79 -27 0 -152 1 -181 2 -5 0 -48 0 -95 0 -148 -1 -206 -1 -222 0 -7 0 -40 0 -73 -1 -33 -1 -73 -2 -89 -1 l-29 1 7 53 c8 66 13 96 32 177 9 36 17 72 19 80 2 8 4 15 5 15 1 0 3 7 5 15 9 48 74 219 117 309 125 261 297 488 518 681 34 30 69 59 77 64 9 4 23 16 33 25 92 82 348 224 510 283 30 11 62 22 70 25 8 3 20 7 25 9 6 1 48 13 95 27 93 27 246 55 349 64 36 3 67 6 68 7 6 5 304 -2 353 -8z m1681 -1224 c81 -186 119 -313 145 -477 3 -22 9 -57 14 -78 5 -22 4 -39 -2 -43 -5 -3 -40 -5 -76 -4 -37 1 -73 1 -79 1 -96 -4 -284 -2 -292 3 -6 4 -11 4 -11 -1 0 -4 -21 -7 -47 -5 -27 1 -68 2 -93 2 -36 1 -279 0 -375 0 -11 0 -45 1 -75 1 -30 1 -61 1 -67 0 -74 -4 -284 -2 -292 3 -6 4 -11 4 -11 -1 0 -4 -21 -7 -47 -5 -53 2 -71 3 -293 2 -85 0 -162 0 -170 1 -16 0 -254 0 -282 -1 -35 0 -108 0 -120 1 -7 0 -51 0 -98 0 -126 -1 -201 -1 -222 0 -7 0 -63 -1 -124 -2 -62 -1 -116 1 -122 5 -19 11 51 185 112 276 79 118 188 222 311 297 85 53 235 106 330 119 28 3 52 8 54 10 2 2 427 4 945 4 l941 0 46 -108z m-3242 -1102 c5 -8 12 -33 16 -55 5 -22 9 -46 11 -52 9 -48 53 -164 93 -249 93 -195 228 -370 380 -492 25 -20 48 -40 51 -43 10 -13 149 -99 159 -99 6 0 11 -3 11 -8 0 -4 19 -16 43 -26 121 -54 196 -84 227 -92 42 -9 41 -9 60 -16 17 -7 104 -24 165 -34 22 -4 391 -8 820 -9 429 -2 787 -4 795 -5 21 -1 -126 -138 -244 -227 -457 -343 -1037 -482 -1606 -383 -79 14 -78 14 -200 44 -45 11 -186 60 -195 68 -5 4 -15 8 -22 8 -14 0 -259 117 -278 132 -5 5 -50 35 -100 68 -49 32 -100 68 -112 79 -12 12 -25 21 -28 21 -16 0 -240 220 -300 295 -22 28 -42 52 -46 55 -3 3 -21 28 -40 55 -18 28 -37 52 -40 55 -3 3 -26 39 -51 80 -63 105 -129 240 -163 330 -1 3 -7 18 -14 34 -22 53 -68 219 -85 306 -10 47 -21 102 -25 122 -5 20 -5 40 0 45 5 5 167 9 360 8 301 0 352 -2 358 -15z m3404 2 c-2 -6 -5 -31 -8 -54 -4 -43 -9 -69 -22 -123 -4 -16 -7 -34 -8 -40 -1 -5 -3 -12 -4 -15 -1 -3 -4 -16 -7 -30 -12 -71 -83 -267 -133 -370 l-32 -65 -932 1 c-513 1 -950 4 -972 7 -139 22 -274 72 -387 144 -138 89 -283 255 -347 398 -29 64 -60 152 -56 157 2 2 658 3 1457 3 1116 -1 1452 -3 1451 -13z"/></g></symbol>
+    <!-- Ephi sparkles -->
+    <symbol id="ephi" viewBox="0 0 24 24"><path d="M9 2c.5 4.2 2.3 6 6.5 6.5C11.3 9 9.5 10.8 9 15c-.5-4.2-2.3-6-6.5-6.5C6.7 8 8.5 6.2 9 2zM18 10.5c.3 2.6 1.4 3.7 4 4-2.6.3-3.7 1.4-4 4-.3-2.6-1.4-3.7-4-4 2.6-.3 3.7-1.4 4-4zM9 16.5c.25 2 1.05 2.75 3 3-1.95.25-2.75 1.05-3 3-.25-1.95-1.05-2.75-3-3 1.95-.25 2.75-1.05 3-3z"/></symbol>
+  </svg>
+
+  <svg class="watermark" aria-hidden="true"><use href="#world"/></svg>
+
+  <main>
+    <div class="brand"><svg class="wid"><use href="#ephi"/></svg>Ephi <span class="plus">+</span> <svg class="wid"><use href="#world"/></svg>World ID</div>
+
+    <div class="me">
+      <div class="pfp"><span class="initial"></span><span class="badge" title="World ID"><svg class="wid"><use href="#world"/></svg></span></div>
+      <div><b class="name"></b><span class="me-sub">Not verified yet</span></div>
+    </div>
+
+    <!-- Step 1: details -->
+    <section class="form">
+      <h1>Earn from the tickers you tweet</h1>
+      <p class="lede">When someone buys a token from the ticker card on your tweet, <b class="pct">0.5%</b> of what they buy is sent to your wallet, in the same transaction. Verify with World ID once so we know you're a real person, not a bot farm.</p>
+      <label for="wallet">Payout wallet <small>· same address on every network</small></label>
+      <input id="wallet" class="wallet" placeholder="0x…" spellcheck="false" autocomplete="off">
+      <button class="cta verify"><svg class="wid"><use href="#world"/></svg>Verify with World ID</button>
+      <p class="fine">One World ID per X account. Your own buys don't earn a kickback. World ID proves you're a unique person without telling us who you are.</p>
+    </section>
+
+    <!-- Step 2: scan -->
+    <section class="scan" hidden>
+      <h1>Scan with World App</h1>
+      <p class="lede">The proof is tied to <b class="scan-handle"></b> and this wallet, so no one else can reuse it.</p>
+      <div class="scan-row">
+        <div class="qr"><div class="code"></div><div class="center"><svg class="wid"><use href="#world"/></svg></div></div>
+        <div>
+          <ol class="steps">
+            <li>Open <b>World App</b></li>
+            <li>Tap the scanner and point it here</li>
+            <li>Approve the request</li>
+          </ol>
+          <div class="waiting"><i></i>Waiting for World App</div>
+        </div>
+      </div>
+      <div class="links">
+        <a class="open" target="_blank" rel="noopener">Open link</a>
+        <button class="copy">Copy link</button>
+        <button class="cancel">Cancel</button>
+      </div>
+      <p class="hint staging" hidden>Testing? Paste the link into the <a href="https://simulator.worldcoin.org" target="_blank" rel="noopener">World ID Simulator</a>.</p>
+    </section>
+
+    <!-- Step 3: done -->
+    <section class="done" hidden>
+      <h1>You're verified</h1>
+      <p class="lede done-copy"></p>
+      <dl>
+        <div><dt>X account</dt><dd class="sum-handle"></dd></div>
+        <div><dt>Payout wallet</dt><dd class="sum-wallet"></dd></div>
+        <div><dt>Kickback</dt><dd class="sum-pct"></dd></div>
+      </dl>
+      <button class="cta close-tab">Back to X</button>
+    </section>
+
+    <p class="status" hidden></p>
+
+    <footer>Proofs verified by World ID. Swaps and fees settled by Uniswap.</footer>
+  </main>
+  <script src="vendor/qrcode-generator-1.4.4.js"></script>
+  <script src="vendor/idkit/idkit.global.js"></script>
+  <script src="kickbacks.js"></script>
+</body>
+</html>

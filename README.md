@@ -141,6 +141,8 @@ Create a `.env` file (see `.env.example`). Get a JWT (or an API key + secret) fr
 
 For the Uniswap blink on X, also set `UNISWAP_API_KEY` (free key from the [Uniswap developer dashboard](https://developers.uniswap.org/dashboard)). The extension asks the backend for quotes and swap transactions, so the key never ships in the extension.
 
+For kickbacks (tweet authors earn 0.5% of buys made from the ticker card in their tweet), set the `WORLD_*` variables. Authors prove they're a unique human with World ID, so bots can't farm kickbacks. In the [World Developer Portal](https://developer.world.org), create an external app, enable World ID 4.0 and create the `earn-kickbacks` action. Use a `staging` action to test with the [World ID Simulator](https://simulator.worldcoin.org), or `production` for the real World App. Registrations are stored in `blink-back-end/data/kickbacks.json`.
+
 2. Install Dependencies
 
 ```bash
