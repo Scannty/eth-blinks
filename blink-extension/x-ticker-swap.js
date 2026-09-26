@@ -1,4 +1,4 @@
-// Uniswap blink for X ticker cards.
+// Uniswap swap panel for X ticker cards.
 // X renders a ticker card (icon, name, price, change, sparkline) for cashtags like $ETH.
 // This script adds a "Buy" button inside supported cards. Pressing it expands a swap panel,
 // styled as part of the card, that quotes and executes the swap through the Uniswap Trading

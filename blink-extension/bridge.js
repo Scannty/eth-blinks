@@ -1,5 +1,5 @@
 // Runs in the page's main world, where the wallet injects window.ethereum.
-// Executes EIP-1193 requests relayed from blink iframes (via content.js).
+// Executes EIP-1193 requests relayed from the ticker swap panel (x-ticker-swap.js).
 (function () {
   let subscribed = false;
 

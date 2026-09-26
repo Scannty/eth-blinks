@@ -1,7 +1,6 @@
 // Routes
 const express = require('express')
 const cors = require('cors')
-const controllers = require('./controllers.js')
 const { uniswapProxyCtrl } = require('./uniswap.js')
 const { interceptaTokenCtrl, interceptaTransactionCtrl } = require('./intercepta.js')
 const { getKickbackCtrl, rpContextCtrl, registerCtrl } = require('./kickbacks.js')
@@ -11,19 +10,14 @@ const port = process.env.PORT || 8000
 app.use(cors())
 app.use(express.json())
 
-app.get('/', controllers.helloWorldCtrl)
-app.post('/generateEthTransferBlink', controllers.generateEthTransferBlinkCtrl)
-app.post('/generateERC20TransferBlink', controllers.generateErc20TransferBlinkCtrl)
-app.post('/storeToIpfs', controllers.storeToIpfsCtrl)
+app.get('/', (req, res) => res.send('Ephi backend OK'))
 app.post('/uniswap/:endpoint', uniswapProxyCtrl)
 app.get('/intercepta/token/:chainId/:address', interceptaTokenCtrl)
 app.post('/intercepta/transaction/:chainId', interceptaTransactionCtrl)
 app.post('/kickbacks/rp-context', rpContextCtrl)
 app.post('/kickbacks/register', registerCtrl)
 app.get('/kickbacks/:handle', getKickbackCtrl)
-// app.post('/generateBridgeBlink', controllers.generateTransferBlinkCtrl)
-// app.post('/generateSwapBlink', controllers.generateTransferBlinkCtrl)
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+  console.log(`Ephi backend listening on port ${port}`)
 })

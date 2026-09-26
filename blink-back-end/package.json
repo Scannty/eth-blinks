@@ -9,7 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@pinata/sdk": "^2.1.0",
     "@worldcoin/idkit-core": "^4.3.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",

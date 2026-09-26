@@ -104,8 +104,13 @@
         console.warn("[Ephi] World ID request failed", request.getDebugReport());
         const messages = {
           timeout: "World ID request timed out. Try again.",
-          max_verifications_reached: "This World ID has already registered for kickbacks.",
-          nullifier_replayed: "This World ID has already registered for kickbacks.",
+          cancelled: "World ID request cancelled.",
+          user_rejected: "You declined the request in World App. Nothing was shared.",
+          verification_rejected: "You declined the request in World App. Nothing was shared.",
+          credential_unavailable: "Kickbacks need Proof of Human, and this World ID isn't Orb-verified yet. Verify at an Orb, then try again.",
+          max_verifications_reached: "This World ID already earns kickbacks for an X account. One human, one account.",
+          nullifier_replayed: "This World ID already earns kickbacks for an X account. One human, one account.",
+          connection_failed: "Couldn't reach World App. Check your connection and try again.",
         };
         throw new Error(messages[completion.error] || `World ID: ${completion.error}`);
       }
